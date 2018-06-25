@@ -1,0 +1,13 @@
+.container{
+    width: 600px;
+    height: 300px;
+}
+
+.test-form{
+    display: flex;
+    flex-direction: column;
+}
+
+.test-form input{
+    margin: 10px;
+}

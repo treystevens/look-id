@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import logo from './logo.svg';
 // import './App.css';
 // import './styles/test.css';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Header from './components/Header';
 // import ItemSearch from './components/ItemSearch';
 import Stream from './components/Stream';
@@ -16,14 +16,7 @@ import Settings from './components/Settings';
 import ChangePassword from './components/ChangePassword';
 import DeleteAccount from './components/DeleteAccount';
 import UploadPost from './components/UploadPost';
-import AccountHead from './components/AccountHead';
-
-
-
-// import { createStore } from 'redux';
-
-// const store = createStore();
-
+import PrivateRoute from './components/PrivateRoute';
 
 
 /* jshint ignore:start */
@@ -33,26 +26,13 @@ class App extends Component{
 
   constructor(props){
     super(props);
-    // this.state = {
-    //   username: '',
-    //   postid: '',
-    //   isAuth: false
-    // }
 
-    // this.checkAuth = this.checkAuth.bind(this)
   }
-
-  // checkAuth(auth){
-  //   if(auth){
-  //     this.setState({
-  //       isAuth: true
-  //     })
-  //   }
-  // }
 
   componentDidMount(){
     fetch('/auth',{
-        method: 'GET'
+        method: 'GET',
+        credentials: 'include'
     })
     .then((res) => {
         console.log(res)
@@ -66,14 +46,10 @@ class App extends Component{
     })
     }
 
-  // componentDidUpdate(){
-  //   console.log(this.state.isAuth)
-  // }
-
-  // <Provider store={store}>
-  // </Provider>
 
   render(){
+
+  
     return(
       <Router>
           <div className="container">
@@ -88,17 +64,20 @@ class App extends Component{
             <Route path="/boards" render={ () => <Boards pageName={'Boards'} />}/>
             <Route path="/signup" component={Register} />
             <Route path="/login" render={ () => <Login checkAuth={this.checkAuth} />}/>
-            <Route exact path="/profile" render={ (match) => <Profile urlParams={match}/>}/>
-            <Route exact path="/profile/edit" component={EditProfile} />
-            <Route exact path="/profile/settings" component={Settings} />
-            <Route exact path="/profile/settings/change-password" component={ChangePassword} />
-            <Route exact path="/profile/settings/delete" component={DeleteAccount} />
-            <Route exact path="/profile/upload" component={UploadPost} />
+            <Switch>
+              <PrivateRoute path="/profile" component={Profile}/>
+              <PrivateRoute path="/profile/edit" component={EditProfile}/>
+              <PrivateRoute path="/profile/settings" component={Settings} />
+              <PrivateRoute path="/profile/settings/change-password" component={ChangePassword} />
+              <PrivateRoute path="/profile/settings/delete" component={DeleteAccount} />
+              <PrivateRoute path="/profile/upload" component={UploadPost} />
+            </Switch>
           </div>
       </Router>
     );
   }
 }
+
 
 
 export default App;

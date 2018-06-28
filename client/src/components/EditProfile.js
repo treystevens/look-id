@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
-import Avatar from './Avatar'
-
+import Avatar from './Avatar';
 
 class EditProfile extends Component{
     constructor(props){
@@ -10,6 +9,8 @@ class EditProfile extends Component{
 
 
     render(){
+
+        
         return(
             <section>
                 <PageHead pageHead='Edit Profile' />

@@ -26,9 +26,11 @@ const session = require('express-session');
 const passport = require('passport');
 const MongoStore = require('connect-mongo')(session);
 
+
+
 require('dotenv').config();
 
-const port = process.env.PORT || 4500;
+const port = process.env.PORT || 3000;
 
 
 const app = express();
@@ -53,7 +55,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Use a random string generator to make the secret string..maybe look at spotify docs
+app.use(express.static( __dirname + '/public'));
+
 // app.set('trust proxy', 1)
 app.use(session({
     cookie: {
@@ -61,26 +64,22 @@ app.use(session({
         maxAge: 24 * 60 * 100 * 1000
     },
     secret: process.env.COOKIE_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
-    // cookie: { secure: true }
+    resave: true,
+    saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static('public'));
+
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
- 
-
-
 
 app.listen(port, ()=> {
-    console.log('were listening');
+    console.log(`${port}, we're listening`);
 });
 
 

@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { createStore , applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
+/* jshint ignore:start */
 
 const intialState = {
     isAuth: false,
@@ -14,27 +15,8 @@ const intialState = {
     userID: ''
 };
 
-// let intialS = {
-//     isAuth: false,
-//     notification: '',
-//     user: {
-//         username: '',
-//         user_id: ''
-//     }
-// };
-
-// case 'USERNAME':
-//         return {
-//             username: {
-//                 username: action.user,
-//                 userId: action.id
-//             }
-//         };
 
 function reducer(state = intialState, action) {
-    // console.log(action, `this is the action`)
-    // console.log(action.text, `action type text`)
-    // console.log(state,` this is the state inside the reducer`)
     switch(action.type){
         case 'AUTHENTICATE':
         return {
@@ -42,6 +24,10 @@ function reducer(state = intialState, action) {
             username: action.user,
             userID: action.userID
         };
+        case 'LOGOUT':
+        return {
+            isAuth: false
+        }
         case 'USERNAME':
         return {
             userid: {
@@ -65,9 +51,9 @@ function reducer(state = intialState, action) {
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
-// import registerServiceWorker from './registerServiceWorker';
 
-/* jshint ignore:start */
+
+
 
 
 ReactDOM.render(
@@ -77,8 +63,6 @@ ReactDOM.render(
 
     document.getElementById('root')
     );
-// registerServiceWorker();
 
 
-// Code here will be ignored by JSHint.
 /* jshint ignore:end */

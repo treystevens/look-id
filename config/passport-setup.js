@@ -3,38 +3,42 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
-// Taking stuff from our record and passing it into a cookie
-// When we're done we're stuffing this done method the userID, when its called its passed off somewhere else and we stuff that ID into a cookie
-// ONLY SENDING OUT THE ID IN THE COOKIE
-// Grabbing that user id and saying done, Im going to pass you to the next stage
+// Packs the user id into a cookie
 passport.serializeUser((user, done) => {
+    console.log(user, `serialized user`);
     done(null, user.id);
 });
 
-// when we get it back, who's id is this? who is the user
-// When we get it back and we unpackage the cookie
-// Take that ID and get a user from that ID..deserialize the cookie..taking the id
-// GETTING THE ID FROM THE COOKIE BECAUSE WE DONT KNOW WHICH USER IT IS. WHO'S ID IS THIS, WHO IS THE USER
-// when it comes back from the browser we handle this bad boy
+// Get back the user from the session
 passport.deserializeUser((id, done) => {
     User.findById(id).then((user) => {
-        // What this will do is attach the user property to the req object so that we can access it inside a route handler
+
+        // Attaches user to req
         done(null, user);
     });
     
 });
 
-// can use req.login when I post in the log in page... and use req.user and req.isAuthenticated()
-
 passport.use(new LocalStrategy( (username, password, done) => {
     User.findOne({ username: {$regex: username, $options: 'i'} })
     .then((user) => {
-        console.log(user, `this is the user from passport setup`);
+        console.log(user, `not found user`)
+        if(!user){
+           return done(null, false) 
+        }
+
         bcrypt.compare(password, user.password).then( (res) => {
-            
+            console.log(user, 'user from what we put in');
+            console.log(res, `response from comparing the bcyrpt`)
+
+            const currentUser = {
+                id: user.id,
+                username: user.username
+
+            }
             // Correct password
             if(res){
-                return done(null, user);
+                return done(null, currentUser);
             }
             else{
                 return done(null, false);

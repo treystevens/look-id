@@ -1,5 +1,5 @@
 import React from 'react';
-import FindStores from './FindStores'
+// import FindStores from './FindStores'
 
 
 const ItemDescription = (props) => {

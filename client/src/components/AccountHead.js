@@ -22,12 +22,40 @@ class AccountHead extends Component{
 
         this.unauthorized = this.unauthorized.bind(this);
         this.authorized = this.authorized.bind(this);
+        this.logoutHandler = this.logoutHandler.bind(this)
     }
 
     // make mobile with image instead of name?
 
     componentDidUpdate(){
         console.log(`updated`)
+    }
+
+    logoutHandler(evt){
+        evt.preventDefault();
+
+        fetch('/auth/logout', {
+            method: 'GET',
+            credentials: 'include' 
+
+        })
+        .then((response) => {
+            console.log(response)
+            
+            return response.json()
+        })
+        .then((data) => {
+
+            if(!data.isAuth){
+                this.props.dispatch({type: 'LOGOUT'})
+            }
+
+            console.log(data)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+        
     }
 
 
@@ -41,7 +69,7 @@ class AccountHead extends Component{
                     </div>
                     <li><NavLink to='/profile/edit'>Edit Profile</NavLink></li>
                     <li><NavLink to='/profile/settings'>Settings</NavLink></li>
-                    <li><NavLink to='/logout'>Log Out</NavLink></li>
+                    <li><a href='/auth/logout' onClick={this.logoutHandler}>Log Out</a></li>
                 </ul>
                 
              
@@ -62,62 +90,10 @@ class AccountHead extends Component{
     }
 
 
-    componentWillMount(){
-        // console.log(this.props)
-        let content;
-
-        // if(this.props.isAuth){
-        //     content = this.authorized();
-           
-        // }
-        // else{
-        //     content = this.unauthorized()
-
-        // }
-
-        // if(this.props.username){
-        //     content = this.authorized();
-           
-        // }
-        // else{
-        //     content = this.unauthorized()
-
-        // }
-
-        // this.setState({
-        //     shownContent: content
-        // })
-
-    }
-
-    // componentDidUpdate(prevProps){
-    //     console.log(prevProps)
-    //     console.log(this.props.isAuth)
-    //     let content;
-    //     if(this.props.isAuth){
-    //         content = this.authorized();
-
-    //         this.setState({
-    //             shownContent: content
-    //         })
-    //     }
-
-        
-    // }
-
     render(){
 
         console.log(this.props, `in render function account head`)
         let content;
-
-        // if(this.props.isAuth){
-        //     content = this.authorized();
-           
-        // }
-        // else{
-        //     content = this.unauthorized()
-
-        // }
 
         if(this.props.isAuth){
             content = this.authorized();
@@ -127,7 +103,6 @@ class AccountHead extends Component{
             content = this.unauthorized()
 
         }
-
 
         return(
             <div className="flexMe">

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AccountHead from './AccountHead';
 import { NavLink } from 'react-router-dom';
-import '../styles/styles.css';
+// import '../../public/sheets/styles.css';
 
 /* jshint ignore:start */
 

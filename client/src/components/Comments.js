@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CommentBox from './CommentBox';
 
 import CommentRow from './CommentRow';
-import Notifications from './Notifications';
+// import Notifications from './Notifications';
 
 
 

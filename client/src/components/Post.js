@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PostDescription from './PostDescription';
+// import PostDescription from './PostDescription';
 import PageHead from './PageHead';
 import PostEngage from './PostEngage';
 import Modal from './Modal';

@@ -12,9 +12,9 @@ class Notifications extends Component{
     // }
 
     // or
-    componentWillMount(){
+    componentDidMount(){
         // get the notification data for this year
-        console.log(`notifications will mount`)
+        console.log(`notifications did mount, AS IT SHOULD IT"S INSIDE THE ACCOUNT HEADER`)
     }
 
     // INside comments have it fetch to the database to save the comment, save the comment ind atabase get back the data that it's successfully saved and then pass in the response to a prop that we get here from the comment component.. Save for the Like component

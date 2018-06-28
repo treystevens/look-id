@@ -19,6 +19,23 @@ class Login extends Component{
         this.passwordChange = this.passwordChange.bind(this);
 
     }
+
+    componentDidMount(){
+        fetch('/auth/login',{
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then((res) => {
+            console.log(res)
+            return res.json()
+        })
+        .then((user) => {
+            console.log(user, `app fetch to /login`)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+        }
     
     usernameChange(evt){
         this.setState({username: evt.target.value});
@@ -41,7 +58,8 @@ class Login extends Component{
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
+            credentials: 'include'
         })
         .then((res) => {
             // console.log(res);
@@ -49,14 +67,9 @@ class Login extends Component{
         })
         .then((logged) => {
             
-
-            // console.log(logged)
             if(logged.success){
-                // this.props.dispatch(authAndUsername(logged.user))
-                // this.props.dispatch(includeUsername(logged.user), addAuth());
-                // this.props.dispatch([addAuth(), includeUsername(logged.user)]);
                 console.log(logged.user)
-                // this.props.dispatch(includeUser(logged.user));
+               
 
                 this.props.dispatch({
                     type: 'AUTHENTICATE', 
@@ -64,16 +77,8 @@ class Login extends Component{
                     userID: logged.user.userID
                 });
                 
-                
-
-                // dispatch({
-                //     type: 'USERNAME',
-                //     text: logged.user
-                // })
-                // this.props.checkAuth(action.success);
             }
 
-            // console.log(action);
         })
         .catch((err) => {
             console.log(err);
@@ -103,12 +108,6 @@ class Login extends Component{
     }
 }
 
-// function mapStateToProps(state) {
-//     return {
-//       isAuth: state.isAuth,
-//       user: state.user
-//     };
-// }
 
 function mapStateToProps(state) {
     return {
@@ -117,59 +116,6 @@ function mapStateToProps(state) {
       userID: state.userID
     };
 }
-
-// function authAndUsername(username) {
- 
-//    console.log(username)
-//     return function (dispatch) {
-//       return addAuth().then(
-//         user => dispatch(includeUsername(username))
-//       );
-//     };
-// }
-
-// function addAuth() {
-//     let obj = { type: 'AUTHORIZE' }
-//     Promise.resolve(obj)
-//     return obj
-// }
-
-// function addAuth() {
-//     return new Promise((resolve, reject) => {
-//         dispatch({
-//             type: 'AUTHORIZE'
-//         })
-//     })
-// }
-
-
-// function includeUser(user) {
-//     return { 
-//         type: 'USERNAME', 
-//         user: user.username,
-//         userId: user.userId
-//     }
-// }
-
-
-
-
-
-
-
-
-
-// function getWantedList() {  
-// return dispatch => {
-//     axios.get('../wanted_list.json')
-//     .then(res => {
-//         const people = res.data.map(person => {
-//         person.note = 'none';
-//         return person;
-//         });
-//         dispatch(getUsersAsync(people));
-//     });
-// }
 
 
 // export default Login;

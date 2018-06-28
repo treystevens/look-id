@@ -7,7 +7,7 @@ import Header from './components/Header';
 // import ItemSearch from './components/ItemSearch';
 import Stream from './components/Stream';
 import Boards from './components/Boards';
-import Register from './components/Register';
+import SignUp from './components/SignUp';
 import Login from './components/Login';
 import Post from './components/Post';
 import Profile from './components/Profile';
@@ -62,7 +62,7 @@ class App extends Component{
             {/* <Route path="/user/:user/:postid" render={ (match) => <Post sourceFetch='post' urlParams={match}/>}/> */}
             <Route exact path="/user/:user/boards/:boardid" render={ () => <Stream sourceFetch='boards'/>} />
             <Route path="/boards" render={ () => <Boards pageName={'Boards'} />}/>
-            <Route path="/signup" component={Register} />
+            <Route path="/signup" component={SignUp} />
             <Route path="/login" render={ () => <Login checkAuth={this.checkAuth} />}/>
             <Switch>
               <PrivateRoute path="/profile" component={Profile}/>

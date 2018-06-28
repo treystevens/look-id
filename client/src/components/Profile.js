@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
-import { Route, Redirect } from 'react-router';
-import { connect } from 'react-redux';
 
 
 
@@ -15,7 +13,7 @@ class Profile extends Component{
     // componentDidMount(){
     //     fetch('/profile', {
     //         method: 'GET',
-    //         credentials: 'same-origin' 
+    //         credentials: 'include' 
 
     //     })
     //     .then((response) => {
@@ -38,15 +36,6 @@ class Profile extends Component{
     // }
       
     render(){
-        console.log(this.props.isAuth);
-
-
-        if(this.props.isAuth == undefined || this.props.isAuth == false){
-            console.log(this.props.isAuth, `is the authroization`)
-            return <Redirect to="/login"/>
-        }
-
-
         return(
             <section>
                 <PageHead pageHead='Profile'/>
@@ -57,12 +46,5 @@ class Profile extends Component{
     }
 }
 
-function mapStateToProps(state) {
-    return {
-      isAuth: state.isAuth,
-      username: state.username,
-      userID: state.userID
-    };
-}
 
-export default connect(mapStateToProps)(Profile);
+export default Profile

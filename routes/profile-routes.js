@@ -3,13 +3,14 @@ const express = require('express');
 const mime = require('mime');
 const app = express();
 const multer = require('multer');
+const passport = require('passport');
 
 const { body } = require('express-validator/check');
 const { validationResult } = require('express-validator/check');
 
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './public/photo_storage')
+      cb(null, './public/photo_storage');
     },
     filename: function (req, file, cb) {
     //   cb(null, 'li' + '-' + Date.now());
@@ -41,7 +42,7 @@ let upload = multer({
         // Something goes wrong
         // cb(new Error("Error: File upload only supports the following filetypes - png, jpg, and jpeg"));
       } 
-    });
+});
 
 
 
@@ -50,21 +51,20 @@ const authCheck = (req, res, next) => {
         next()
     }
     else{
-        res.redirect('/login');
+       res.json({redirect: 'login'});
     }
 }
 
 // app.use(authCheck);
 
 router.get('/', authCheck, (req, res) => {
-    console.log(req.user,` current user logged in`);
-    console.log(req.isAuthenticated(), `if the request is authenticated..should be true`)
-    res.render('pages/profile', {user:req.user})
+
+    res.json({success: 'got profile'});
 })
 
 router.get('/test', (req, res) => {
-    console.log('end')
-    res.send('Success with the proxy')
+    console.log('end');
+    res.send('Success with the proxy');
 })
 
 router.post('/uploadpost', upload.single('userphoto'), (req, res) => {
@@ -76,14 +76,7 @@ router.post('/uploadpost', upload.single('userphoto'), (req, res) => {
         return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' })
     }
 
-    console.log(itemErrors.isEmpty())
-    console.log(itemErrors.mapped());
-
-    console.log(req.file)
-    console.log(req.body)
-    
-
-    res.json({sun:'sending back the confirmation'})
+    res.json({test: 'sending back info'})
     
     
 })

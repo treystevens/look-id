@@ -1,48 +1,25 @@
 const router = require('express').Router();
 const passport = require('passport');
-const passportSetup = require('../config/passport-setup');
 
-const { check, validationResult } = require('express-validator/check');
+// express-validator
+const { validationResult } = require('express-validator/check');
 const { body } = require('express-validator/check');
-const { sanitizeBody } = require('express-validator/filter');
-const bcrypt = require('bcrypt');
 
+// bycrypt
+const bcrypt = require('bcrypt');
 const saltRounds = 10;
+
 // Models
 const User = require('../models/user');
-const express = require('express')
-
-// const app = express();
-// const bodyParser = require('body-parser');
-// app.use(bodyParser.json());
-
-const authCheck = (req, res, next) => {
-    if(req.user){
-        next()
-    }
-    else{
-        res.json({guest: true});
-    }
-}
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    User.findById(id).then((user) => {
-        done(null, user);
-    });
-    
-});
 
 
 router.get('/', (req, res) => {
+
     console.log(req.user,` current user logged in`);
     console.log(req.isAuthenticated(), `if the request is authenticated..should be true if theres a user`)
-    console.log(req.session)
-    console.log('was requested')
-
+    console.log(req.sessionID, `session ID`)
+    console.log(req.headers, `headers from request`)
+    
 
     res.json({guest: false})
 })
@@ -50,72 +27,26 @@ router.get('/', (req, res) => {
 
 router.get('/login', (req, res) => {
 
-    if(req.user){
-        // res.redirect('/profile');
-        console.log(req.user);
-        console.log(`inside get login`)
-        // res.redirect('http://localhost:3000/');
-    }
-    else{
-        res.render('pages/login', {});
-    }
-    // console.log(req.user, `req user from get login`);
+    res.json({actionSuccess: true})
     
     
 });
 
-router.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res, next) => {
+router.post('/login', passport.authenticate('local'), (req, res, next) => {
 
+    console.log(req.user, `user after login authentication, will be false if there's no user or wrong password`)
     const username = req.body.username;
     const password = req.body.password;
-
-    // console.log(username)
-    // console.log(password)
 
     let currentUser = {
         username: req.user.username,
         userID: req.user.id
     }
+    
+    console.log('we are inside the post login')
 
-    console.log(req.user, ` request user`)
-    // res.redirect('/profile');
-    // console.log(req.cookie, `cookie`)
-    console.log(currentUser, `CURRENT USER`)
-    res.json({success:true, user: currentUser});
-
-    // User.findOne({ username: {$regex: username, $options: 'i'} })
-    // .then((user) => {
-
-    //     if(user){
-    //         bcrypt.compare(password, user.password).then( (passwordMatch) => {
-    //             // Correct password
-    //             if(passwordMatch){
-    //                 req.login(user, (err) => {
-    //                     if (err) { 
-    //                         return next(err); 
-    //                     }
-
-                        
-                        
-    //                   });
-    //             }
-    //             else{
-    //                 // res.redirect('/login');
-    //                 console.log('fail')
-    //                 res.json({errors: 'Username or password is incorrect'});
-    //             }     
-    //         });
-    //     }
-    //     else{
-    //         res.json({errors: 'Username or password is incorrect'});
-    //     }
-
-        
-    //   })
-    //   .catch((err) => {
-    //       console.log(err);
-    //   });
-
+    res.json({actionSuccess: true, user: currentUser});
+    
        
 });
 
@@ -195,10 +126,15 @@ router.post('/signup', [
                     if (err) { 
                         return next(err); 
                     }
-                    console.log('new user', newUser)
-                    // return res.json({ errors: errors.mapped() });
-                    res.json({ success: true})
-                    // res.redirect('/profile');
+                    console.log('new user that was logged in', newUser)
+
+                    let currentUser = {
+                        username: user.username,
+                        userID: user.id
+                    };
+
+                    res.json({user: currentUser});
+                    
                   });
             });
         })
@@ -211,7 +147,7 @@ router.post('/signup', [
 
 router.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/login');
+    res.json({actionSuccess: true, isAuth: false})
 });
 
 

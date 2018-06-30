@@ -65,11 +65,11 @@ class App extends Component{
             <Route path="/signup" component={SignUp} />
             <Route path="/login" render={ () => <Login checkAuth={this.checkAuth} />}/>
             <Switch>
-              <PrivateRoute path="/profile" component={Profile}/>
-              <PrivateRoute path="/profile/edit" component={EditProfile}/>
-              <PrivateRoute path="/profile/settings" component={Settings} />
               <PrivateRoute path="/profile/settings/change-password" component={ChangePassword} />
               <PrivateRoute path="/profile/settings/delete" component={DeleteAccount} />
+              <PrivateRoute path="/profile/settings" component={Settings} />
+              <PrivateRoute path="/profile/edit" component={EditProfile}/>
+              <PrivateRoute path="/profile" component={Profile}/>
               <PrivateRoute path="/profile/upload" component={UploadPost} />
             </Switch>
           </div>

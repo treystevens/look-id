@@ -2,40 +2,27 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
-
+import { getData } from '../util/serverFetch';
+import { connect } from 'react-redux';
+import Avatar from './Avatar';
 
 
 class Profile extends Component{
     constructor(props){
         super(props);
+
+        this.state = {
+            avatarURl: '',
+            followers: '',
+            following: ''
+        };
     }
 
-    // componentDidMount(){
-    //     fetch('/profile', {
-    //         method: 'GET',
-    //         credentials: 'include' 
 
-    //     })
-    //     .then((response) => {
-    //         return response.json()
-    //     })
-    //     .then((data) => {
-    //         if(data.redirect){
-    //             this.setState({
-    //                 redirect: true
-    //             });
-    //         }
-    //         console.log(data)
-    //     })
-    //     .catch((err) => {
-    //         console.log(err)
-    //     })
-
-    //     // console.log('mounted in profile')
-
-    // }
       
     render(){
+
+        console.log(this.props.match)
         return(
             <section>
                 <PageHead pageHead='Profile'/>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Route, Redirect } from 'react-router';
 import { connect } from 'react-redux';
 
@@ -10,7 +10,7 @@ function mapStateToProps(state) {
 }
 
 const PrivateRoute = ({component: Component, ...rest}) => {
-    console.log(rest)
+    console.log(rest);
     return(
     <Route {...rest} render={(props) => (
         rest.isAuth ? 

@@ -151,13 +151,12 @@ class Stream extends Component{
         }
         
 
-        console.log(this.props)
 
 
         if(this.props.sourceFetch === 'feed'){
 
             let listItems = fakeData.map((item) => {
-                console.log(item);
+            
                 return <StreamItem key={item.post.image_id} stream={item} usernameHeader={true}/>
             })
     
@@ -169,7 +168,7 @@ class Stream extends Component{
         if(this.props.sourceFetch === 'profile'){
 
             let listItems = fakeData.map((item) => {
-                console.log(item);
+            
                 return <StreamItem key={item.post.image_id} stream={item}/>
             })
     
@@ -181,7 +180,7 @@ class Stream extends Component{
         if(this.props.sourceFetch === 'boards'){
 
             let listItems = boardData.board_images.map((item) => {
-                console.log(item);
+    
                 return <StreamItem key={item.post.image_id} stream={item} usernameHeader={true}/>
             })
     

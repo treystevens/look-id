@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom'; 
 import Notifications from './Notifications';    
-import { connect } from 'react-redux'                       
+import { connect } from 'react-redux';                      
 
 /* jshint ignore:start */
 

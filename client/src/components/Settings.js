@@ -1,12 +1,13 @@
 import React from 'react';
 import PageHead from './PageHead';
+import { Link } from 'react-router-dom';
 
 const Settings = (props) => {
     return(
         <section >
             <PageHead pageHead='Settings' />
-            <a href="/profile/settings/change-password" style={{display: 'block'}}>Change Password</a>
-            <a href="/profile/settings/delete" style={{display: 'block'}}>Delete Account</a>
+            <Link to="/profile/settings/change-password" style={{display: 'block'}}>Change Password</Link>
+            <Link to="/profile/settings/delete" style={{display: 'block'}}>Delete Account</Link>
         </section>
     )
 }

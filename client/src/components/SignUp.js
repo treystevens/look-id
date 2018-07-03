@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import { addAuth } from '../actions/addAuth';
+import { sendUserData } from '../util/serverFetch';
 
 class SignUp extends Component{
     constructor(props){
@@ -51,17 +52,11 @@ class SignUp extends Component{
         const data = {
             username: this.state.username,
             password: this.state.password,
-            passwordconfirmation: this.state.confirmation
+            confirmPassword: this.state.confirmation
         };
 
-        fetch('/auth/signup', {
-            body: JSON.stringify(data),
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then((res) => {
+        const serverResponse = sendUserData('/auth/signup', data);
+        serverResponse.then((res) => {
             
             if(res.status === 422){
                 this.setState({
@@ -121,7 +116,7 @@ class SignUp extends Component{
                     }
 
                     <label>Re-Enter Password:
-                        <input type="password" placeholder="Re-Enter Password" name="passwordconfirmation" onChange={this.passwordConfirmationChange} required className="userfield"/>
+                        <input type="password" placeholder="Re-Enter Password" name="confirm-password" onChange={this.passwordConfirmationChange} required className="userfield"/>
                     </label>
 
                     {this.state.errors.passwordconfirmation && 

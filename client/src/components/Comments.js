@@ -69,7 +69,7 @@ class Comments extends Component{
             comments: this.props.comments,
             shownComments: []
             
-        }
+        };
 
         this.handleAddComment = this.handleAddComment.bind(this);
         this.handleDeleteComment = this.handleDeleteComment.bind(this);
@@ -82,9 +82,9 @@ class Comments extends Component{
         let currentDate = new Date();
 
         let dayDate = currentDate.getDate();
-        let monthIndex = currentDate.getMonth()
+        let monthIndex = currentDate.getMonth();
         let year = currentDate.getFullYear();
-        let month = months[monthIndex]
+        let month = months[monthIndex];
 
         let date = `${month} ${dayDate}, ${year}`;
 
@@ -101,12 +101,12 @@ class Comments extends Component{
             date_posted: date,
             comment: newComment,
             display_picture: '/lookid/fit6.jpg'
-        }
+        };
 
 
 
         let currentState = this.state.comments;
-        let updatedStateComment = [addedNewComment].concat(currentState)
+        let updatedStateComment = [addedNewComment].concat(currentState);
 
         {/* <Notifications notifications={addedNewComment}> */}
 
@@ -117,25 +117,25 @@ class Comments extends Component{
         this.setState({
             comments: updatedStateComment
         }, () => {
-            console.log(this.state.comments)
+            console.log(this.state.comments);
         });
     }
 
 
     handleDeleteComment(comment){
 
-        let currentState = this.state.comments
+        let currentState = this.state.comments;
 
         let updatedStateComment = currentState.filter((item) => {
-            console.log(item)
+            console.log(item);
             if(item.comment != comment){
-                console.log(`does not equal`)
+                console.log(`does not equal`);
                 return item;
             }
-        })
+        });
 
 
-        console.log('Delete')
+        console.log('Delete');
         // Filter through array to remove the comment aargument
 
         this.setState({
@@ -146,12 +146,12 @@ class Comments extends Component{
     // Component will mount might need to get some authentication from the server if I'm trying to post a comment
 
 
-    componentWillMount(){
+    componentDidMount(){
         // let sendToCommentBox = {
         //     comment_amount: user1.comments.amount,
         //     comment_messages: user1.comments.messages,
         // }
-        let comments = this.state.comments
+        let comments = this.state.comments;
 
         let userComments = comments.map((comment) => {
             return <CommentRow comment={comment}/>

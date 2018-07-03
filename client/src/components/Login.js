@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { addAuth } from '../actions/addAuth';
 import { Redirect } from 'react-router';
+import { sendUserData } from '../util/serverFetch';
 
 
 
@@ -27,8 +28,8 @@ class Login extends Component{
 
     clearFields(){
         let fields = document.querySelectorAll('.userfield');
-        for(let i of fields){
-            i.value = '';
+        for(let input of fields){
+            input.value = '';
         }
     }
     
@@ -50,21 +51,14 @@ class Login extends Component{
             password: this.state.password,
         };
 
-        fetch('/auth/login', {
-            body: JSON.stringify(data),
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: 'include'
-        })
-        .then((res) => {
+        const serverResponse = sendUserData('/auth/login', data);
+        serverResponse.then((res) => {
             // console.log(res);
 
             if(res.status === 401){
                 this.setState({
                     errorStatus: true
-                })
+                });
                 return 1;
             }
 
@@ -74,10 +68,7 @@ class Login extends Component{
             
             if(logged.actionSuccess){
                 console.log(logged.user);
-               
-
                 this.props.dispatch(addAuth(logged.user));
-                
             }
 
         })

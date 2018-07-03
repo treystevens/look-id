@@ -72,7 +72,7 @@ class UploadPost extends Component{
 
 
        
-        fetch('/api/profile/uploadpost', {
+        fetch('/profile/uploadpost', {
             body: formData,
             method: 'POST',
             

@@ -3,7 +3,7 @@ import React from 'react';
 function addPost(evt){
     // Save the picture to the database, make a fetch request
     // console.log(evt);
-    console.log(`added the photo`)
+    console.log(`added the photo`);
 }
 
 const AddToBoard = (props) => {

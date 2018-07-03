@@ -3,6 +3,7 @@ const mime = require('mime');
 const multer = require('multer');
 const AccountInfo = require('../models/accInfo');
 const User = require('../models/user');
+const fs = require('fs');
 
 
 // express-validator
@@ -13,18 +14,38 @@ const { body } = require('express-validator/check');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+// cloudinary
+const cloudinary = require('cloudinary');
 
 
+// cloudinary.config({ 
+//     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+//     api_key: process.env.CLOUDINARY_API_KEY,
+//     api_secret: process.env.CLOUDINARY_API_SECRET
+// });
 
+
+// Original with date changing
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './public/photo_storage');
+      cb(null, './public/tmp_images');
     },
     filename: function (req, file, cb) {
     //   cb(null, 'li' + '-' + Date.now());
       cb(null, 'li' + '-' + Date.now() + '.' + mime.getExtension(file.mimetype));
     }
 });
+
+
+// let storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, './public/tmp_images');
+//     },
+//     filename: function (req, file, cb) {
+//     //   cb(null, 'li' + '-' + Date.now());
+//       cb(null, file.name + mime.getExtension(file.mimetype));
+//     }
+// });
 
 let upload = multer({ 
     storage: storage,
@@ -54,23 +75,34 @@ let upload = multer({
 
 
 router.get('/', (req, res) => {
+    // Display Pictures, followers, bio, avatar main profile page
+
     const query = {
         username: req.user.username
     };
+    
 
     AccountInfo.findOne(query)
     .then( (user) => {
-        res.json({user: user});
+
+        const neededData = {
+            followerCount: user.followers.length,
+            followingCount: user.following.length,
+            bio: user.profile.bio,
+            website: user.profile.website,
+            avatar: user.profile.avatar
+        };
+
+        res.json({user: neededData});
     })
     .catch( (err) => {
         console.log(err);
     });
 
-    res.json({success: 'got profile'});
 });
 
 
-router.post('/uploadpost', upload.single('userphoto'), (req, res) => {
+router.post('/uploadpost', upload.single('user-photo'), (req, res) => {
 
     if(req.file === undefined){
         return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
@@ -80,34 +112,89 @@ router.post('/uploadpost', upload.single('userphoto'), (req, res) => {
     
 });
 
+
 router.get('/edit', (req, res) => {
 
-
-    AccountInfo.findOne({})
-    .then((response) => {
-        console.log(response, `response for looking user name`);
-        res.json({success: true});
-        // res.json({bio: res.profile.bio, website: res.profile.website});
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
-
-router.post('/edit', (req, res) => {
-
-    const query = { username: req.user.username};
-    const profileSettings = {
-        bio: req.body.bio,
-        website: req.body.website
+    const query = {
+        username: req.user.username
     };
 
-    // Edit user profile settings
-    AccountInfo.findOneAndUpdate(query, {profile: profileSettings})
-    .then((user) => {
+    AccountInfo.findOne(query)
+    .then( (user) => {
 
+        userProfileInfo = {
+            // avatar: user.display_image,
+            bio: user.profile.bio,
+            website: user.profile.website
+        };
+
+        res.json({user: userProfileInfo});
+    })
+    .catch( (err) => {
+        console.log(err);
     });
 
+    
+});
+
+
+router.post('/edit', upload.single('user-avatar'), (req, res) => {
+
+    if(req.file === undefined){
+        return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
+    }
+    
+    const query = {
+        username: req.user.username
+    };
+
+    
+
+
+
+    console.log(req.file);
+    // Save file to folder then take that and put inside cloudinary
+
+    
+
+    // Save image to cloudinary
+    cloudinary.v2.uploader.upload(req.file.path,
+        {
+            public_id: `${req.user.username}_avatar`
+        }, 
+        (error, result) => {
+
+            const userUpdate = {
+                bio: req.body.bio,
+                website: req.body.website,
+                avatar: result.url
+            };
+
+            console.log(result.url, ` this the result tho`);
+
+            if(error){
+                return res.status(422).json({ errors: 'File could not be uploaded' });
+            }
+
+            // Update user's profile settings
+            AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
+            .then( (user) => {
+
+                // Delete the uploaded file out the temporary folder
+                fs.unlink(`${req.file.path}`, (err) => {
+                    if (err) throw err;
+                });
+
+                // Send the new updated profile settings back
+                res.json({success: true, user: user});
+            })
+            .catch( (err) => {
+                console.log(err);
+            });
+        });
+
+
+    
 });
 
 function checkPasswordMatch(userID, enteredPassword){
@@ -216,24 +303,58 @@ router.post('/settings/change-password',[
 
 });
 
-router.post('/settings/delete-account', (req, res) => {
+router.post('/settings/delete-account',[
+    body('username')
+    .custom( (value, { req } ) => {
+        if (value !== req.user.username) {
+          throw new Error('Enter your username');
+        }
+        else{
+            return Promise.resolve(value);
+        }
+    }),
+    body('confirmPassword') // Password confirmation validation
+    .custom( (value, { req } ) => {
+        if (value !== req.body.password) {
+          throw new Error('Password confirmation does not match password');
+        }
+        else{
+            return Promise.resolve(value);
+        }
+    })], (req, res) => {
 
+        const validationErrors = validationResult(req);
+
+        if(!validationErrors.isEmpty()){  
+            let mappedErrors = validationErrors.mapped();
+            console.log(mappedErrors, `mapped errors`);
+
+            return res.status(422).json({ errors: mappedErrors });
+
+    }
+
+        console.log('we are hittin ght eaccount')
 
     // Check the password matches on in the database
     // If so - delete the document from the database
-    User.findByIdAndUpdate(req.user.id).then((data) => {
-            
-                
-    });
-
-
-
-    // Hash password and store into database
-    bcrypt.hash(user.password, saltRounds).then( (hash) => {
-        user.password = hash;
-
-
-        
+    User.findById(req.user.id).then( (userData) => {
+        bcrypt.compare(req.body.password, userData.password)
+        .then( (response) => {
+            // Password does not match one in database
+            if(!response){
+                res.json({success: false});
+            }
+            else{
+                // Delete user
+                userData.remove();
+                req.logout();
+                res.json({success: true, isAuth: false});
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+  
     })
     .catch((err) => {
         console.log(err);

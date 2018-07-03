@@ -11,43 +11,39 @@ const saltRounds = 10;
 
 // Models
 const User = require('../models/user');
+const AccountInfo = require('../models/accInfo');
 
 
 router.get('/', (req, res) => {
 
-    console.log(req.user,` current user logged in`);
-    console.log(req.isAuthenticated(), `if the request is authenticated..should be true if theres a user`)
-    console.log(req.sessionID, `session ID`)
-    console.log(req.headers, `headers from request`)
+    // console.log(req.user,` current user logged in`);
+    // console.log(req.isAuthenticated(), `if the request is authenticated..should be true if theres a user`);
+    // console.log(req.sessionID, `session ID`);
+    // console.log(req.headers, `headers from request`);
     
 
-    res.json({guest: false})
-})
+    res.json({guest: false});
+});
 
 
 router.get('/login', (req, res) => {
 
-    res.json({actionSuccess: true})
+    res.json({actionSuccess: true});
     
     
 });
 
 router.post('/login', passport.authenticate('local'), (req, res, next) => {
 
-    console.log(req.user, `user after login authentication, will be false if there's no user or wrong password`)
     const username = req.body.username;
     const password = req.body.password;
 
-    let currentUser = {
+    const currentUser = {
         username: req.user.username,
         userID: req.user.id
-    }
+    };
     
-    console.log('we are inside the post login')
-
-    res.json({actionSuccess: true, user: currentUser});
-    
-       
+    res.json({actionSuccess: true, user: currentUser}); 
 });
 
 
@@ -82,7 +78,7 @@ router.post('/signup', [
     .withMessage('Password must be at least 6 characters long.')
     .matches(/\d/)
     .withMessage('Password must have at least one number.'),
-    body('passwordconfirmation') // Password confirmation validation
+    body('confirmPassword') // Password confirmation validation
     .custom( (value, { req } ) => {
         if (value !== req.body.password) {
           throw new Error('Password confirmation does not match password');
@@ -94,18 +90,18 @@ router.post('/signup', [
     })], (req, res, next) => {
         
     // Errors from the register account validation form  
-    const registrationErrors = validationResult(req);
+    const validationErrors = validationResult(req);
     
     // Errors are found on the form
-    if(!registrationErrors.isEmpty()){  
-        let mappedErrors = registrationErrors.mapped();
+    if(!validationErrors.isEmpty()){  
+        let mappedErrors = validationErrors.mapped();
         console.log(mappedErrors, `mapped errors`);
 
-        console.log(req.body, `req body`)
+        console.log(req.body, `req body`);
         
         mappedErrors.usernameValue = req.body.username || '';
 
-        return res.status(422).json({ errors: mappedErrors })
+        return res.status(422).json({ errors: mappedErrors });
         // return res.json({ errors: mappedErrors });
         // res.render('pages/register', {errMessage: mappedErrors});
     }
@@ -122,12 +118,15 @@ router.post('/signup', [
             user.password = hash;
 
             User.create(user).then((newUser) => {
+                
+                // Save new user into Data Collection 
+                AccountInfo.create({username: user.username});
+
+                // Authenticate new user
                 req.login(newUser, (err) => {
                     if (err) { 
                         return next(err); 
                     }
-                    console.log('new user that was logged in', newUser)
-
                     let currentUser = {
                         username: user.username,
                         userID: user.id
@@ -147,7 +146,7 @@ router.post('/signup', [
 
 router.get('/logout', (req, res) => {
     req.logout();
-    res.json({actionSuccess: true, isAuth: false})
+    res.json({actionSuccess: true, isAuth: false});
 });
 
 

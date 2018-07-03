@@ -21,12 +21,12 @@ class Profile extends Component{
 
       
     render(){
+        let user = this.props.urlParams.match.params.user;
 
-        console.log(this.props.match)
         return(
             <section>
                 <PageHead pageHead='Profile'/>
-                <UserProfileHead />
+                <UserProfileHead urlParams={user}/>
                 <Stream sourceFetch='profile'/>
             </section>
         )

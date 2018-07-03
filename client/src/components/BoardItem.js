@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 
 const BoardItem = (props) => {
@@ -14,10 +15,10 @@ const BoardItem = (props) => {
         
         
          <div className="board">
-            <a href={boardLink}>
+            <Link to={boardLink}>
                 <div className="boardImg" style={ { backgroundImage:`url(${backgroundImg}`} }data-board-id={props.boardInfo.board_id}></div>
                 <h1>{props.boardInfo.board_name}</h1>
-            </a>
+            </Link>
         </div>
     )
 }

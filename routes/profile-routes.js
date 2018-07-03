@@ -75,29 +75,29 @@ let upload = multer({
 
 
 router.get('/', (req, res) => {
-    // Display Pictures, followers, bio, avatar main profile page
+    // // Display Pictures, followers, bio, avatar main profile page
 
-    const query = {
-        username: req.user.username
-    };
+    // const query = {
+    //     username: req.user.username
+    // };
     
 
-    AccountInfo.findOne(query)
-    .then( (user) => {
+    // AccountInfo.findOne(query)
+    // .then( (user) => {
 
-        const neededData = {
-            followerCount: user.followers.length,
-            followingCount: user.following.length,
-            bio: user.profile.bio,
-            website: user.profile.website,
-            avatar: user.profile.avatar
-        };
+    //     const neededData = {
+    //         followerCount: user.followers.length,
+    //         followingCount: user.following.length,
+    //         bio: user.profile.bio,
+    //         website: user.profile.website,
+    //         avatar: user.profile.avatar
+    //     };
 
-        res.json({user: neededData});
-    })
-    .catch( (err) => {
-        console.log(err);
-    });
+    //     res.json({user: neededData});
+    // })
+    // .catch( (err) => {
+    //     console.log(err);
+    // });
 
 });
 

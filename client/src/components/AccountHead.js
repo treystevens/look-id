@@ -31,6 +31,11 @@ class AccountHead extends Component{
         console.log(`updated`)
     }
 
+    componentDidMount(){
+        console.log(`we mounteddddd`);
+        
+    }
+
     logoutHandler(evt){
         evt.preventDefault();
 
@@ -60,11 +65,16 @@ class AccountHead extends Component{
 
 
     authorized(){
+        let userLink = `/user/${this.props.username}`;
+        console.log(this.props.username)
+        console.log(userLink)
+
+
         return(
           
                 <ul className="testList">
                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <li><NavLink to='/profile'>{this.props.username}</NavLink></li>
+                    <li><NavLink to={userLink}>{this.props.username}</NavLink></li>
                     <Notifications />
                     </div>
                     <li><NavLink to='/profile/edit'>Edit Profile</NavLink></li>

@@ -15,10 +15,12 @@ const passportSetup = require('./config/passport-setup');
 
 // Models
 const User = require('./models/user');
+const AccountInfo = require('./models/accInfo');
 
 // Routes
 const authRoutes = require('./routes/auth-routes');
 const profileRoutes = require('./routes/profile-routes');
+const userRoutes = require('./routes/user-routes');
 
 
 // Authentication
@@ -34,6 +36,15 @@ const port = process.env.PORT || 3000;
 
 
 const app = express();
+
+const cloudinary = require('cloudinary');
+
+
+cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 
 mongoose.Promise = global.Promise;
@@ -76,6 +87,7 @@ app.use(passport.session());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/user', userRoutes);
 
 
 app.listen(port, ()=> {

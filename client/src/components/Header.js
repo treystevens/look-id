@@ -5,9 +5,6 @@ import { NavLink } from 'react-router-dom';
 
 /* jshint ignore:start */
 
-let dummyData = {
-    isAuth: false
-}
 
 class Header extends Component{
     constructor(props){
@@ -17,21 +14,23 @@ class Header extends Component{
     }
     // Have a state of wether desktop and mobile to pass to Hamburger menu and sign in/ sign up
 
-    // componentDidMount(){
-    //     fetch('/auth',{
-    //         method: 'GET'
-    //     })
-    //     .then((res) => {
-    //         console.log(res)
-    //         return res.json()
-    //     })
-    //     .then((user) => {
-    //         console.log(user)
-    //     })
-    //     .catch((err) => {
-    //         console.log(err)
-    //     })
-    // }
+    componentDidMount(){
+        'we mounted'
+
+        // fetch('/auth',{
+        //     method: 'GET'
+        // })
+        // .then((res) => {
+        //     console.log(res)
+        //     return res.json()
+        // })
+        // .then((user) => {
+        //     console.log(user)
+        // })
+        // .catch((err) => {
+        //     console.log(err)
+        // })
+    }
 
     render(){
         return(

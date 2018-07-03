@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /* jshint ignore:start */
 
@@ -11,11 +12,11 @@ const StreamItem = (props) => {
     return(
         <div className="testMore">
             {props.usernameHeader && 
-            <h4><a href={profileSrc}>{props.stream.username}</a></h4>
+            <h4><Link to={profileSrc}>{props.stream.username}</Link></h4>
             }
-            <a href={imgSrcLink}>
+            <Link to={imgSrcLink}>
                 <img src={imgSrc} alt="outfit"/>
-            </a>
+            </Link>
         </div>
     )
 }

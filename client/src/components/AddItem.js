@@ -1,12 +1,12 @@
 import React from 'react';
 
 
-const CreateItem = (props) => {
+const AddItem = (props) => {
 
     return(
         
         <div>
-            <div className="boardBox" onClick={props.handleCreateItem}>
+            <div className="boardBox" onClick={props.handleAddItem}>
                 <div className="addContainer">
                     <div className="stickOne"></div>
                     <div className="stickTwo"></div>
@@ -20,4 +20,4 @@ const CreateItem = (props) => {
 }
 
 
-export default CreateItem;
+export default AddItem;

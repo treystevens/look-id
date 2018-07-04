@@ -103,11 +103,124 @@ router.get('/', (req, res) => {
 
 
 router.post('/uploadpost', upload.single('user-photo'), (req, res) => {
+    console.log(req.user, ` this is the suer`)
+
+    const query = {
+        username: req.user.username
+    };
+
+    let items = [];
+
+    console.log(req.body.itemname)
+    console.log(Array.isArray(req.body.itemname))
 
     if(req.file === undefined){
         return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
     }
-    res.json({test: 'sending back info'});
+
+
+
+    // handling multiple items that are passed in and separating them into an array of objects
+    if(Array.isArray(req.body.itemname)){
+
+        for(let i = 0; i < req.body.itemname.length; i++){
+            items[i] = {};
+        }
+
+        for(let i = 0; i < req.body.itemname.length; i++){
+    
+            items[i].itemname = req.body.itemname[i];
+            items[i].itemcategory = req.body.itemcategory[i];
+            items[i].itemcolor = req.body.itemcolor[i];
+            items[i].itemprice = req.body.itemprice[i];
+            items[i].itemstore = req.body.itemstore[i];
+            items[i].itemlink = req.body.itemlink[i];
+        }
+    }
+    else{
+            items[0] = {};
+            items[0].itemname = req.body.itemname;
+            items[0].itemcategory = req.body.itemcategory;
+            items[0].itemcolor = req.body.itemcolor;
+            items[0].itemprice = req.body.itemprice;
+            items[0].itemstore = req.body.itemstore;
+            items[0].itemlink = req.body.itemlink;
+    }
+
+    // posts: [{
+    //     post_id: String,
+    //     caption: String,
+    //     image: String,
+    //     comments: [{
+    //         username: String,
+    //         user_id: String,
+    //         date: { type: Date, default: Date.now },
+    //         comment: String,
+    //         user_display_image: String
+    //     }],
+    //     timestamp: String,
+    //     items: [{
+    //         category: String,
+    //         name: String,
+    //         price: String,
+    //         stores: Array,
+    //         online_link: String,
+    //         description: String
+    //     }]
+    // }],
+
+    
+
+
+    let usernameLength = req.user.username.length;
+    let userASCII = req.user.username.charCodeAt(0) + req.user.username.charCodeAt(usernameLength - 1);
+
+
+    let timestamp = Date.now();
+    let postID = `${userASCII}${timestamp}`;
+    
+
+    // Save image to cloudinary
+    cloudinary.v2.uploader.upload(req.file.path,
+        {
+            public_id: `${postID}`
+        }, 
+        (error, result) => {
+
+            const post = {
+                post_id: postID,
+                caption: req.body.usercaption,
+                image: result.url,
+                timestamp: timestamp,
+                items: items
+            };
+
+            console.log(result);
+            console.log(post)
+
+            if(error){
+                return res.status(422).json({ errors: 'File could not be uploaded' });
+            }
+
+            // Update user's profile settings
+            AccountInfo.findOneAndUpdate(query, {$push: {posts: post}}, {new: true})
+            .then( (user) => {
+
+                console.log(user,`this is the brand new post`)
+                console.log(user.items)
+                // Delete the uploaded file out the temporary folder
+                fs.unlink(`${req.file.path}`, (err) => {
+                    if (err) throw err;
+                });
+
+                // Send the new updated profile settings back
+                res.json({success: true, postID: postID});
+            })
+            .catch( (err) => {
+                console.log(err);
+            });
+        });
+    
     
     
 });

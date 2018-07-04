@@ -51,13 +51,13 @@ class App extends Component{
 
   
     return(
-      <Router>
+      <Router basename='/'>
           <div className="container">
             <Header />
             {/* <Route exact={true} path="/explore" component={Stream} /> */}
             <Route path="/explore" render={ () => <Stream sourceFetch='explore' pageName={'Explore'}/>}/>
             <Route path="/feed" render={ () => <Stream sourceFetch='feed' pageName={'Feed'} />}/>
-            <Route exact path="/user/:user" render={ (match) => <Stream sourceFetch='userProfile'urlParams={match}/>}/>
+            <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match}/>}/>
             <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
             {/* <Route path="/user/:user/:postid" render={ (match) => <Post sourceFetch='post' urlParams={match}/>}/> */}
             <Route exact path="/user/:user/boards/:boardid" render={ () => <Stream sourceFetch='boards'/>} />
@@ -69,8 +69,9 @@ class App extends Component{
               <PrivateRoute path="/profile/settings/delete" component={DeleteAccount} />
               <PrivateRoute path="/profile/settings" component={Settings} />
               <PrivateRoute path="/profile/edit" component={EditProfile}/>
-              <PrivateRoute path="/profile" component={Profile}/>
               <PrivateRoute path="/profile/upload" component={UploadPost} />
+              {/* <PrivateRoute path="/profile" component={Profile}/> */}
+              
             </Switch>
           </div>
       </Router>

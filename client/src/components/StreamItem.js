@@ -5,16 +5,18 @@ import { Link } from 'react-router-dom';
 
 
 const StreamItem = (props) => {
-    let profileSrc = `/user/${props.stream.username}`;
-    let imgSrcLink = `/user/${props.stream.username}/${props.stream.post.image_id}`;
-    let imgSrc = `${props.stream.post.image}`;
+
+    console.log(props)
+    let profileSrc = `/user/${props.username}`;
+    let postLink = `/user/${props.username}/${props.stream.post_id}`;
+    let imgSrc = `${props.stream.image}`;
 
     return(
         <div className="testMore">
             {props.usernameHeader && 
-            <h4><Link to={profileSrc}>{props.stream.username}</Link></h4>
+            <h4><Link to={profileSrc}>{props.username}</Link></h4>
             }
-            <Link to={imgSrcLink}>
+            <Link to={postLink}>
                 <img src={imgSrc} alt="outfit"/>
             </Link>
         </div>

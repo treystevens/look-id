@@ -12,10 +12,51 @@ class Profile extends Component{
         super(props);
 
         this.state = {
-            avatarURl: '',
-            followers: '',
-            following: ''
+            userProfileHead: {},
+            streamData: {}
         };
+    }
+
+
+    componentDidMount(){
+
+        let urlUserParam = this.props.urlParams.match.params.user;
+        const serverResponse = getData(`/user/${urlUserParam}`);
+
+
+        // Get Profile Data
+        serverResponse.then(response => response.json())
+        .then((data) => {
+
+            // Send to profile header
+            const userProfileHeadData = {
+                followerCount: data.user.followerCount,
+                followingCount: data.user.followingCount,
+                bio: data.user.bio,
+                website: data.user.website,
+                avatarUrl: data.user.avatar,
+                username: data.user.username,
+                
+            };
+
+            // For Outputting posts
+            const streamUserData = {
+                username: data.user.username,
+                posts: data.user.posts
+            };
+
+            this.setState({
+                    userProfileHead: userProfileHeadData,
+                    streamData: streamUserData
+                });
+
+
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+
     }
 
 
@@ -25,9 +66,9 @@ class Profile extends Component{
 
         return(
             <section>
-                <PageHead pageHead='Profile'/>
-                <UserProfileHead urlParams={user}/>
-                <Stream sourceFetch='profile'/>
+                <PageHead pageHead='Profile' />
+                <UserProfileHead urlParams={user} data={this.state.userProfileHead}/>
+                <Stream sourceFetch='profile' urlParams={user} data={this.state.streamData}/>
             </section>
         )
     }

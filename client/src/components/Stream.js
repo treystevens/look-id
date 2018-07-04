@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import StreamItem from './StreamItem';
 import PageHead from './PageHead';
+import { getData } from '../util/serverFetch';
 
 /* jshint ignore:start */
 
@@ -109,96 +110,44 @@ const boardData = {
 class Stream extends Component{
     constructor(props){
         super(props);
-
-        this.state = {
-            posts: [],
-            pageName: ''
-        }
-
-
     }
 
-    // The stream is going to take a prop from the parent compenont, so "explore, or feed" and then pass in then fetch for the certain explore or feed in database. make child components based on what is received. So basically pass in the receieved data to the children
-    // Prop from parent component > fetch database > pass prop into StreamItem child componentn
-    // Component did mount fetch to database
-    // The fake data in our case would be our state when we load a component and update state
-    componentDidMount(){
+  
 
-        // Alternative to the if's and else if's. 
-        // fetch(`/${this.props.sourceFetch}`)
-        // Make a /explore and /feed on server and handle those requests differently 
-
-        // if(this.props.sourceFetch === 'explore'){
-
-        // }
-        // else if(this.props.sourceFetch === 'feed'){
-
-        // }
-        // make a key by let alpha = L, let count = 1; count++; let key = `l_${count}`;
-
-        
-       
-
-        if(this.props.urlParams){
-            this.setState({
-                pageName: this.props.urlParams.match.params.user
-            })
-        }
-        else{
-            this.setState({
-                pageName: this.props.pageName
-            })
-        }
-        
-
-
-
-        if(this.props.sourceFetch === 'feed'){
-
-            let listItems = fakeData.map((item) => {
-            
-                return <StreamItem key={item.post.image_id} stream={item} usernameHeader={true}/>
-            })
-    
-            this.setState({
-                posts: listItems
-            })
-        }
-
-        if(this.props.sourceFetch === 'profile'){
-
-            let listItems = fakeData.map((item) => {
-            
-                return <StreamItem key={item.post.image_id} stream={item}/>
-            })
-    
-            this.setState({
-                posts: listItems
-            })
-        }
-
-        if(this.props.sourceFetch === 'boards'){
-
-            let listItems = boardData.board_images.map((item) => {
-    
-                return <StreamItem key={item.post.image_id} stream={item} usernameHeader={true}/>
-            })
-    
-            this.setState({
-                posts: listItems
-            })
-        }
-        
-
-
-    }
 
     render(){
+
+        let listItems;
+        let postData = this.props.data.posts
+
+        console.log(this.props)
+
+        if(this.props.sourceFetch === 'feed'){
+            listItems = fakeData.map((item) => {
+                return <StreamItem stream={item} usernameHeader={true}/>
+            })
+        }
+    
+        if(this.props.sourceFetch === 'profile' && postData !== undefined){
+            listItems = this.props.data.posts.map( (item) => {
+                return <StreamItem stream={item} username={this.props.data.username}/>
+            })
+
+        }
+    
+        if(this.props.sourceFetch === 'boards'){
+            listItems = boardData.board_images.map((item) => {
+                return <StreamItem stream={item} usernameHeader={true}/>
+            })
+        }
+
+
+
+
         return(
             <div>
-                <PageHead pageHead={this.state.pageName}/>
                 <div className="testMore">
-                    {this.state.posts}
+                    {listItems}
                 </div>
             </div>
         )

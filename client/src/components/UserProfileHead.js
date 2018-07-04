@@ -12,11 +12,6 @@ class UserProfileHead extends Component{
         super(props);
 
         this.state = {
-            followerCount: '',
-            followingCount: '',
-            bio: '',
-            website: '',
-            avatarUrl: '',
             showFollowers: false,
             showFollowing: false
         };
@@ -56,34 +51,6 @@ class UserProfileHead extends Component{
     }
 
 
-    componentDidMount(){
-
-
-        console.log(this.props.urlParams)
-        const serverResponse = getData(`/user/${this.props.urlParams}`);
-
-        serverResponse.then(response => response.json())
-        .then((data) => {
-
-
-            console.log(data);
-
-
-            this.setState({
-                followerCount: data.user.followerCount,
-                followingCount: data.user.followingCount,
-                bio: data.user.bio,
-                website: data.user.website,
-                avatarUrl: data.user.avatar
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-
-
-    }
-
     render(){
 
         let uploadPost = false;
@@ -92,27 +59,28 @@ class UserProfileHead extends Component{
             uploadPost = true;
         }
 
+
         return(
             <section>
                 <section style={{margin: '0 auto', width: '40%'}}>
                     
-                    <Avatar avatarUrl={this.state.avatarUrl}/>
+                    <Avatar avatarUrl={this.props.data.avatarUrl}/>
                     <span>{this.props.urlParams}</span>
                     <div>
                         <a href=''>
                             <span onClick={this.handleClick} className='user__followers'>Followers</span>
-                            <span>{this.state.followerCount}</span>
+                            <span>{this.props.data.followerCount}</span>
                         </a>
 
                     </div>
                     <div>
                         <span onClick={this.handleClick} className='user__following'>Following</span>
-                        <span>{this.state.followingCount}</span>
+                        <span>{this.props.data.followingCount}</span>
                     </div>
 
-                        <span>{this.state.bio}</span>
+                        <span>{this.props.data.bio}</span>
                     
-                    <a href={this.state.website}>{this.state.website}</a>
+                    <a href={this.props.data.website}>{this.props.data.website}</a>
                 </section>
 
                 {uploadPost && 

@@ -8,23 +8,27 @@ class Stores extends Component{
         super(props);
 
         this.state = {
-                stores: [{
-                    store: ''
-                }]
+                stores: []
                 
         };
     }
 
     // Handle store input change and pass new input change to parent component
     handleInputChange = (index, propertyName) => (evt) => {
-        const newStores = this.state.stores.map((store, storeIndex) => {
-            if( index !== storeIndex) return store;
-            return { ...store, [propertyName]: evt.target.value };
-        })
+        this.state.stores.map((store, storeIndex) => {
 
-        this.setState({ stores: newStores}, () => {
-            this.props.handleStore(newStores, this.props.index);
+            if(index === storeIndex){
+                const newStores = Array.from(this.state.stores);
+                newStores[storeIndex] = evt.target.value;
+                
+                this.setState({ stores: newStores}, () => {
+                    this.props.handleStore(newStores, this.props.index);
+                })
+            }
+
+            
         })
+        
     };
 
     // Remove Store from state
@@ -35,12 +39,7 @@ class Stores extends Component{
     // Adding store to our state
     handleAddStore = () => {
         this.setState(
-            { 
-                stores: this.state.stores.concat([{ 
-                    store: '' 
-                }]) 
-            }, () => {
-                console.dir(this.state)
+            {  stores: this.state.stores.concat('') }, () => {
             });
     }
 

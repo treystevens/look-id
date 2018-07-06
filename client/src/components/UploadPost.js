@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
 import UploadPhoto from './UploadPhoto';
-import ItemList from './ItemList';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
+import Item from './Item';
+import { sendUserData, sendPhoto } from '../util/serverFetch';
 
 
 
@@ -17,24 +18,24 @@ class UploadPost extends Component{
             captionChange: '',
             addedItems: [],
             successfulUpload: false,
-            postID: ''
+            postID: '',
+            items: {},
+            errorMessage: ''
 
         };
 
-
-        this.Check = this.Check.bind(this) 
-        
         this.handleSubmit = this.handleSubmit.bind(this);
         this.captionChange = this.captionChange.bind(this);
         
     }
 
-    
-
-    Check(evt){
-        console.log('We inserted a file')
-        console.log(evt.target)
-        console.dir(evt.target)
+    // Lifting state from Item.js
+    handleAddItemToState = (itemState) => {
+        this.setState({ items: itemState}, () => {
+            console.log(this.state, `state inside upload post`)
+            console.log(this.state.items)
+            console.log('we adding the state!!!!')
+        })
     }
 
     captionChange(evt){
@@ -42,35 +43,69 @@ class UploadPost extends Component{
     }
 
     handleSubmit(evt){
-
         evt.preventDefault();
 
-        let form = document.querySelector('.user-post');
+        // Reset error state
+        this.setState({
+            errorStatus: false
+        });
 
-        let formData = new FormData(form);
-        
-        for (let pair of formData){
-            console.log(pair[0]+ ', ' + pair[1]); 
-        }
+        const form = document.querySelector('.user-post');
+        const formData = new FormData(form);
 
+        // Logging form data making sure it's correct
+        // for (let pair of formData){
+        //     console.log(pair[0]+ ', ' + pair[1]); 
+        // }
 
-
-       
-        fetch('/profile/uploadpost', {
-            body: formData,
-            method: 'POST',
-            credentials: 'include'
+        const photoResponse = sendPhoto('/profile/uploadphoto', formData);
+        photoResponse.then( (response) => {
             
+            if(response.status === 422){
+                this.setState({
+                    errorStatus: true
+                });
+            }
+            return response.json();
         })
-        .then( response => response.json())
         .then((data) => {
-
             console.log(data);
 
-            this.setState({
-                successfulUpload: true,
-                postID: data.postID
-            });
+            if(this.state.errorStatus){
+                this.setState({
+                    errorMessage: data.error
+                }, () => {
+                    return 1;
+                });
+            }
+
+            // Once a user types into an input length becomes greater than 0 
+            else if(this.state.items.length > 0){
+                
+                const items = {
+                    items: this.state.items,
+                    postID: data.postID // Takes the postID so we know which post to update
+                };
+                 
+                const serverResponse = sendUserData('/profile/uploaditems', items);
+
+                serverResponse.then( response => response.json())
+                .then((res) => {
+                    this.setState({
+                        postID: data.postID,
+                        successfulUpload: true
+                    });
+                });
+            }
+
+            // If user does not add an item
+            else{
+                this.setState({
+                    successfulUpload: true,
+                    postID: data.postID
+                });
+            }
+            
         })
         .catch((err) => {
             console.log(err);
@@ -81,11 +116,6 @@ class UploadPost extends Component{
 
         if(this.state.successfulUpload){
             let redirectLink = `/user/${this.props.username}/${this.state.postID}`;
-
-            console.log(redirectLink);
-
-            // this.props.history.push(redirectLink)
-            console.log(this.props.history)
             return <Redirect to={redirectLink}/>
         }
 
@@ -94,12 +124,13 @@ class UploadPost extends Component{
                 <PageHead pageHead='Post an Outfit'/>
                 <form onSubmit={this.handleSubmit} className="user-post">
                     <UploadPhoto isNewPost={'new-post'} />
-                    <textarea defaultValue='Write a caption...' name="usercaption" className="userCap">
+                    {this.state.errorStatus && 
+                    <span>{this.state.errorMessage}</span>}
+                    <textarea placeholder='Write a caption...' name="usercaption" className="userCap">
                     </textarea>
-                    {/* <input type="text" name="usercaption" className="userCap" onChange={this.captionChange}/> */}
                     <section style={{display: 'flex', flexFlow: 'row wrap'}}>
                     </section>
-                    <ItemList />
+                    <Item addItemToParentState={this.handleAddItemToState}/>
                     <button>Post</button>
                 </form>
                 

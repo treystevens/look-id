@@ -39,14 +39,14 @@ class Item extends Component{
 
     // Handle the Thrifted Checkbox state
     handleThriftedChange = (index) => (evt) => { 
-        console.log(evt.target.checked);
+        
         const newItems = this.state.items.map((item, itemIndex) => {
             if( index !== itemIndex) return item;
             return { ...item, thrifted: evt.target.checked };
         })
 
         this.setState({ items: newItems}, () => {
-            console.log(this.state.items)
+            
 
             this.props.addItemToParentState(this.state.items)
         })
@@ -87,9 +87,7 @@ class Item extends Component{
             return { ...item, stores: storeState };
         })
 
-        this.setState({ items: newItems}, () => {
-            console.log(this.state.items)
-        })
+        this.setState({ items: newItems})
     }
 
 

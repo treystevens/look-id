@@ -74,14 +74,15 @@ class UploadPost extends Component{
                 });
             }
 
-            // Once a user types into an input length becomes greater than 0 
             else if(this.state.items.length > 0){
                 
                 const items = {
                     items: this.state.items,
                     postID: data.postID // Takes the postID so we know which post to update
                 };
-                 
+
+                
+                // Request to server
                 const serverResponse = sendUserData('/profile/uploaditems', items);
 
                 serverResponse.then( response => response.json())

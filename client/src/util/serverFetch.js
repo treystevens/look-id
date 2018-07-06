@@ -34,4 +34,21 @@ function getData(url){
     return userFetch;
 }
 
-export { sendUserData, getData };
+function sendPhoto(url, formData){
+    let userFetch = fetch(url, {
+        body: formData,
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then((res) => {
+        console.log(res);
+        return res; 
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+
+    return userFetch;
+}
+
+export { sendUserData, getData, sendPhoto };

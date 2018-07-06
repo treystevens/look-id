@@ -74,26 +74,13 @@ let upload = multer({
 });
 
 router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
-    
-    console.log(`==========================================`)
-    console.log(req.body)
-
     const query = {
         username: req.user.username
     };
 
-    console.log(req.file)
-
     if(typeof req.file === 'undefined'){
-        console.log(req.file === undefined)
-        console.log('we undefined boys')
         return res.status(422).json({ error: 'LookID only supports png, jpg, and jpeg' });
-        // res.status(422).json({
-        //     message: 'Welcome to the project-name api'
-        // });
     }
-    
-    
     
     const usernameLength = req.user.username.length;
     const userASCII = req.user.username.charCodeAt(0) + req.user.username.charCodeAt(usernameLength - 1);
@@ -107,7 +94,6 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             public_id: `${postID}`
         }, 
         (error, result) => {
-
             const post = {
                 post_id: postID,
                 caption: req.body.usercaption,
@@ -121,9 +107,7 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 
             // Update user's profile settings
             AccountInfo.findOneAndUpdate(query, {$push: {posts: post}}, {new: true})
-            .then( (user) => {
-
-                console.log(user)
+            .then( () => {
 
                 // Delete the uploaded file out the temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
@@ -146,8 +130,6 @@ router.post('/uploaditems', (req, res) => {
         "posts.post_id": req.body.postID
     }; 
 
-    const postID = req.body.postID;
-   
     // Update the items for that specific post
     AccountInfo.findOneAndUpdate(query, {$set: {"posts.$.items": req.body.items}}, {new: true})
     .then( () => {

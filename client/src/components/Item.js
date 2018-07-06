@@ -15,9 +15,7 @@ class Item extends Component{
                 color: '',
                 price: '',
                 thrifted: false,
-                stores: [{
-                    store: ''
-                }],
+                stores: [],
                 link: ''
             }]
         };
@@ -39,7 +37,7 @@ class Item extends Component{
 
     // Handle the Thrifted Checkbox state
     handleThriftedChange = (index) => (evt) => { 
-        
+        console.log(index);
         const newItems = this.state.items.map((item, itemIndex) => {
             if( index !== itemIndex) return item;
             return { ...item, thrifted: evt.target.checked };
@@ -81,13 +79,15 @@ class Item extends Component{
     };
 
     // Lifting state from Store Component and adding to this state
-    handleAddStoreToState = (storeState, index) => {
+    handleAddStoreToState = (storeComponentState, index) => {
         const newItems = this.state.items.map((item, itemIndex) => {
             if( index !== itemIndex) return item;
-            return { ...item, stores: storeState };
+            return { ...item, stores: storeComponentState };
         })
 
-        this.setState({ items: newItems})
+        this.setState({ items: newItems}, () => {
+            this.props.addItemToParentState(this.state.items)
+        })
     }
 
 
@@ -131,8 +131,6 @@ class Item extends Component{
                         <div>
                             <label>Store:
                                 <Stores index={index} handleStore={this.handleAddStoreToState}/>
-                            
-                                {/* <button type="button" onClick={this.handleAddStore} className="small">Add Store</button> */}
                             </label>
                         </div>
 

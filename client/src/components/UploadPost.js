@@ -31,11 +31,7 @@ class UploadPost extends Component{
 
     // Lifting state from Item.js
     handleAddItemToState = (itemState) => {
-        this.setState({ items: itemState}, () => {
-            console.log(this.state, `state inside upload post`)
-            console.log(this.state.items)
-            console.log('we adding the state!!!!')
-        })
+        this.setState({ items: itemState})
     }
 
     captionChange(evt){
@@ -69,7 +65,6 @@ class UploadPost extends Component{
             return response.json();
         })
         .then((data) => {
-            console.log(data);
 
             if(this.state.errorStatus){
                 this.setState({

@@ -35,15 +35,24 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local'), (req, res, next) => {
 
-    const username = req.body.username;
-    const password = req.body.password;
+    const query = { username: req.user.username };
 
     const currentUser = {
         username: req.user.username,
-        userID: req.user.id
+        userID: req.user.id,
     };
+
+    // Query to get the user's avatar
+    AccountInfo.findOne(query)
+    .then((data) => {
+
+        currentUser.avatar = data.profile.avatar;
+        res.json({actionSuccess: true, user: currentUser}); 
+    })
+    .catch((err) => {
+        console.log(err);
+    });
     
-    res.json({actionSuccess: true, user: currentUser}); 
 });
 
 
@@ -120,7 +129,7 @@ router.post('/signup', [
             user.password = hash;
 
             User.create(user).then((newUser) => {
-                const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg'
+                const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
 
                 const defaultUserProfile = {
                     profile: {
@@ -130,10 +139,33 @@ router.post('/signup', [
                     }
                 };
 
+                let currentUser = {
+                    username: user.username,
+                    userID: user.id
+                };
+
 
                 // Save new user into Data Collection 
-                AccountInfo.create({username: user.username}).then((res) => {
-                    AccountInfo.findOneAndUpdate({username: user.username},{$set: defaultUserProfile}).then((data) => {
+                AccountInfo.create({username: user.username}).then(() => {
+                    AccountInfo.findOneAndUpdate({username: user.username},{$set: defaultUserProfile}, {new: true} ).then((data) => {
+                        console.log(data, `data to set the updated userprofile`);
+
+                        // Authenticate new user
+                        req.login(newUser, (err) => {
+                            if (err) { 
+                                return next(err); 
+                            }
+                            
+                            // Make sure avatar link is getting passed back so that we can have as a redux store state
+                            currentUser.avatar = data.profile.avatar;
+
+                            
+
+                            res.json({user: currentUser});
+                            
+                        });
+
+
                         console.log(data);
                     })
                     .catch((err) => console.log(err));
@@ -142,19 +174,7 @@ router.post('/signup', [
                 
                 
 
-                // Authenticate new user
-                req.login(newUser, (err) => {
-                    if (err) { 
-                        return next(err); 
-                    }
-                    let currentUser = {
-                        username: user.username,
-                        userID: user.id
-                    };
-
-                    res.json({user: currentUser});
-                    
-                  });
+                
             });
         })
         .catch((err) => {

@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 const StreamItem = (props) => {
 
     console.log(props)
+    
     let profileSrc = `/user/${props.username}`;
     let postLink = `/user/${props.username}/${props.stream.post_id}`;
     let imgSrc = `${props.stream.image}`;

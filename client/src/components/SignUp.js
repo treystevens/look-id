@@ -72,6 +72,8 @@ class SignUp extends Component{
         })
         .then((signUpStatus) => {
 
+            console.log(signUpStatus);
+            
             if(this.state.errorStatus){
                 let errorMessages = Object.assign({}, signUpStatus.errors);
 
@@ -141,7 +143,8 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID
+      userID: state.userID,
+      avatar: state.avatar
     };
 }
 

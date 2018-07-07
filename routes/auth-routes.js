@@ -59,10 +59,12 @@ router.post('/signup', [
     .isAlphanumeric()
     .withMessage('Username must have only letters or numbers.')
     .custom( (value, {req} ) => {
-        
+        const usernameValue = value;
+        const usernameRegex = new RegExp(`^${usernameValue}$`);
+// at this point, the line above is the same as: var regex = /#abc#/g;
         // Create an index for usernames for unique names
         // return User.findOne({username: value})
-        return User.findOne({username: {$regex: value, $options: 'i' }})
+        return User.findOne({username: {$regex: usernameRegex, $options: 'i' }})
         .then((user) => {
             if(user){
                 return Promise.reject(`The username "${req.body.username}" is already taken.`);
@@ -118,9 +120,27 @@ router.post('/signup', [
             user.password = hash;
 
             User.create(user).then((newUser) => {
-                
+                const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg'
+
+                const defaultUserProfile = {
+                    profile: {
+                        avatar: defaultAvatar,
+                        bio: '',
+                        website: ''
+                    }
+                };
+
+
                 // Save new user into Data Collection 
-                AccountInfo.create({username: user.username});
+                AccountInfo.create({username: user.username}).then((res) => {
+                    AccountInfo.findOneAndUpdate({username: user.username},{$set: defaultUserProfile}).then((data) => {
+                        console.log(data);
+                    })
+                    .catch((err) => console.log(err));
+                });
+
+                
+                
 
                 // Authenticate new user
                 req.login(newUser, (err) => {

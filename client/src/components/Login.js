@@ -65,6 +65,8 @@ class Login extends Component{
             return res.json();
         })
         .then((logged) => {
+
+            console.log(logged, ` this is the logged from login`)
             
             if(logged.actionSuccess){
                 console.log(logged.user);

@@ -119,15 +119,25 @@ class Stream extends Component{
 
         let listItems;
         let postData = this.props.data.posts
+        let propsData = this.props.data.stream;
 
         console.log(this.props)
 
         if(this.props.sourceFetch === 'feed'){
-            listItems = fakeData.map((item) => {
-                return <StreamItem stream={item} usernameHeader={true}/>
+            listItems = this.props.data.posts.map( (item) => {
+                return <StreamItem stream={item} usernameHeader={this.props.data.username}/>
             })
         }
     
+
+        if(this.props.sourceFetch === 'explore' && postData !== undefined){
+            console.log('we made it')
+            listItems = this.props.data.posts.map( (item) => {
+                console.log(item)
+                return <StreamItem stream={item.post} usernameHeader={true} username={item.username} explore='explore'/>
+            })
+        }
+
         if(this.props.sourceFetch === 'profile' && postData !== undefined){
             listItems = this.props.data.posts.map( (item) => {
                 return <StreamItem stream={item} username={this.props.data.username}/>

@@ -48,6 +48,11 @@ class SignUp extends Component{
     submitHandler(evt){
         evt.preventDefault();
         this.clearFields();
+
+        // Reset error state
+        this.setState({
+            errorStatus: false
+        });
         
         const data = {
             username: this.state.username,

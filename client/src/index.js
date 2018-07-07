@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 // import './index.css';
 import App from './App';
 import { Provider } from 'react-redux';
-import { createStore , applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
+import { createStore , combineReducers } from 'redux';
+import { reducer as formReducer } from 'redux-form';
 
 /* jshint ignore:start */
 
@@ -12,7 +12,8 @@ const intialState = {
     isAuth: false,
     notification: '',
     username: '',
-    userID: ''
+    userID: '',
+    avatar: ''
 };
 
 
@@ -22,6 +23,7 @@ function reducer(state = intialState, action) {
         return {
             isAuth: true,
             username: action.user,
+            avatar: action.avatar,
             userID: action.userID
         };
         case 'LOGOUT':
@@ -49,7 +51,8 @@ function reducer(state = intialState, action) {
   }
 
 
-const store = createStore(reducer, applyMiddleware(thunk));
+
+const store = createStore(reducer);
 
 
 

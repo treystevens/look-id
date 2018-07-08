@@ -109,7 +109,7 @@ class CommentBox extends Component{
                     <form onSubmit={this.handleSubmit} style={{display: 'flex', 'flexDirection': 'column'}}>
                         {this.state.blankSubmit &&
                         <span>{blankSubmitMessage}</span>}
-                        <textarea className="me" cols="50" rows="3" onChange={this.handleComment} name='comment'></textarea>
+                        <textarea className="comment__box" cols="50" rows="3" onChange={this.handleComment} name='comment'></textarea>
                         <button>Submit Comment</button>
                     </form>
                     {this.state.showModal && <Modal source='accountVerify' closeModal={this.closeModal}/>}

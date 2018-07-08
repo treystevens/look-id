@@ -5,11 +5,11 @@ const AccountInfo = require('../models/accInfo');
 
 router.get('/:user/:postid', (req, res) => {
     
-    AccountInfo.findOne({'posts': {$elemMatch: {post_id: req.params.postid}}}, {'posts.$': 1, '_id': 0})
+    AccountInfo.findOne({'posts.post_id': req.params.postid}, {'posts.$.comments': 1, '_id': 0})
     .then((data) => {
 
 
-        let commentsForPost = data.posts[0].comments;
+        let commentsForPost = data.posts[0].comments.slice(0, 5);
 
         console.log(commentsForPost)
         res.json({comments: commentsForPost});
@@ -18,7 +18,26 @@ router.get('/:user/:postid', (req, res) => {
         console.log(err);
     });
 
+
 });
+
+
+router.get('/:user/:postid/viewall', (req, res) => {
+    
+    AccountInfo.findOne({'posts.post_id': req.params.postid}, {'posts.$.comments': 1, '_id': 0})
+    .then((data) => {
+
+        let commentsForPost = data.posts[0].comments;
+
+        res.json({comments: commentsForPost});
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+
+
+});
+
 
 router.post('/', (req, res) => {
 

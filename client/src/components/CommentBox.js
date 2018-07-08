@@ -1,27 +1,49 @@
 import React, { Component } from 'react';
 import { sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import Modal from './Modal';
+
 
 
 class CommentBox extends Component{
     constructor(props){
         super(props);
         this.state = {
-            commentValue: ''
+            commentValue: '', 
+            blankSubmit: false,
+            showModal: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleComment = this.handleComment.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+    }
+
+    
+    closeModal(evt){
+        if(evt.target.className === 'modal'){
+            this.setState({
+                showModal: false
+            });
+        }   
     }
 
 
     handleSubmit(evt){
         evt.preventDefault();
-        // When I submit here
-        // if I want to comment I send my user, the date and the comment
-        // When I click on submit -> I take my username & (time stamp) -> go to end point on server -> (time stamp) -> Get my information -> Save comment to that person's post comment box
-        // Might have to make the avatar a global store in redux
-        // --> Post comment -> Get the user of the page I'm commenting on post ID -> take my username & comment --> send to server --> time stamp --> push comment into that user's post ID comment section -> bring that comment back to refresh the component
+
+
+        if(!this.props.isAuth){
+            this.setState({
+                showModal: true
+            });
+        }
+
+        if(this.state.commentValue === ''){
+            this.setState({
+                blankSubmit: true
+            });
+        }
 
         let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -41,38 +63,36 @@ class CommentBox extends Component{
 
         const newComment = {
             username: this.props.username, // get from auth token I guess...from cookie?
-            // postID: '0201',
             date_posted: date,
             comment: this.state.commentValue,
             avatar: this.props.avatar
         };
-
-        console.log(this.props)
-
 
         const data = {
             newComment: newComment,
             userPage: userPage
         };
 
-        // console.log(data)
-
 
         const serverResponse = sendUserData('/comment', data);
 
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data, `response from comment`)
-            
+            console.log(data, `response from comment`);
+
+            // Response from server checking if it's an empty comment
+            if(!data.success){
+                this.setState({
+                    blankSubmit: true
+                });
+            }
+
             // pass back the data needed to display the comment
             this.props.handleAddComment(data.comment);
         })
         .catch((err) => {
             console.log(err);
         });
-        // Would make a fetch requests here to POST the new comment data into the database.
-
-        
     }
 
     handleComment(evt){
@@ -82,13 +102,17 @@ class CommentBox extends Component{
     }
 
     render(){
-    
+        let blankSubmitMessage = 'Please enter a message';
+
         return(
                 <div style={{width: '100%'}}>
                     <form onSubmit={this.handleSubmit} style={{display: 'flex', 'flexDirection': 'column'}}>
-                        <textarea className="me" cols="50" rows="3" onChange={this.handleComment}></textarea>
+                        {this.state.blankSubmit &&
+                        <span>{blankSubmitMessage}</span>}
+                        <textarea className="me" cols="50" rows="3" onChange={this.handleComment} name='comment'></textarea>
                         <button>Submit Comment</button>
                     </form>
+                    {this.state.showModal && <Modal source='accountVerify' closeModal={this.closeModal}/>}
                 </div>
                 )
     }
@@ -96,10 +120,6 @@ class CommentBox extends Component{
 }
 
 
-// handleSubmit(evt){
-//     evt.preventDefault;
-//     // Would make a fetch requests here to POST the new comment data into the database.
-// }
 
 // Might add an avatar to redux store for comments
 function mapStateToProps(state) {
@@ -110,16 +130,5 @@ function mapStateToProps(state) {
     };
 }
 
-
-// const CommentBox = (props) => {
-//     return(
-//         <div>
-//             <form onSubmit={handleSubmit}>
-//                 <input type="textfield" className="me" size="10 40" onChange={}/>
-//                 <button>Submit Comment</button>
-//             </form>
-//         </div>
-//     )
-// }
 
 export default connect(mapStateToProps)(CommentBox);

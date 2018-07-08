@@ -3,6 +3,7 @@ const AccountInfo = require('../models/accInfo');
 
 
 
+
 router.get('/:user/:postid', (req, res) => {
     
     AccountInfo.findOne({'posts.post_id': req.params.postid}, {'posts.$.comments': 1, '_id': 0})
@@ -43,9 +44,14 @@ router.post('/', (req, res) => {
 
     // Do validation to make sure the a submit cannot be made if the comment box is empty
 
+    if(req.body.newComment.comment === ''){
+        res.json({success: fail});
+    }
+
     const query = {
         "posts.post_id": req.body.userPage.postID
     }; 
+
 
  
     AccountInfo.findOneAndUpdate(query, {$push: {"posts.$.comments": req.body.newComment}}, {

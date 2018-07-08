@@ -1,17 +1,32 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 const CommentRow = (props) => {
 
+    let authorizedUser;
+    let viewingUserAuth;
 
-    function deleteThis(evt){
-        // Make sure you go the server to delete the message in the server
+    console.log(props, `these are the prooooops dawg`);
+
+
+
+    if(props.viewingUser === props.comment.username){
+        viewingUserAuth = true;
+    }
+
+    if(props.urlParams.username === props.username){
+        authorizedUser = true;
+    }
 
     
-
+    function deleteThis(evt){
+        // Make sure you go the server to delete the message in the server
         let target = evt.target.parentElement.childNodes[1].textContent;
         
-        props.deleteComment(target)
+        props.deleteComment(target);
     }
+
+
 
     // Need for the user of the post to be able to delete any comment
     // Need for you to be able to delete your own comment
@@ -19,9 +34,7 @@ const CommentRow = (props) => {
 
     return(
         <div className="comment-row" style={{width: '100%'}}>
-            {/* <figure> */}
-                <img className="user-avatar" src={props.comment.display_picture}/>
-            {/* </figure>   */}
+                <img className="user-avatar" src={props.comment.avatar}/>
             <div>
                 <div className="user-data">
                     <span>{props.comment.username} </span>
@@ -30,11 +43,21 @@ const CommentRow = (props) => {
                 <div className="user-comment">
                     <p>{props.comment.comment}</p>
                 </div>
-                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis}>Delete Comment!</div>
+                { authorizedUser &&
+                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis}>Delete Comment!</div>}
+                { viewingUserAuth &&
+                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis}>Delete Comment!</div>}
             </div>
 
         </div>
     )
 }
 
-export default CommentRow;
+function mapStateToProps(state){
+    return {
+        isAuth: state.isAuth,
+        username: state.username
+    }
+}
+
+export default connect(mapStateToProps)(CommentRow);

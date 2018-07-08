@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import CommentBox from './CommentBox';
 import CommentRow from './CommentRow';
-import { getData } from '../util/serverFetch';
+import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import { SSL_OP_CIPHER_SERVER_PREFERENCE } from 'constants';
 // import Notifications from './Notifications';
 
 
@@ -20,55 +21,52 @@ class Comments extends Component{
         this.handleDeleteComment = this.handleDeleteComment.bind(this);
     }
 
+
     handleAddComment(newComment){
 
+        let viewingUser = this.props.username || false;
+        let userComments = [newComment].map((comment) => {
+            return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} />
+        })
 
-        console.log(newComment)
-    
-
-        // If I want the comment on the bottom of the list
-        let updatedStateComment = [...this.state.comments].concat(newComment);
-
-        // If I want the comment on the top of the list
-        // let updatedStateComment = [newComment].concat(this.state.comments);
-
-        
-        {/* <Notifications notifications={addedNewComment}> */}
-
-        // let updatedStateComment = this.state.comments.concat(addedNewComment)
-        // this.state.comments.unshift(addedNewComment)
-        // let updatedStateComment = this.state.comments
-        
         this.setState({
-            comments: updatedStateComment
-        }, () => {
-            console.log(this.state.comments);
+            comments: this.state.comments.concat(userComments)
         });
-
-
     }
     
 
-
-    handleDeleteComment(comment){
+    handleDeleteComment(componentKeyID){
 
         let currentState = this.state.comments;
-
         let updatedStateComment = currentState.filter((item) => {
-            console.log(item);
-            if(item.comment != comment){
-                console.log(`does not equal`);
+            if(item.key != componentKeyID){
                 return item;
             }
         });
 
+        const data = {
+            id: componentKeyID,
+            pagePostID: this.props.urlParams.postID
+        }
 
-        console.log('Delete');
-        // Filter through array to remove the comment aargument
+        console.log(this.props)
 
-        this.setState({
-            comments: updatedStateComment
+        const serverResponse = sendUserData('/comment/delete', data);
+
+        serverResponse.then( response  => response.json())
+        .then((data) => {
+            console.log(data);
+
+            if(data.success){
+                this.setState({
+                    comments: updatedStateComment
+                });
+            }
+        })
+        .catch((err) => {
+            console.log(err)
         });
+        
     }
 
     // Component will mount might need to get some authentication from the server if I'm trying to post a comment
@@ -98,7 +96,7 @@ class Comments extends Component{
             // Store the user from the redux of the current user -> Pass the user into comment row -> Check if the comment.user from map inside CommentRow component matches the imUser variable here that is from the redux -> 
 
             let userComments = data.comments.map((comment) => {
-                return <CommentRow comment={comment} handledeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser}/>
+                return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} />
             })
     
     
@@ -138,15 +136,11 @@ class Comments extends Component{
                 <CommentBox handleAddComment={this.handleAddComment} urlParams={this.props.urlParams}/>
                 {/* {this.state.shownComments} */}
                 <div>
-                </div>
-                <div>
                     <div>
                         {this.state.comments}
                     </div>
                     <a href="/viewallcomments">View all comments</a>
                 </div> 
-                
-                {/* <CommentRow /> */}
             </div>
             
         )

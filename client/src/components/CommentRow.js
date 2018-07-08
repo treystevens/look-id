@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 const CommentRow = (props) => {
 
@@ -26,10 +27,10 @@ const CommentRow = (props) => {
 
     return(
         <div className="comment-row" style={{width: '100%'}}>
-                <img className="user-avatar" src={props.comment.avatar}/>
+        <Link to={`/user/${props.comment.username}`}><img className="user-avatar" src={props.comment.avatar}/></Link>
             <div>
                 <div className="user-data">
-                    <span>{props.comment.username} </span>
+                    <Link to={`/user/${props.comment.username}`}><span>{props.comment.username} </span></Link>
                     <span style={{color: "gray", fontSize: ".5rem"}}>{props.comment.date_posted}</span>
                 </div>
                 <div className="user-comment">

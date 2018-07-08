@@ -6,31 +6,23 @@ const CommentRow = (props) => {
     let authorizedUser;
     let viewingUserAuth;
 
-    console.log(props, `these are the prooooops dawg`);
-
-
 
     if(props.viewingUser === props.comment.username){
         viewingUserAuth = true;
     }
 
-    if(props.urlParams.username === props.username){
+    // If the user is viewing their own profile avoid having two delete comment options
+    if(props.urlParams.username === props.username && viewingUserAuth !== true){
         authorizedUser = true;
     }
 
     
     function deleteThis(evt){
-        // Make sure you go the server to delete the message in the server
-        let target = evt.target.parentElement.childNodes[1].textContent;
         
-        props.deleteComment(target);
+        let keyID = evt.target.getAttribute('data-item-id');
+        props.handleDeleteComment(keyID);
     }
 
-
-
-    // Need for the user of the post to be able to delete any comment
-    // Need for you to be able to delete your own comment
-    // Make a comment id of the user name and comment date time like "jnowlem" -> j2149m for comment id and store that on the delete comment as an attribute
 
     return(
         <div className="comment-row" style={{width: '100%'}}>
@@ -44,9 +36,9 @@ const CommentRow = (props) => {
                     <p>{props.comment.comment}</p>
                 </div>
                 { authorizedUser &&
-                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis}>Delete Comment!</div>}
+                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis} data-item-id={props.comment._id}>Delete Comment!</div>}
                 { viewingUserAuth &&
-                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis}>Delete Comment!</div>}
+                <div className="delete-comment" style={{color: "red"}} onClick={deleteThis} data-item-id={props.comment._id}>Delete Comment!</div>}
             </div>
 
         </div>

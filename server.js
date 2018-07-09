@@ -23,6 +23,8 @@ const profileRoutes = require('./routes/profile-routes');
 const userRoutes = require('./routes/user-routes');
 const streamRoutes = require('./routes/stream-routes');
 const commentRoutes = require('./routes/comment-routes');
+const boardRoutes = require('./routes/board-routes');
+
 
 
 // Authentication
@@ -92,6 +94,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/stream', streamRoutes);
 app.use('/api/comment', commentRoutes);
+app.use('/api/board', boardRoutes);
 
 
 app.listen(port, ()=> {

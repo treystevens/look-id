@@ -8,7 +8,7 @@ const CreateBoard = (props) => {
 
     return(
         <div>
-            <div className="boardBox" onClick={props.handleNewBoard}>
+            <div className="boardBox" onClick={props.handleClickCreateBoard}>
                 <div className="addContainer">
                     <div className="stickOne"></div>
                     <div className="stickTwo"></div>

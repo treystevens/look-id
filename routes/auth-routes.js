@@ -15,14 +15,30 @@ const AccountInfo = require('../models/accInfo');
 
 
 router.get('/', (req, res) => {
-
-    // console.log(req.user,` current user logged in`);
-    // console.log(req.isAuthenticated(), `if the request is authenticated..should be true if theres a user`);
-    // console.log(req.sessionID, `session ID`);
-    // console.log(req.headers, `headers from request`);
     
+    if(req.isAuthenticated()){
+        const query = {
+            username: req.user.username
+        };
 
-    res.json({guest: false});
+        AccountInfo.findOne(query)
+        .then((data) => {
+            const currentUser = {
+                username: req.user.username,
+                avatar: data.profile.avatar
+            };
+
+            res.json({isAuth: true, user: currentUser}); 
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+    else{
+        res.json({isAuth: false});
+    }    
+
+    
 });
 
 

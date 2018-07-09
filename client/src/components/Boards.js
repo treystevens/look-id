@@ -1,36 +1,13 @@
 import React, { Component } from 'react';
 import BoardItem from './BoardItem';
 import CreateBoard from './CreateBoard';
-import Modal from './Modal';
+import BoardModal from './BoardModal';
 import PageHead from './PageHead';
-import AddToBoard from './AddToBoard';
+import PostAddToBoard from './PostAddToBoard';
+import { getData, sendUserData } from '../util/serverFetch';
+import { connect } from 'react-redux';
 // import BoardModal from './BoardModal';
 
-
-const fakeData = [ 
-    {
-        board_id: "01",
-        board_name: "Shoes I Want",
-        board_display_image: "/lookid/boards/display/12.jpg",
-        user: "jknow"
-    
-    },
-    {
-        board_id: "02",
-        board_name: "Fashion Inspiration",
-        board_display_image: "/lookid/boards/display/13.jpg",
-        user: "jknow"
-    
-    },
-    {
-        board_id: "03",
-        board_name: "Cool Kids",
-        board_display_image: "/lookid/boards/display/14.jpg",
-        user: "jknow"
-    
-    },
-
-]
 
 class Boards extends Component{
     constructor(props){
@@ -39,35 +16,43 @@ class Boards extends Component{
         this.state = {
             boards: [],
             showModal: false,
-        }
+        };
 
-        this.handleNewBoard = this.handleNewBoard.bind(this);
+        this.handleClickCreateBoard = this.handleClickCreateBoard.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.handleNewBoardSubmit = this.handleNewBoardSubmit.bind(this);
+        this.handleClickBoard = this.handleClickBoard.bind(this);
+        this.disableConfirmAction = this.disableConfirmAction.bind(this);
     }
 
     componentDidMount(){
-        let newData;
+        
+        const serverResponse = getData('/board');
 
+        serverResponse.then(response => response.json())
+        .then((data) => {
+            console.log(data);
 
-        if(this.props.addToBoard){
-            newData = fakeData.map((board) => {
-                return <AddToBoard key={board.board_id} boardInfo={board} postImage={this.props.postImage}/>
-            })
-        }
-        else{
-            newData = fakeData.map((board) => {
-                return <BoardItem key={board.board_id} boardInfo={board} />
-            })
-        }
-
-
-        this.setState({
-            boards: newData
+            this.setState({
+                boards: data.boards
+            });
         })
- 
-    
-        // console.log(this.props.addtoBoard)
+        .catch((err) => {
+            console.log(err);
+        });
 
+    }
+
+    componentDidUpdate(){
+
+
+        window.addEventListener('keydown', (evt) => {
+            if(this.state.showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
     }
 
     closeModal(evt){
@@ -75,33 +60,139 @@ class Boards extends Component{
         if(evt.target.className === 'modal'){
             this.setState({
                 showModal: false
-            })
+            });
         }   
     }
 
-    handleNewBoard(){
-        console.log('is clicking')
+
+
+    handleClickCreateBoard(){
 
         this.setState({
             showModal: true
+        });
+    }
+
+    handleNewBoardSubmit(boardName){
+
+        this.setState({
+            showModal: false
+        });
+        
+        const data = {
+            boardName: boardName
+        };
+
+        const serverResponse = sendUserData('/board/createboard', data);
+
+        serverResponse.then( response => response.json())
+        .then((data) => {
+            console.log(data);
+
+
+            // Only add the new board..I'm sending bac all the ones again making it a duplicate key
+            this.setState({
+                boards: this.state.boards.concat(data.boards)
+            })
         })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
+    disableConfirmAction(){
+        this.setState({
+            confirmAction: false
+        });
+    }
+
+    handleClickBoard(evt){
+        console.log(evt.target);
+
+
+        if(evt.target.classList.contains('boardImg')){
+            const boardID = evt.target.getAttribute('data-board-id');
+            const postImageElement = document.querySelector('.post__image');
+            const postImageSrc = postImageElement.getAttribute('src');
+
+
+            const data = {
+                username: this.props.urlParams.username,
+                postID: this.props.urlParams.postID,
+                boardID: boardID,
+                postImage: postImageSrc
+            };
+
+            const serverResponse  = sendUserData('/board/addpost', data);
+            
+
+            serverResponse.then(response => response.json())
+            .then((data) => {
+                // Make confirmation that it was added
+                if(data.success){
+                    this.setState({
+                        confirmAction: true
+                    });
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+        }
+
+            
+
+        console.dir(evt.target); // would need prevElementSibling to get the image dataset if you click on the board
+        console.log('we clicking the baord dawogg!!!')
     }
 
 
     render(){
+
+        if(this.state.confirmAction){
+            setTimeout(this.disableConfirmAction, 1000);
+        } 
+
+
+        console.log(this.props);
+        console.log(this.state);
+
+        let userBoards = this.state.boards.map((board) => {
+            return <BoardItem key={board.board_id} board={board} addToBoard={this.props.addToBoard}  urlParams={this.props.urlParams} handleClickBoard={this.handleClickBoard}/> })
+
+        // if(this.props.addToBoard){
+        //     userBoards = this.state.boards.map((board) => {
+        //         return <PostAddToBoard key={board.board_id} boardInfo={board} postImage={this.props.postImage}/>
+        //     })
+        // }
+        // else{
+        //     userBoards = this.state.boards.map((board) => {
+        //         return <BoardItem key={board.board_id} boardInfo={board} />
+        //     })
+        // }
+
+
         return(
             <div>
                 <PageHead pageHead={this.props.pageName} />
                 <div className="boardContainer">
-                    <CreateBoard handleNewBoard={this.handleNewBoard} />
-                    {this.state.boards}
+                    <CreateBoard handleClickCreateBoard={this.handleClickCreateBoard} />
+                    {userBoards}
 
                     {this.state.showModal && 
-                    <Modal source="createBoard" closeModal={this.closeModal}/>}
+                    <BoardModal source="createBoard" closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit}/>}
+                    
                 </div>
             </div>
         )
     }
 }
 
-export default Boards;
+function mapStateToProps(state){
+    return{
+        isAuth: state.isAuth
+    }
+}
+
+export default connect(mapStateToProps)(Boards);

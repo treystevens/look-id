@@ -7,6 +7,9 @@ import Comments from './Comments';
 import OtherPosts from './OtherPosts';
 import ItemDescription from './ItemDescription';
 import Notifications from './Notifications';
+import { getData } from '../util/serverFetch';
+import PostImage from './PostImage';
+
 
 
 
@@ -48,7 +51,7 @@ const user1 = {
 
                 ],
             timestamp: "",
-            descriptions: [
+            items: [
                 {
                 category: "Accesory",
                 name: "Scarf",
@@ -81,35 +84,30 @@ const user1 = {
 class Post extends Component{
     constructor(props){
         super(props);
-
-
-
         this.state = {
-            description: '',
-            comments: {},
+            items: '',
+            comments: [],
             otherPosts: [],
             username: '',
-            postImage: '',
+            image: '',
             showModal: false,
             likeCount: '',
             liked: true,
-            postCaption: ''
+            caption: '',
+            postID: '',
+            dataLoaded: false
        
-        }
-
+        };
 
         this.openBoards = this.openBoards.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.handleLikeCount = this.handleLikeCount.bind(this);
     }
 
-
-
     openBoards(){
-        console.log('opening')
         this.setState({
             showModal: true
-        })
+        });
        
     }
 
@@ -119,13 +117,6 @@ class Post extends Component{
                 showModal: false
             });
         }   
-    }
-
-    // Post is fetching the data from the user and post ID..so user/jacob/1203819023
-    // Someone clicks the above link and is brought here. User clicks lookid.com/user/jacob/1203819023.. on the server it's looking for GET requests on '/user/:username/:postid' and fetches the post id from the database and the username and then give it back to this page
-
-    componentDidUpdate(){
-        console.log(`I believe I just finished clicking the heart so this component updated because the state was updated`)
     }
 
     handleLikeCount(){
@@ -163,84 +154,82 @@ class Post extends Component{
         
     }
 
-    // componentWillMount(){
-
-    // }
-
-    componentWillMount(){
+    componentDidMount(){
         
-        console.log(this.props.urlParams.match.params.postid)
-        console.log(this.props.urlParams.match.params.user)
-        console.log(this.props.urlParams)
+    
+        const urlUsernameParam = this.props.urlParams.match.params.user;
+        const urlPostID = this.props.urlParams.match.params.postid
+        const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}`);
+
+        // Get Profile Data
+        serverResponse.then(response => response.json())
+        .then((data) => {
+            console.log(data)
+
+            this.setState({
+                username: data.username,
+                image: data.post.image,
+                likeCount: data.post.likes,
+                comments: data.post.comments,
+                caption: data.post.caption,
+                otherPosts: data.other_posts,
+                items: data.post.items,
+                postID: data.post.post_id,
+                dataLoaded: true
+            }, () => {
+                console.log(this.state.items)
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 
         // IF your username is found inside the posts[0].liked then set the liked:true
-
-        this.setState({
-            username: this.props.urlParams.match.params.user,
-            post_image: user1.posts[0].image,
-            likeCount: user1.posts[0].likes,
-            comments: user1.posts[0].comments,
-            postCaption: user1.posts[0].post_caption,
-            otherPosts: user1.other_posts,
-            description: user1.posts[0].descriptions
-        })
-
-        // Make a fetch request to the user and post id from the match params
-
-        
-
-        // You're going to have to extract the posts array and map it into a new one so "user1" won't be the thing that you use
-
     
-
-        console.log(`laoded`)
-
-        let sendToPostDescript = user1.posts[0].descriptions.map((item) => {
-            return <ItemDescription description={item} />
-        })
-
-
-        this.setState({
-            description: sendToPostDescript
-        })
-
-    
-
-
     }
+
+    
 //  Or make PostEngage on the state and return it down there
 
     render(){
+
+        let clothingItems;
+        
+        const urlUsernameParam = this.props.urlParams.match.params.user;
+        const urlPostID = this.props.urlParams.match.params.postid;
+        const urlParams = {
+            username: urlUsernameParam,
+            postID: urlPostID
+        }
+
+        if(this.state.dataLoaded) {
+            clothingItems = this.state.items.map((item) => {
+                console.log(item)
+                return <ItemDescription item={item} />
+            })
+        }
+        
+        
+
         return(
             <div>
-                <PageHead pageHead={this.state.username}/>
+                <PageHead pageHead={this.state.username} post={true}/>
                 <div style={{display: 'flex', width: '100%'}}>
-                    <div className='postHead' style={ {"width": "40%"}}>
-                        <img src={this.state.post_image} style={ {"width": "100%"}}/>
-
-                        <PostEngage openBoards={this.openBoards} commentCount={this.state.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount}/>
-                    </div>
+                    <PostImage image={this.state.image} urlParams={urlParams}/>
                     <div>
-                        <h2 style={{margin: '0'}}>{this.state.postCaption}</h2>
-                        {this.state.description}
+                        <h2 style={{margin: '0'}}>{this.state.caption}</h2>
+                        {clothingItems}
+                        
                     </div>
                 </div>
                 <section style={{display: 'flex'}}>
                     <div className="comments" style={{marginTop: '40px', width: '30%'}}>
-                        <Comments comments={this.state.comments}/>
+                        <Comments comments={this.state.comments} urlParams={urlParams}/>
                         {/* {this.state.comments} */}
                         {/* <a href="/viewallcomments">View all comments</a> */}
                     </div>
-                    <div className="otherPosts">
-                        <h2>Other Posts</h2>
-                        <div style={{width: '60%'}}>
-                            {this.state.otherPosts.map((post)=> {
-                                return <OtherPosts post={post} username={this.state.username}/>
-                            })}
-                        </div>
-                    </div>
                 </section>
-                {this.state.showModal && <Modal source="addToBoard" closeModal={this.closeModal} postImage={this.state.postImage}/>}
+                
                 
             </div>
         )

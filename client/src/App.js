@@ -17,6 +17,9 @@ import ChangePassword from './components/ChangePassword';
 import DeleteAccount from './components/DeleteAccount';
 import UploadPost from './components/UploadPost';
 import PrivateRoute from './components/PrivateRoute';
+import Explore from './components/Explore';
+import { addAuth } from './actions/addAuth';
+import { connect } from 'react-redux';
 
 
 /* jshint ignore:start */
@@ -34,17 +37,17 @@ class App extends Component{
         method: 'GET',
         credentials: 'include'
     })
-    .then((res) => {
-        console.log(res)
-        return res.json()
-    })
+    .then( response => response.json())
     .then((user) => {
-        console.log(user, `app fetch to /`)
+
+      if(user.isAuth){
+        this.props.dispatch(addAuth(user.user));
+      }        
     })
     .catch((err) => {
         console.log(err)
     })
-    }
+  }
 
 
   render(){
@@ -55,7 +58,7 @@ class App extends Component{
           <div className="container">
             <Header />
             {/* <Route exact={true} path="/explore" component={Stream} /> */}
-            <Route path="/explore" render={ () => <Stream sourceFetch='explore' pageName={'Explore'}/>}/>
+            <Route exact path="/" render={ () => <Explore pageName={'Explore'}/>}/>
             <Route path="/feed" render={ () => <Stream sourceFetch='feed' pageName={'Feed'} />}/>
             <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match}/>}/>
             <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
@@ -80,8 +83,17 @@ class App extends Component{
 }
 
 
+function mapStateToProps(state) {
+    return {
+      isAuth: state.isAuth,
+      username: state.username,
+      userID: state.userID,
+      avatar: state.avatar
+    };
+}
 
-export default App;
+
+export default connect(mapStateToProps)(App);
 
 
 // Code here will be ignored by JSHint.

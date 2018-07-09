@@ -71,6 +71,8 @@ class Login extends Component{
             if(logged.actionSuccess){
                 console.log(logged.user);
                 this.props.dispatch(addAuth(logged.user));
+                
+                
             }
 
         })
@@ -116,7 +118,8 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID
+      userID: state.userID,
+      avatar: state.avatar
     };
 }
 

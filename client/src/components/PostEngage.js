@@ -3,7 +3,9 @@ import React from 'react';
 
 
 function focusComment(){
-    document.querySelector('.me').focus()
+    let commentBox = document.querySelector('.comment__box');
+    commentBox.focus();
+    commentBox.scrollIntoView();
 }
 
 const PostEngage = (props) => {

@@ -144,14 +144,7 @@ class Comments extends Component{
     }
 
     componentDidMount(){
-        // let sendToCommentBox = {
-        //     comment_amount: user1.comments.amount,
-        //     comment_messages: user1.comments.messages,
-        // }
-
-        this.getInitialComments();
-        
-        
+        this.getInitialComments();       
     }
 
 
@@ -165,11 +158,11 @@ class Comments extends Component{
             <div>
                 <CommentBox handleAddComment={this.handleAddComment} urlParams={this.props.urlParams}/>
                 <div>
-                    <div>
+                    <div style={{height: '400px', 'overflow': 'auto'}}>
                         {this.state.comments}
                     </div>
-                    <a href="/viewallcomments" onClick={this.handleClickViewAll}>{commentViewAction}</a>
                 </div> 
+                <a href="/viewallcomments" onClick={this.handleClickViewAll}>{commentViewAction}</a>
             </div>
             
         )

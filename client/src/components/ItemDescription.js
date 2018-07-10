@@ -3,19 +3,25 @@ import React from 'react';
 
 
 const ItemDescription = (props) => {
-
-
+    console.log(props);
+    console.log(props.item.stores);
 
     return(
         <article style={{display: 'flex', flexDirection: 'column'}}>
-            <h6>{props.description.name}</h6>
-            <span>${props.description.price}</span>
+            <h3>{props.item.name}</h3>
+            <span>${props.item.price}</span>
+            {props.item.thrifted && 
+                <span>Thrifted</span>}
             <div style={{display: 'flex'}}>
-                <a href={props.description.online_link} target='_blank'>Link to Item</a>
-                {props.description.stores.map((store) => {
+                {props.item.link && 
+                    <a href={`http://www.${props.item.link}`} target='_blank'>Link to Item</a>
+                }
+                <div style={{display: 'flex', flexDirection: 'column'}}>
+                {props.item.stores.map((store) => {
                     return <span>{store}</span>
-                })}
-                {/* <FindStores stores={props.description.stores} /> */}
+                }) }
+                </div>
+                {/* <FindStores stores={props.item.stores} /> */}
             </div>
         </article>
     )

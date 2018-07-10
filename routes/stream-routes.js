@@ -10,7 +10,7 @@ router.get('/explore', (req, res) => {
         console.log(response);
         console.log(response[0].stream);
 
-        res.json({stream: response[1].stream});
+        res.json({stream: response[0].stream});
     })
     .catch((err) => {
         console.log(err);

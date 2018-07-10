@@ -75,6 +75,8 @@ class Item extends Component{
     handleRemoveItem = (index) => () => {
         this.setState({ 
             items: this.state.items.filter( (item, itemIndex) => index !== itemIndex) 
+        }, () => {
+            console.log(this.state.items)
         });
     };
 
@@ -86,6 +88,7 @@ class Item extends Component{
         })
 
         this.setState({ items: newItems}, () => {
+            console.log(this.state.items)
             this.props.addItemToParentState(this.state.items)
         })
     }

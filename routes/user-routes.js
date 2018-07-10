@@ -66,7 +66,14 @@ router.get('/:user/:postid', (req, res) => {
 
         const username = user.username;
 
-       res.json({post: neededPostData, username: username, myUsername: req.user.username, otherPosts: user.other_posts});
+        if(req.isAuthenticated()){
+            res.json({post: neededPostData, username: username, myUsername: req.user.username, otherPosts: user.other_posts});
+        }
+        else{
+            res.json({post: neededPostData, username: username, otherPosts: user.other_posts});
+        }
+
+       
    })
    .catch( (err) => {
        console.log(err);

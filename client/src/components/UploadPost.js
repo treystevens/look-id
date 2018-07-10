@@ -31,7 +31,9 @@ class UploadPost extends Component{
 
     // Lifting state from Item.js
     handleAddItemToState = (itemState) => {
-        this.setState({ items: itemState})
+        this.setState({ items: itemState}, () => {
+            console.log(this.state.items)
+        })
     }
 
     captionChange(evt){

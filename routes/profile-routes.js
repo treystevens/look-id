@@ -4,6 +4,7 @@ const multer = require('multer');
 const AccountInfo = require('../models/accInfo');
 const User = require('../models/user');
 const fs = require('fs');
+const TestExplore = require('../models/testexplore');
 
 
 // express-validator
@@ -17,12 +18,8 @@ const saltRounds = 10;
 // cloudinary
 const cloudinary = require('cloudinary');
 
+let testingExp = new TestExplore();
 
-// cloudinary.config({ 
-//     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-//     api_key: process.env.CLOUDINARY_API_KEY,
-//     api_secret: process.env.CLOUDINARY_API_SECRET
-// });
 
 
 // Original with date changing
@@ -36,16 +33,6 @@ let storage = multer.diskStorage({
     }
 });
 
-
-// let storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, './public/tmp_images');
-//     },
-//     filename: function (req, file, cb) {
-//     //   cb(null, 'li' + '-' + Date.now());
-//       cb(null, file.name + mime.getExtension(file.mimetype));
-//     }
-// });
 
 let upload = multer({ 
     storage: storage,
@@ -99,15 +86,40 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
                 caption: req.body.usercaption,
                 image: result.url,
                 timestamp: timestamp,
+                liked: []
             };
+
+            const otherPost = {
+                post_id: postID,
+                image: result.url
+            };
+
+            const streamPost = {
+                username: req.user.username,
+                post: {
+                    image: result.url,
+                    post_id: postID
+                }   
+            };
+
 
             if(error){
                 return res.status(422).json({ error: 'File could not be uploaded' });
             }
 
+            
+
             // Update user's profile settings
-            AccountInfo.findOneAndUpdate(query, {$push: {posts: post}}, {new: true})
-            .then( () => {
+            AccountInfo.findOneAndUpdate(query, { $push: {posts: post, other_posts: otherPost}}, {new: true})
+            .then( (docu) => {
+              console.log(docu)
+
+                // testingExp.stream.unshift(streamPost);
+                // testingExp.save( (err) => {
+                //     console.log(err);
+                // });
+
+                TestExplore.update({stream: streamPost});
 
                 // Delete the uploaded file out the temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
@@ -129,7 +141,7 @@ router.post('/uploaditems', (req, res) => {
     const query = {
         "posts.post_id": req.body.postID
     }; 
-
+ 
     // Update the items for that specific post
     AccountInfo.findOneAndUpdate(query, {$set: {"posts.$.items": req.body.items}}, {new: true})
     .then( () => {
@@ -177,11 +189,6 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         username: req.user.username
     };
 
-    
-
-
-
-    console.log(req.file);
     // Save file to folder then take that and put inside cloudinary
 
     
@@ -199,15 +206,13 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
                 avatar: result.url
             };
 
-            console.log(result.url, ` this the result tho`);
-
             if(error){
                 return res.status(422).json({ errors: 'File could not be uploaded' });
             }
 
             // Update user's profile settings
             AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
-            .then( (user) => {
+            .then( (userRequest) => {
 
                 // Delete the uploaded file out the temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
@@ -215,7 +220,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
                 });
 
                 // Send the new updated profile settings back
-                res.json({success: true, user: user});
+                res.json({success: true, user: userRequest, myUsername: req.user.username});
             })
             .catch( (err) => {
                 console.log(err);
@@ -225,39 +230,6 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
     
 });
-
-function checkPasswordMatch(userID, enteredPassword){
-    
-    let passwordMatch;
-
-    User.findById(userID).then( (userData) => {
-        bcrypt.compare(enteredPassword, userData.password)
-        .then( (res) => {
-            console.log(res, `this is the response inside the bcyrpt compare`);
-
-            // passwordMatch = Promise.resolve(res);
-            console.log(passwordMatch, ` this is passwordmatch inside function`)
-            // return passwordMatch;
-            // passwordMatch = res;
-            // return res
-
-            return new Promise(res);
-
-            // return passwordMatch;
-        });
-
-        
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-
-    // return passwordMatch;
-}
-
-
-
-
 
 
 router.post('/settings/change-password',[
@@ -291,17 +263,12 @@ router.post('/settings/change-password',[
     const newPassword = req.body.newPassword;
     const userID = req.user.id;
 
-    console.log(req.body);
-
-
-
-
     // Find user - Check if password matches the one in database
     // If so - Get the new password and password confirmation - Update password field in database
     User.findById(req.user.id).then( (userData) => {
         bcrypt.compare(enteredPassword, userData.password)
         .then( (response) => {
-            console.log(response, ` resonseeee`)
+            
             // Password does not match one in database
             if(!response){
                 res.json({success: false});
@@ -312,12 +279,12 @@ router.post('/settings/change-password',[
                 
                     User.findByIdAndUpdate(userID, {password: hash})
                     .then((data) => {
-                        console.log(data)
+                        
                         res.json({success: true});
                     })
                     .catch((err) => {
-                        console.log(err)
-                    })
+                        console.log(err);
+                    });
                 });
             }
         })
@@ -362,7 +329,6 @@ router.post('/settings/delete-account',[
 
     }
 
-        console.log('we are hittin ght eaccount')
 
     // Check the password matches on in the database
     // If so - delete the document from the database

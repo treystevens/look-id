@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom'; 
+import { NavLink, Redirect } from 'react-router-dom'; 
 import Notifications from './Notifications';    
-import { connect } from 'react-redux';                      
+import { connect } from 'react-redux';
+
 
 /* jshint ignore:start */
 
@@ -9,7 +10,7 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID
+      avatar: state.avatar
     };
 }
 
@@ -17,23 +18,13 @@ class AccountHead extends Component{
     constructor(props){
         super(props)
         this.state = {
-            shownContent: ''
+            shownContent: '',
+            redirect: false
         }
 
         this.unauthorized = this.unauthorized.bind(this);
         this.authorized = this.authorized.bind(this);
         this.logoutHandler = this.logoutHandler.bind(this)
-    }
-
-    // make mobile with image instead of name?
-
-    componentDidUpdate(){
-        console.log(`updated`)
-    }
-
-    componentDidMount(){
-        console.log(`we mounteddddd`);
-        
     }
 
     logoutHandler(evt){
@@ -54,8 +45,6 @@ class AccountHead extends Component{
             if(!data.isAuth){
                 this.props.dispatch({type: 'LOGOUT'})
             }
-
-            console.log(data)
         })
         .catch((err) => {
             console.log(err)
@@ -66,10 +55,6 @@ class AccountHead extends Component{
 
     authorized(){
         let userLink = `/user/${this.props.username}`;
-        console.log(this.props.username)
-        console.log(userLink)
-
-
         return(
           
                 <ul className="testList">
@@ -101,8 +86,6 @@ class AccountHead extends Component{
 
 
     render(){
-
-        console.log(this.props, `in render function account head`)
         let content;
 
         if(this.props.isAuth){
@@ -123,7 +106,6 @@ class AccountHead extends Component{
     }
 }
 
-// export default AccountHead;
 export default connect(mapStateToProps)(AccountHead)
 
 // Code here will be ignored by JSHint.

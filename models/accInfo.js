@@ -53,30 +53,19 @@ const accountInfoSchema = new Schema({
         username: String,
         id: String,
         post_id: String
-    }],
-    "profile": {
-        bio: String,
-        website: String,
-        avatar: String
-    }
+    }]
 
 
 }, {strict: false});
 
+accountInfoSchema.add({ profile: {
+    bio: 'string',
+    website: 'string',
+    avatar: 'string'
+} });
 
-
-// var thingSchema = new Schema({..})
-// var Thing = mongoose.model('Thing', thingSchema);
-// var thing = new Thing({ iAmNotInTheSchema: true });
-// thing.save(); // iAmNotInTheSchema is not saved to the db
-
-// // set to false..
-// var thingSchema = new Schema({..}, { strict: false });
-// var thing = new Thing({ iAmNotInTheSchema: true });
-// thing.save(); // iAmNotInTheSchema is now saved to the db!!
-
-
-const AccountInfo = mongoose.model('accountinfo', accountInfoSchema);
+// const AccountInfo = mongoose.model('accountinfo', accountInfoSchema);
+const AccountInfo = mongoose.model('account', accountInfoSchema);
 
 
 

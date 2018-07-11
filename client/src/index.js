@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 // import './index.css';
 import App from './App';
 import { Provider } from 'react-redux';
-import { createStore , combineReducers } from 'redux';
-import { reducer as formReducer } from 'redux-form';
+import { createStore } from 'redux';
+
 
 /* jshint ignore:start */
 
@@ -12,8 +12,7 @@ const intialState = {
     isAuth: false,
     notification: '',
     username: '',
-    userID: '',
-    avatar: ''
+    myAvatar: ''
 };
 
 
@@ -23,20 +22,12 @@ function reducer(state = intialState, action) {
         return {
             isAuth: true,
             username: action.user,
-            avatar: action.avatar,
-            userID: action.userID
+            myAvatar: action.myAvatar
         };
         case 'LOGOUT':
         return {
             isAuth: false
         }
-        case 'USERNAME':
-        return {
-            userid: {
-                username: action.user,
-                userId: action.id
-            }
-        };
         case 'COMMENT':
         return {
             notification: action.text
@@ -48,9 +39,7 @@ function reducer(state = intialState, action) {
         default:
             return state;
     }
-  }
-
-
+}
 
 const store = createStore(reducer);
 

@@ -3,7 +3,7 @@ import PageHead from './PageHead';
 import UploadAvatar from './UploadAvatar';
 import { sendUserData, getData, sendPhoto } from '../util/serverFetch';
 import { connect } from 'react-redux';
-import { updateAvatar } from '../actions/addAuth';
+import { updateAvatar } from '../actions/actions';
 
 
 

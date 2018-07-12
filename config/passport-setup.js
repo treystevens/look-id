@@ -1,7 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const User = require('../models/user');
+const { Users } = require('../models/schemas');
 
 // Packs the user id into a cookie
 passport.serializeUser((user, done) => {
@@ -10,29 +10,34 @@ passport.serializeUser((user, done) => {
 
 // Get back the user from the session
 passport.deserializeUser((id, done) => {
-    User.findById(id).then((user) => {
+    Users.findById(id).then((user) => {
 
-        // Attaches user to req
+        // Attaches user to request object
         done(null, user);
     });
     
 });
 
 passport.use(new LocalStrategy( (username, password, done) => {
-    User.findOne({ username: {$regex: username, $options: 'i'} })
+    
+    const usernameRegex = new RegExp(`^${username}$`);
+    
+    // Logging in
+    Users.findOne({username: {$regex: usernameRegex, $options: 'i'} })
     .then((user) => {
+        
         if(!user){
-           return done(null, false) 
+           return done(null, false); 
         }
 
+        // Compare entered password with one stored in database for the user
         bcrypt.compare(password, user.password).then( (res) => {
             const currentUser = {
                 id: user.id,
                 username: user.username
             };
             
-            // Correct password
-            if(res){
+            if(res){    // Correct password
                 return done(null, currentUser);
             }
             else{

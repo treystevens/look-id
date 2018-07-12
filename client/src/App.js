@@ -43,7 +43,7 @@ class App extends Component{
     .then((user) => {
 
       if(user.isAuth){
-        console.log(user)
+
         this.props.dispatch(addAuth(user.user));
         this.props.dispatch(updateAvatar(user.user.avatar)) 
       }        
@@ -94,12 +94,6 @@ function mapStateToProps(state) {
       myAvatar: state.avatar
     };
 }
-
-// const mapDispatchToProps = () => {
-//   return {
-//     addItem: addItem
-//   };
-// };
 
 
 export default connect(mapStateToProps)(App);

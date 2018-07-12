@@ -3,7 +3,7 @@ import '../styles/styles.css';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
-import { addAuth, updateAvatar } from '../actions/addAuth';
+import { addAuth, updateAvatar } from '../actions/actions';
 import { sendUserData } from '../util/serverFetch';
 
 class SignUp extends Component{
@@ -72,8 +72,7 @@ class SignUp extends Component{
         })
         .then((signUpStatus) => {
 
-            console.log(signUpStatus);
-            
+        
             if(this.state.errorStatus){
                 let errorMessages = Object.assign({}, signUpStatus.errors);
 

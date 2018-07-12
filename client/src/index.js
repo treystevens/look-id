@@ -27,7 +27,6 @@ function reducer(state = intialState, action) {
         };
         case 'LOGOUT':
         return {
-            ...state,
             isAuth: false
         }
         case 'COMMENT':

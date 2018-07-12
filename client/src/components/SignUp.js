@@ -126,8 +126,8 @@ class SignUp extends Component{
                         <input type="password" placeholder="Re-Enter Password" name="confirm-password" onChange={this.passwordConfirmationChange} required className="userfield"/>
                     </label>
 
-                    {this.state.errors.passwordconfirmation && 
-                        <span className="form-error">{this.state.errors.passwordconfirmation.msg}</span>
+                    {this.state.errors.confirmPassword && 
+                        <span className="form-error">{this.state.errors.confirmPassword.msg}</span>
                     } 
                         
                     <button>Create Account</button>

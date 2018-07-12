@@ -6,6 +6,8 @@ const User = require('../models/user');
 const fs = require('fs');
 const TestExplore = require('../models/testexplore');
 
+const { Users, Explore, Posts } = require('../models/schemas');
+
 
 // express-validator
 const { validationResult } = require('express-validator/check');
@@ -18,23 +20,22 @@ const saltRounds = 10;
 // cloudinary
 const cloudinary = require('cloudinary');
 
-let testingExp = new TestExplore();
 
 
 
-// Original with date changing
-let storage = multer.diskStorage({
+
+// Store files and name format them - 'li-(date).(type)'
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './public/tmp_images');
     },
     filename: function (req, file, cb) {
-    //   cb(null, 'li' + '-' + Date.now());
       cb(null, 'li' + '-' + Date.now() + '.' + mime.getExtension(file.mimetype));
     }
 });
 
-
-let upload = multer({ 
+// Checking if the uploaded file matches our accepted file types
+const upload = multer({ 
     storage: storage,
     fileFilter: function (req, file, cb) {
 
@@ -42,6 +43,7 @@ let upload = multer({
         let acceptableTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         let uploadedFileExtension = file.mimetype;
     
+        
         for(let extension of acceptableTypes){
             if(uploadedFileExtension == extension){
                 accept = true;
@@ -53,23 +55,25 @@ let upload = multer({
             return cb(null, true);
         }
         
+        // Send to next middleware to process the error
         req.fileValidationError = true;
         return cb(null, false, req.fileValidationError);
-        // Something goes wrong
-        // cb(new Error("Error: File upload only supports the following filetypes - png, jpg, and jpeg"));
       } 
 });
 
+// User uploading a post
 router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
+
     const query = {
         username: req.user.username
     };
 
-
+    // If user tries to upload a post without an image or filetype that is not supported
     if(typeof req.file === 'undefined'){
-        return res.status(422).json({ error: 'LookID only supports png, jpg, and jpeg' });
+        return res.status(422).json({ error: 'LookID only supports png, jpg, and jpeg.' });
     }
     
+    // Create a post ID
     const usernameLength = req.user.username.length;
     const userASCII = req.user.username.charCodeAt(0) + req.user.username.charCodeAt(usernameLength - 1);
     const timestamp = Date.now();
@@ -82,19 +86,26 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             public_id: `${postID}`
         }, 
         (error, result) => {
-            const post = {
+
+            if(error){
+                return res.status(422).json({ error: 'File could not be uploaded' });
+            }
+
+            // post to Posts
+            const newPost = {
+                username: req.user.username,
                 post_id: postID,
                 caption: req.body.usercaption,
-                image: result.url,
-                timestamp: timestamp,
-                liked: []
+                image: result.url,                
             };
 
-            const otherPost = {
+            // Send to Users Collection
+            const userReferencePost = {
                 post_id: postID,
                 image: result.url
             };
 
+            // Send post to Explore and this user's followers
             const streamPost = {
                 username: req.user.username,
                 post: {
@@ -103,33 +114,30 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
                 }   
             };
 
-
-            if(error){
-                return res.status(422).json({ error: 'File could not be uploaded' });
-            }
-
             
 
-            // Update user's profile settings
-            AccountInfo.findOneAndUpdate(query, { $push: {posts: post, other_posts: otherPost}}, {new: true})
-            .then( (docu) => {
-              console.log(docu)
 
-                // testingExp.stream.unshift(streamPost);
-                // testingExp.save( (err) => {
-                //     console.log(err);
-                // });
+            // Create post in Posts Collections
+            Posts.create(newPost).then((success) => {
 
-                TestExplore.update({stream: streamPost});
+                // Push into User Collection with reference to original post to display 'Other Posts'
+                Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}).then((user) => {
+                    console.log(user);
+                });
 
-                // Delete the uploaded file out the temporary folder
+                // Send new Post to Explore Collection
+                Explore.create(streamPost);
+
+                // Delete file from temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
                     if (err) throw err;
                 });
 
-                // Send the new post ID back
+                // Send the new post ID back for redirect on client side
                 res.json({postID: postID});
+
             })
+
             .catch( (err) => {
                 console.log(err);
             });

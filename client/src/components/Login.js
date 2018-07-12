@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../styles/styles.css';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addAuth } from '../actions/addAuth';
+import { addAuth, updateAvatar } from '../actions/addAuth';
 import { Redirect } from 'react-router';
 import { sendUserData } from '../util/serverFetch';
 
@@ -65,12 +65,11 @@ class Login extends Component{
             return res.json();
         })
         .then((logged) => {
-
-            console.log(logged, ` this is the logged from login`)
             
             if(logged.actionSuccess){
-                console.log(logged.user);
+                
                 this.props.dispatch(addAuth(logged.user));
+                this.props.dispatch(updateAvatar(logged.user.avatar));
                 
                 
             }
@@ -119,7 +118,7 @@ function mapStateToProps(state) {
       isAuth: state.isAuth,
       username: state.username,
       userID: state.userID,
-      avatar: state.avatar
+      myAvatar: state.avatar
     };
 }
 

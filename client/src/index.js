@@ -17,15 +17,17 @@ const intialState = {
 
 
 function reducer(state = intialState, action) {
+    console.log(action)
     switch(action.type){
         case 'AUTHENTICATE':
         return {
+            ...state,
             isAuth: true,
             username: action.user,
-            myAvatar: action.myAvatar
         };
         case 'LOGOUT':
         return {
+            ...state,
             isAuth: false
         }
         case 'COMMENT':
@@ -36,10 +38,16 @@ function reducer(state = intialState, action) {
         return {
             notification: action.text
         };
+        case 'UPDATE_AVATAR':
+        return {
+            ...state,
+            myAvatar: action.updateAvatar
+        };
         default:
             return state;
     }
 }
+
 
 const store = createStore(reducer);
 

@@ -52,9 +52,9 @@ let upload = multer({
             // To accept the file
             return cb(null, true);
         }
-        if(!accept){
-            return cb(null, false);
-        }
+        
+        req.fileValidationError = true;
+        return cb(null, false, req.fileValidationError);
         // Something goes wrong
         // cb(new Error("Error: File upload only supports the following filetypes - png, jpg, and jpeg"));
       } 
@@ -64,6 +64,7 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
     const query = {
         username: req.user.username
     };
+
 
     if(typeof req.file === 'undefined'){
         return res.status(422).json({ error: 'LookID only supports png, jpg, and jpeg' });
@@ -156,6 +157,7 @@ router.post('/uploaditems', (req, res) => {
 
 router.get('/edit', (req, res) => {
 
+
     const query = {
         username: req.user.username
     };
@@ -181,17 +183,41 @@ router.get('/edit', (req, res) => {
 
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
-    if(req.file === undefined){
-        return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
-    }
-    
     const query = {
         username: req.user.username
     };
 
-    // Save file to folder then take that and put inside cloudinary
+    const userUpdate = {
+        bio: req.body.bio,
+        website: req.body.website,
+    };
 
+    const prevAvatarUrl = req.body.avatarUrl
+
+    // File for avatar display image was not permitted for upload
+    if(req.fileValidationError){
+        return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
+    }
     
+
+    // If user decides to not change their avatar image
+    // Form.append sends the boolean value as a string
+    if(req.body.sameAvatar === 'true'){
+
+        
+        // Update user's website and bio
+        AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
+        .then( (userRequest) => {
+
+            
+            // Send back updated profile
+            res.json({success: true, user: userRequest, myUsername: req.user.username});
+        })
+        .catch( (err) => {
+            console.log(err);
+        });
+    }
+    else{
 
     // Save image to cloudinary
     cloudinary.v2.uploader.upload(req.file.path,
@@ -199,16 +225,13 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
             public_id: `${req.user.username}_avatar`
         }, 
         (error, result) => {
-
-            const userUpdate = {
-                bio: req.body.bio,
-                website: req.body.website,
-                avatar: result.url
-            };
-
             if(error){
                 return res.status(422).json({ errors: 'File could not be uploaded' });
             }
+
+
+            // Set avatar to the link provided from Cloudinary
+            userUpdate.avatar = result.url;
 
             // Update user's profile settings
             AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
@@ -219,13 +242,19 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
                     if (err) throw err;
                 });
 
-                // Send the new updated profile settings back
-                res.json({success: true, user: userRequest, myUsername: req.user.username});
+
+
+                AccountInfo.find({avatar: prevAvatarUrl}).then((data) => {
+                    console.log(data);
+                });
+  
+                    
             })
             .catch( (err) => {
                 console.log(err);
             });
         });
+    }
 
 
     

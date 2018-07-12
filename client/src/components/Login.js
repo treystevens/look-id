@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../styles/styles.css';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addAuth, updateAvatar } from '../actions/addAuth';
+import { addAuth, updateAvatar } from '../actions/actions';
 import { Redirect } from 'react-router';
 import { sendUserData } from '../util/serverFetch';
 

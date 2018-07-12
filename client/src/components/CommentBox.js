@@ -65,7 +65,7 @@ class CommentBox extends Component{
             username: this.props.username, // get from auth token I guess...from cookie?
             date_posted: date,
             comment: this.state.commentValue,
-            avatar: this.props.avatar
+            avatar: this.props.myAvatar
         };
 
         const data = {
@@ -126,7 +126,7 @@ function mapStateToProps(state) {
     return {
       username: state.username,
       isAuth: state.isAuth,
-      avatar: state.avatar
+      myAvatar: state.avatar
     };
 }
 

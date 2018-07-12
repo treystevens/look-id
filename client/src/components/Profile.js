@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
-import { getData } from '../util/serverFetch';
+import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
 import Avatar from './Avatar';
 
@@ -13,22 +13,31 @@ class Profile extends Component{
 
         this.state = {
             userProfileHead: {},
-            streamData: {}
+            streamData: {},
+            iFollow: false,
+            followerCount: 0,
+            followText: 'Follow',
         };
+
+        // this.handleClickFollowText = this.handleClickFollowText.bind(this);
+        this.handleFollowerCount = this.handleFollowerCount.bind(this);
     }
 
 
+    // Get the requested user's profile data
     componentDidMount(){
+        const urlParamUser = this.props.urlParams.match.params.user;
+        const serverResponse = getData(`/user/${urlParamUser}`);
 
-        let urlUserParam = this.props.urlParams.match.params.user;
-        const serverResponse = getData(`/user/${urlUserParam}`);
 
-
-        // Get Profile Data
+        
         serverResponse.then(response => response.json())
         .then((data) => {
+            let followText;
 
-            // Send to profile header
+            data.user.alreadyFollowing ? followText = 'Unfollow' : followText = 'Follow' ;
+
+            // Send to profile header (Avatar, Followers/Following, Bio, Website)
             const userProfileHeadData = {
                 followerCount: data.user.followerCount,
                 followingCount: data.user.followingCount,
@@ -36,10 +45,9 @@ class Profile extends Component{
                 website: data.user.website,
                 avatarUrl: data.user.avatar,
                 username: data.user.username,
-                
             };
 
-            // For Outputting posts
+            // For outputting the requested user's post
             const streamUserData = {
                 username: data.user.username,
                 posts: data.user.posts
@@ -47,32 +55,74 @@ class Profile extends Component{
 
             this.setState({
                     userProfileHead: userProfileHeadData,
-                    streamData: streamUserData
+                    streamData: streamUserData,
+                    followText: followText,
+                    iFollow: data.user.alreadyFollowing,
                 });
-
-
         })
         .catch((err) => {
             console.log(err);
         });
-
-
     }
 
 
+    // Pass to FollowButton
+    handleFollowerCount(isFollowing){
+
+        console.log(isFollowing)
+         
+
+        // isFollowing ? action = 'INCREMENT' : action = 'DECREMENT';
+
+        // this.props.handleFollowerCount(action);
+
+        // console.log(action)
+        let updatedFollowerCount = Object.assign({}, this.state.userProfileHead);
+
+        if(isFollowing){
+            updatedFollowerCount.followerCount += 1;
+
+            this.setState({
+                followText: 'Unfollow',
+                iFollow: true,
+                userProfileHead: updatedFollowerCount
+            });
+        }
+        else{
+            updatedFollowerCount.followerCount -= 1;
+            this.setState({
+                followText: 'Follow',
+                iFollow: false,
+                userProfileHead: updatedFollowerCount
+            });
+        }
+
+    
+
+    }
+
       
     render(){
+    
+        // Store the requested user
         let user = this.props.urlParams.match.params.user;
-
+        
         return(
             <section>
                 <PageHead pageHead='Profile' />
-                <UserProfileHead urlParams={user} data={this.state.userProfileHead}/>
-                <Stream sourceFetch='profile' urlParams={user} data={this.state.streamData}/>
+                <UserProfileHead urlParamUser={user} data={this.state.userProfileHead} iFollow={this.state.iFollow} handleClickFollowText={this.handleClickFollowText} handleFollowerCount={this.handleFollowerCount} followText={this.state.followText}/>
+                <Stream sourceFetch='profile' urlParamUser={user} data={this.state.streamData}/>
             </section>
         )
     }
 }
 
+function mapStateToProps(state){
+    console.log(state)
+    return{
+        myAvatar: state.avatar
+    }
+}
 
-export default Profile
+
+export default connect(mapStateToProps)(Profile)

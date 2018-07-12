@@ -2,6 +2,7 @@ import React from 'react';
 import Boards from './Boards';
 import BoardModal from './BoardModal';
 import AccountVerify from './AccountVerify';
+import FF from './FF';
 
 
 const Modal = (props) => {
@@ -18,6 +19,10 @@ const Modal = (props) => {
 
     if(props.source === 'addToBoard'){
         shownContent = <Boards addToBoard={true} urlParams={props.urlParams}/>
+    }
+
+    if(props.source === 'ff'){
+        shownContent = <FF urlParamUser={props.urlParamUser} followAction={props.followAction}/>
         
     }
     // if(props.source === 'addPostToBoard'){
@@ -26,7 +31,7 @@ const Modal = (props) => {
     
 
     return(
-        <div className="modal" onClick={props.closeModal}>
+        <div className="modal" onClick={props.closeModal} onKeyDown={props.escCloseModal}>
             <div className="modal-content">
                 {shownContent}
             </div>
@@ -35,3 +40,4 @@ const Modal = (props) => {
 }
 
 export default Modal;
+

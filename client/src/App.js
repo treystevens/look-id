@@ -19,7 +19,7 @@ import DeleteAccount from './components/DeleteAccount';
 import UploadPost from './components/UploadPost';
 import PrivateRoute from './components/PrivateRoute';
 import Explore from './components/Explore';
-import { addAuth, updateAvatar } from './actions/addAuth';
+import { addAuth, updateAvatar } from './actions/actions';
 import { connect } from 'react-redux';
 import { getData } from './util/serverFetch';
 

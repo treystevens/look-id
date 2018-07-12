@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
 import UploadAvatar from './UploadAvatar';
-import { sendUserData, getData } from '../util/serverFetch';
+import { sendUserData, getData, sendPhoto } from '../util/serverFetch';
+import { connect } from 'react-redux';
+import { updateAvatar } from '../actions/addAuth';
 
 
 
@@ -18,18 +20,34 @@ class EditProfile extends Component{
 
         const form = document.querySelector('.edit__form');
         const formData = new FormData(form);
+
+        // Check if the current avatar (this.props.myAvatar - redux) matches the one found in class 'preview'
+        // Server will update avatar documents with new avatar if sameAvatar = false
+        const previewImage = document.querySelector('.preview').getAttribute('src');
+        const currentAvatar = this.props.myAvatar;
+
+        const sameAvatar = previewImage === currentAvatar;
+
+        console.log(sameAvatar)
+
+        formData.append('sameAvatar', sameAvatar);
+        formData.append('prevAvatarUrl', this.props.myAvatar);
+
+
+        // Display the key/value pairs
+        for(var pair of formData.entries()) {
+            console.log(pair[0]+ ', '+ pair[1]); 
+        }
       
        
-        fetch('/profile/edit', {
-            body: formData,
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then( response => response.json() )
-        .then((settings) => {
+        const serverResponse = sendPhoto('/profile/edit', formData);
+
+        serverResponse.then( response => response.json() )
+        .then((data) => {
             // Make fade out animation of confirmation that it was saved(reminder)
 
-            console.log(settings);
+            this.props.dispatch(updateAvatar(data.avatarUrl));
+            console.log(data);
 
         }) 
         .catch((err) => {
@@ -75,6 +93,8 @@ class EditProfile extends Component{
 
 
     render(){
+
+        console.log(this.props)
         return(
             <section>
                 <PageHead pageHead='Edit Profile' />
@@ -94,4 +114,11 @@ class EditProfile extends Component{
     }
 }
 
-export default EditProfile
+function mapStateToProps(state){
+    return{
+        myAvatar: state.myAvatar,
+        username: state.username
+    }
+}
+
+export default connect(mapStateToProps)(EditProfile)

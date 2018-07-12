@@ -19,8 +19,9 @@ import DeleteAccount from './components/DeleteAccount';
 import UploadPost from './components/UploadPost';
 import PrivateRoute from './components/PrivateRoute';
 import Explore from './components/Explore';
-import { addAuth } from './actions/addAuth';
+import { addAuth, updateAvatar } from './actions/addAuth';
 import { connect } from 'react-redux';
+import { getData } from './util/serverFetch';
 
 
 /* jshint ignore:start */
@@ -34,15 +35,17 @@ class App extends Component{
   }
 
   componentDidMount(){
-    fetch('/auth',{
-        method: 'GET',
-        credentials: 'include'
-    })
+
+    const serverResponse = getData('/auth');
+    
+    serverResponse
     .then( response => response.json())
     .then((user) => {
 
       if(user.isAuth){
+        console.log(user)
         this.props.dispatch(addAuth(user.user));
+        this.props.dispatch(updateAvatar(user.user.avatar)) 
       }        
     })
     .catch((err) => {
@@ -53,14 +56,14 @@ class App extends Component{
 
   render(){
 
-  
+    console.log(this.props)
     return(
       <Router basename='/'>
           <div className="container">
             <Header />
             {/* <Route exact={true} path="/explore" component={Stream} /> */}
             <Route exact path="/" render={ () => <Explore pageName={'Explore'}/>}/>
-            <Route path="/feed" render={ () => <Stream sourceFetch='feed' pageName={'Feed'} />}/>
+            <Route path="/feed" render={ () => <Stream sourceFetch='explore' pageName={'Feed'} />}/>
             <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match}/>}/>
             <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
             {/* <Route path="/user/:user/:postid" render={ (match) => <Post sourceFetch='post' urlParams={match}/>}/> */}
@@ -88,10 +91,15 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID,
-      avatar: state.avatar
+      myAvatar: state.avatar
     };
 }
+
+// const mapDispatchToProps = () => {
+//   return {
+//     addItem: addItem
+//   };
+// };
 
 
 export default connect(mapStateToProps)(App);

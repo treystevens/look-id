@@ -6,7 +6,7 @@ const User = require('../models/user');
 const fs = require('fs');
 const TestExplore = require('../models/testexplore');
 
-const { Users, Explore, Posts } = require('../models/schemas');
+const { Users, Explore, Posts, Items } = require('../models/schemas');
 
 
 // express-validator
@@ -115,8 +115,6 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             };
 
             
-
-
             // Create post in Posts Collections
             Posts.create(newPost).then((success) => {
 
@@ -145,21 +143,23 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
      
 });
 
-
+// Upload users items after uploading photo
 router.post('/uploaditems', (req, res) => {
-    const query = {
-        "posts.post_id": req.body.postID
+
+    const itemDocument = {
+        post_id : req.body.postID,
+        items: req.body.items
     }; 
- 
-    // Update the items for that specific post
-    AccountInfo.findOneAndUpdate(query, {$set: {"posts.$.items": req.body.items}}, {new: true})
+
+    // Add items with a reference to the post in Items Collection
+    Items.create(itemDocument)
     .then( () => {
         res.json({success: true});
     })
     .catch( (err) => {
+        res.json({success: false});
         console.log(err);
     });
-    
 });
 
 

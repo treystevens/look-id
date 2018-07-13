@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
 import UploadAvatar from './UploadAvatar';
+import UploadPhoto from './UploadPhoto';
 import { sendUserData, getData, sendPhoto } from '../util/serverFetch';
-import { connect } from 'react-redux';
+
 import { updateAvatar } from '../actions/actions';
 
 
@@ -11,6 +12,10 @@ class EditProfile extends Component{
     constructor(props){
         super(props);
 
+        this.state = {
+            avatar: ''
+        };
+
         this.submitEdit = this.submitEdit.bind(this);
     }
 
@@ -18,26 +23,20 @@ class EditProfile extends Component{
     submitEdit(evt){
         evt.preventDefault();
 
+        // Multi/Part form
         const form = document.querySelector('.edit__form');
         const formData = new FormData(form);
 
-        // Check if the current avatar (this.props.myAvatar - redux) matches the one found in class 'preview'
-        // Server will update avatar documents with new avatar if sameAvatar = false
-        const previewImage = document.querySelector('.preview').getAttribute('src');
-        const currentAvatar = this.props.myAvatar;
+        // Get src of avatar upload just incase no file is uploaded or remove profile picture option was clicked
+        const imageFromAvatarSrc = document.querySelector('.preview').getAttribute('src');
+        
+        formData.append('imageFromAvatarSrc', imageFromAvatarSrc);
+        
 
-        const sameAvatar = previewImage === currentAvatar;
-
-        console.log(sameAvatar)
-
-        formData.append('sameAvatar', sameAvatar);
-        formData.append('prevAvatarUrl', this.props.myAvatar);
-
-
-        // Display the key/value pairs
-        for(var pair of formData.entries()) {
-            console.log(pair[0]+ ', '+ pair[1]); 
-        }
+        // Display the key/value pairs (For Debugging)
+        // for(var pair of formData.entries()) {
+        //     console.log(pair[0]+ ', '+ pair[1]); 
+        // }
       
        
         const serverResponse = sendPhoto('/profile/edit', formData);
@@ -46,7 +45,7 @@ class EditProfile extends Component{
         .then((data) => {
             // Make fade out animation of confirmation that it was saved(reminder)
 
-            this.props.dispatch(updateAvatar(data.avatarUrl));
+            
             console.log(data);
 
         }) 
@@ -61,30 +60,19 @@ class EditProfile extends Component{
         const serverResponse = getData('/profile/edit');
 
         serverResponse.then( response => response.json())
-        .then( (settings) => {
+        .then( (data) => {
 
-            console.log(settings, ` believe this will be undefined or null`);
-
+    
             const bio = document.querySelector('.edit__bio');
             const website = document.querySelector('.edit__website');
 
+            // Form gets submited as form data instead of using state information to submit
+            bio.value = data.user.bio || '';
+            website.value = data.user.website || '';
 
-            bio.value = settings.user.bio || '';
-            website.value = settings.user.website || '';
-
-            // this.setState({
-            //     bio: settings.bio,
-            //     website: settings.website
-            // }, () => {
-            //     const bio = document.querySelector('.edit__bio');
-            //     const website = document.querySelector('.edit__website');
-
-
-            //     bio.val = this.state.bio;
-            //     website.val = this.state.website;
-
-            // });
-
+            this.setState({
+                avatar: data.user.avatar
+            });
         })
         .catch((err) => {
             console.log(err);
@@ -94,31 +82,29 @@ class EditProfile extends Component{
 
     render(){
 
-        console.log(this.props)
+        console.log(this.props);
         return(
             <section>
                 <PageHead pageHead='Edit Profile' />
                 <form onSubmit={this.submitEdit} className='edit__form'>
-                    <UploadAvatar />
-                    <label>Bio:
-                        <input type="text" onChange={this.bioChange} className='edit__bio' name='bio'/>
-                    </label>
-                    <label>Website:
-                        <input type="text" onChange={this.websiteChange} className='edit__website' name='website'/>
-                    </label>
-                    <button type="button">Clear</button>
-                    <button>Save</button>
+                    <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container'/>
+
+                        <label>Bio:
+                            <input type="text" onChange={this.bioChange} className='edit__bio' name='bio'/>
+                        </label>
+
+                        <label>Website:
+                            <input type="text" onChange={this.websiteChange} className='edit__website' name='website'/>
+                        </label>
+
+                        {/* <button type="button">Clear</button> */}
+                        <button>Save</button>
                 </form>
             </section>
         )
     }
 }
 
-function mapStateToProps(state){
-    return{
-        myAvatar: state.myAvatar,
-        username: state.username
-    }
-}
 
-export default connect(mapStateToProps)(EditProfile)
+
+export default EditProfile

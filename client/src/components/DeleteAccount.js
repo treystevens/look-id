@@ -55,7 +55,7 @@ class DeleteAccount extends Component{
 
         const serverResponse = sendUserData('/profile/settings/delete-account', data);
         serverResponse.then((res) => {
-            console.log(res)
+    
             if(res.status === 422){
                 this.setState({
                     errorStatus: true
@@ -64,7 +64,7 @@ class DeleteAccount extends Component{
             return res.json();
         })
         .then((status) => {
-            console.log(status);
+
             if(this.state.errorStatus){
                 let errorMessages = Object.assign({}, status.errors);
 
@@ -75,8 +75,6 @@ class DeleteAccount extends Component{
 
             else{
                 // Pop up modal for user to confirm action
-
-                console.log('touching');
             }
 
         })
@@ -91,7 +89,7 @@ class DeleteAccount extends Component{
             <section>
                 <PageHead pageHead='Delete Account' />
                 <div>
-                    <form action="" onSubmit={this.submitHandler}>
+                    <form onSubmit={this.submitHandler}>
                         <label>
                             Username:
                             <input type="text" className="userfield" name="username" onChange={this.usernameChange}/>
@@ -100,11 +98,11 @@ class DeleteAccount extends Component{
                         </label>
                         <label>
                             Password:
-                            <input type="text" className="userfield" name="password" onChange={this.passwordChange}/>
+                            <input type="password" className="userfield" name="password" onChange={this.passwordChange}/>
                         </label>
                         <label>
                             Re-enter Password:
-                            <input type="text" className="userfield" name="confirm-password" onChange={this.passwordConfirmationChange}/>
+                            <input type="password" className="userfield" name="confirm-password" onChange={this.passwordConfirmationChange}/>
                                     {errors.confirmPassword && 
                                 <span>{errors.confirmPassword.msg}</span>}
                         </label>

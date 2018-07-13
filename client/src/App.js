@@ -77,8 +77,6 @@ class App extends Component{
               <PrivateRoute path="/profile/settings" component={Settings} />
               <PrivateRoute path="/profile/edit" component={EditProfile}/>
               <PrivateRoute path="/profile/upload" component={UploadPost} />
-              {/* <PrivateRoute path="/profile" component={Profile}/> */}
-              
             </Switch>
           </div>
       </Router>

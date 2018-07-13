@@ -5,13 +5,13 @@ const { Users } = require('../models/schemas');
 
 // Packs the user id into a cookie
 passport.serializeUser((user, done) => {
+    console.log(user, `this serialize user from thepassport srtdup`)
     done(null, user.id);
 });
 
 // Get back the user from the session
 passport.deserializeUser((id, done) => {
-    Users.findById(id).then((user) => {
-
+    Users.findById(id, {username: 1}).then((user) => {
         // Attaches user to request object
         done(null, user);
     });

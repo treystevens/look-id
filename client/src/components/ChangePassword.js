@@ -19,6 +19,14 @@ class ChangePassword extends Component{
         this.passwordChange = this.passwordChange.bind(this);
         this.newPasswordChange = this.newPasswordChange.bind(this);
         this.confirmPasswordChange = this.confirmPasswordChange.bind(this);
+        this.clearFields = this.clearFields.bind(this);
+    }
+
+    clearFields(){
+        let fields = document.querySelectorAll('.userfield');
+        for(let input of fields){
+            input.value = '';
+        }
     }
 
     passwordChange(evt){
@@ -38,6 +46,12 @@ class ChangePassword extends Component{
     submitNewPassword(evt){
 
         evt.preventDefault();
+        this.clearFields();
+
+        // Reset error state
+        this.setState({
+            errorStatus: false
+        });
 
         const data = {
             password: this.state.password,
@@ -45,14 +59,7 @@ class ChangePassword extends Component{
             confirmPassword: this.state.confirmPassword
         };
 
-        const passwordFields = document.querySelectorAll('.passwordInput');
         const serverResponse = sendUserData('/profile/settings/change-password', data);
-
-        for(let input of passwordFields){
-            input.value = '';
-        }
-
-        
 
         serverResponse.then((res) => {
             if(res.status === 422){
@@ -63,9 +70,9 @@ class ChangePassword extends Component{
             return res.json();
         })
         .then((data) => {
-
+            
             if(data.success){
-                console.log(`changed the password, no issues`)
+                console.log(`changed the password, no issues`);
             }
             else{
                 this.setState({
@@ -73,7 +80,7 @@ class ChangePassword extends Component{
                 });
             }
 
-            console.log(data.errors);
+            
         })
         .catch((err) => {
             console.log(err);
@@ -85,6 +92,7 @@ class ChangePassword extends Component{
 
         let errors = this.state.errors;
 
+
         return(
             <section>
                 <PageHead pageHead='Change Password' />
@@ -92,11 +100,14 @@ class ChangePassword extends Component{
                     <form action="" onSubmit={this.submitNewPassword}>
                         <label>
                             Current Password:
-                            <input type='password' name='password' required onChange={this.passwordChange} className='passwordInput'/>
+                            <input type='password' name='password' required onChange={this.passwordChange} className='password-input'/>
                         </label>
+                        {errors.password && 
+                        <span>{errors.password.msg}</span>}
+
                         <label>
                             New Password:
-                            <input type='password' name='newpassword' required onChange={this.newPasswordChange} className='passwordInput'/>
+                            <input type='password' name='new-password' required onChange={this.newPasswordChange} className='password-input'/>
                         </label>
                         
 
@@ -104,8 +115,9 @@ class ChangePassword extends Component{
                         <span>{errors.newPassword.msg}</span>}
                         <label>
                             Re-enter New Password:
-                            <input type='password' name='confirmpassword' required onChange={this.confirmPasswordChange} className='passwordInput'/>
+                            <input type='password' name='confirm-password' required onChange={this.confirmPasswordChange} className='password-input'/>
                         </label>
+
                         {errors.confirmPassword && 
                         <span>{errors.confirmPassword.msg}</span>}
                         <button>Change</button>

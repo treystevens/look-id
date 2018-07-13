@@ -165,16 +165,16 @@ router.post('/uploaditems', (req, res) => {
 
 router.get('/edit', (req, res) => {
 
-
     const query = {
         username: req.user.username
     };
 
-    AccountInfo.findOne(query)
+    Users.findOne(query)
     .then( (user) => {
 
+        // The available fields to edit on 'Edit Profile'
         userProfileInfo = {
-            // avatar: user.display_image,
+            avatar: user.profile.avatar,
             bio: user.profile.bio,
             website: user.profile.website
         };
@@ -184,40 +184,39 @@ router.get('/edit', (req, res) => {
     .catch( (err) => {
         console.log(err);
     });
-
-    
 });
 
 
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
+    console.log(req.body);
+
     const query = {
         username: req.user.username
     };
-
     const userUpdate = {
         bio: req.body.bio,
         website: req.body.website,
     };
-
-    const prevAvatarUrl = req.body.avatarUrl
+    const imgFromAvatarSrc = req.body.imageFromAvatarSrc;
+    const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
 
     // File for avatar display image was not permitted for upload
     if(req.fileValidationError){
         return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
     }
+
     
+    
+    // User decides not to change their avatar, so the req.file will be undefined. Taking the src of the image that was previously uploaded to cloudinary to set back into database
+    if(req.file === undefined){
 
-    // If user decides to not change their avatar image
-    // Form.append sends the boolean value as a string
-    if(req.body.sameAvatar === 'true'){
-
+        userUpdate.avatar = defaultAvatar;
         
         // Update user's website and bio
-        AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
+        Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
         .then( (userRequest) => {
 
-            
             // Send back updated profile
             res.json({success: true, user: userRequest, myUsername: req.user.username});
         })
@@ -242,30 +241,26 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
             userUpdate.avatar = result.url;
 
             // Update user's profile settings
-            AccountInfo.findOneAndUpdate(query, {$set: {profile: userUpdate}})
+            Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
             .then( (userRequest) => {
+
+                console.log(userRequest);
 
                 // Delete the uploaded file out the temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
                     if (err) throw err;
-                });
+                });  
 
+                // Send back updated profile
+                res.json({success: true, user: userRequest, myUsername: req.user.username});
 
-
-                AccountInfo.find({avatar: prevAvatarUrl}).then((data) => {
-                    console.log(data);
-                });
-  
                     
             })
             .catch( (err) => {
                 console.log(err);
             });
         });
-    }
-
-
-    
+    }    
 });
 
 

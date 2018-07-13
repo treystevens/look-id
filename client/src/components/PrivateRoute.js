@@ -16,7 +16,7 @@ const PrivateRoute = ({component: Component, ...rest}) => {
         rest.isAuth ? 
             <Component {...props} /> 
             :
-            <Redirect to='/signup'/>
+            <Redirect to='/login'/>
         )} />
     )
 }

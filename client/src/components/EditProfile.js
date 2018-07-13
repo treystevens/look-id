@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
-import UploadAvatar from './UploadAvatar';
 import UploadPhoto from './UploadPhoto';
-import { sendUserData, getData, sendPhoto } from '../util/serverFetch';
+import { getData, sendPhoto } from '../util/serverFetch';
 
-import { updateAvatar } from '../actions/actions';
 
 
 
@@ -82,7 +80,6 @@ class EditProfile extends Component{
 
     render(){
 
-        console.log(this.props);
         return(
             <section>
                 <PageHead pageHead='Edit Profile' />
@@ -97,7 +94,6 @@ class EditProfile extends Component{
                             <input type="text" onChange={this.websiteChange} className='edit__website' name='website'/>
                         </label>
 
-                        {/* <button type="button">Clear</button> */}
                         <button>Save</button>
                 </form>
             </section>

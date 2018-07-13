@@ -6,7 +6,8 @@ const User = require('../models/user');
 const fs = require('fs');
 const TestExplore = require('../models/testexplore');
 
-const { Users, Explore, Posts, Items } = require('../models/schemas');
+// Mongoose Models
+const models = require('../models/schemas');
 
 
 // express-validator
@@ -99,7 +100,7 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
                 image: result.url,                
             };
 
-            // Send to Users Collection
+            // Send to models.Users Collection
             const userReferencePost = {
                 post_id: postID,
                 image: result.url
@@ -119,7 +120,7 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             Posts.create(newPost).then((success) => {
 
                 // Push into User Collection with reference to original post to display 'Other Posts'
-                Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}).then((user) => {
+                models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}).then((user) => {
                     console.log(user);
                 });
 
@@ -169,7 +170,7 @@ router.get('/edit', (req, res) => {
         username: req.user.username
     };
 
-    Users.findOne(query)
+    models.Users.findOne(query)
     .then( (user) => {
 
         // The available fields to edit on 'Edit Profile'
@@ -214,7 +215,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         userUpdate.avatar = defaultAvatar;
         
         // Update user's website and bio
-        Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
+        models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
         .then( (userRequest) => {
 
             // Send back updated profile
@@ -241,7 +242,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
             userUpdate.avatar = result.url;
 
             // Update user's profile settings
-            Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
+            models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
             .then( (userRequest) => {
 
                 console.log(userRequest);
@@ -265,15 +266,37 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
 
 router.post('/settings/change-password',[
+    body('password')
+    .custom( (value, { req } ) => {
+
+        // Find user > Check if password matches the one in database
+        return models.Users.findById(req.user.id).then( (userData) => {
+           return bcrypt.compare(value, userData.password)
+            .then( (response) => {
+            
+                // If password does not match, reject value
+                if(!response){
+                    return Promise.reject('This password is incorrect.');
+                }
+                else{
+                    return Promise.resolve(value);
+                }
+            });
+        })
+        .catch((err) => {
+            throw new Error(err);
+        });
+        
+    }),
     body('newPassword') // Password validation
-    .isLength({ min: 3 })
+    .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long.')
     .matches(/\d/)
     .withMessage('Password must have at least one number.'),
     body('confirmPassword') // Password confirmation validation
     .custom( (value, { req } ) => {
         if (value !== req.body.newPassword) {
-          throw new Error('Password confirmation does not match password');
+          throw new Error('Password confirmation does not match password.');
         }
         else{
             return Promise.resolve(value);
@@ -281,65 +304,71 @@ router.post('/settings/change-password',[
         
     })] ,(req, res) => {
 
+
     const validationErrors = validationResult(req);
 
+    // Send to client the errors from express-validator
     if(!validationErrors.isEmpty()){  
-        let mappedErrors = validationErrors.mapped();
-        console.log(mappedErrors, `mapped errors`);
 
+        const mappedErrors = validationErrors.mapped();
         return res.status(422).json({ errors: mappedErrors });
-
     }
 
     const enteredPassword = req.body.password;
     const newPassword = req.body.newPassword;
     const userID = req.user.id;
-
-    // Find user - Check if password matches the one in database
-    // If so - Get the new password and password confirmation - Update password field in database
-    User.findById(req.user.id).then( (userData) => {
-        bcrypt.compare(enteredPassword, userData.password)
-        .then( (response) => {
-            
-            // Password does not match one in database
-            if(!response){
-                res.json({success: false});
-            }
-            else{
-                // Hash the new password 
-                bcrypt.hash(newPassword, saltRounds).then( (hash) => {
                 
-                    User.findByIdAndUpdate(userID, {password: hash})
-                    .then((data) => {
-                        
-                        res.json({success: true});
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-                });
-            }
-        })
-        .catch((err) => {
-            console.log(err);
+    // Hash the new password 
+    bcrypt.hash(newPassword, saltRounds).then( (hash) => {
+    
+        models.Users.findByIdAndUpdate(userID, {password: hash})
+        .then(() => {
+            res.json({success: true});
         });
-  
     })
     .catch((err) => {
+        res.json({success: false});
         console.log(err);
     });
+   
+            
 
+    
 });
 
+
+// Have to revisit
 router.post('/settings/delete-account',[
     body('username')
     .custom( (value, { req } ) => {
         if (value !== req.user.username) {
-          throw new Error('Enter your username');
+          throw new Error('Please enter your username.');
         }
         else{
             return Promise.resolve(value);
         }
+    }),
+    body('password')
+    .custom( (value, { req } ) => {
+
+        // Find user > Check if password matches the one in database
+        return models.Users.findById(req.user.id).then( (userData) => {
+           return bcrypt.compare(value, userData.password)
+            .then( (response) => {
+            
+                // If password does not match, reject value
+                if(!response){
+                    return Promise.reject('This password is incorrect.');
+                }
+                else{
+                    return Promise.resolve(value);
+                }
+            });
+        })
+        .catch((err) => {
+            throw new Error(err);
+        });
+        
     }),
     body('confirmPassword') // Password confirmation validation
     .custom( (value, { req } ) => {
@@ -362,30 +391,18 @@ router.post('/settings/delete-account',[
     }
 
 
-    // Check the password matches on in the database
-    // If so - delete the document from the database
-    User.findById(req.user.id).then( (userData) => {
-        bcrypt.compare(req.body.password, userData.password)
-        .then( (response) => {
-            // Password does not match one in database
-            if(!response){
-                res.json({success: false});
-            }
-            else{
-                // Delete user
-                userData.remove();
-                req.logout();
-                res.json({success: true, isAuth: false});
-            }
+    // Only removes from Users Collection as of now
+    models.Users.remove({username: {$in: req.user.username}})
+        .then((response) => {
+            console.log(response, `finding all the ins`);
+            req.logout()
+            res.json({success: true});
         })
         .catch((err) => {
+            res.json({success: false});
             console.log(err);
         });
-  
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+
 
 });
 

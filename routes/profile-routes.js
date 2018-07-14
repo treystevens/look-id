@@ -117,15 +117,16 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 
             
             // Create post in Posts Collections
-            Posts.create(newPost).then((success) => {
+            models.Posts.create(newPost).then(() => {
 
                 // Push into User Collection with reference to original post to display 'Other Posts'
-                models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}).then((user) => {
-                    console.log(user);
+                models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}, {'new': true}).then((data) => {
+                    console.log(data);
                 });
 
+
                 // Send new Post to Explore Collection
-                Explore.create(streamPost);
+                models.Explore.create(streamPost);
 
                 // Delete file from temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {
@@ -190,7 +191,8 @@ router.get('/edit', (req, res) => {
 
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
-    console.log(req.body);
+    // console.log(`posing to edit`)
+    // console.log(req.body);
 
     const query = {
         username: req.user.username
@@ -212,7 +214,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
     // User decides not to change their avatar, so the req.file will be undefined. Taking the src of the image that was previously uploaded to cloudinary to set back into database
     if(req.file === undefined){
 
-        userUpdate.avatar = defaultAvatar;
+        userUpdate.avatar = imgFromAvatarSrc;
         
         // Update user's website and bio
         models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
@@ -244,8 +246,6 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
             // Update user's profile settings
             models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
             .then( (userRequest) => {
-
-                console.log(userRequest);
 
                 // Delete the uploaded file out the temporary folder
                 fs.unlink(`${req.file.path}`, (err) => {

@@ -1,32 +1,31 @@
 const router = require('express').Router();
 const AccountInfo = require('../models/accInfo');
 const User = require('../models/user');
+const models = require('../models/schemas');
 
 
+// User's Main Profile Page
 router.get('/:user', (req, res) => {
-    // Display Pictures, followers, bio, avatar main profile page
-
+    
 
     const query = {
        username: req.params.user
    };
    
 
-   AccountInfo.findOne(query)
+   models.Users.findOne(query)
    .then( (user) => {
 
         if(!user) res.status(404).send('Page does not exist');
 
-    //    console.log(user);
-
-    let alreadyFollow = false;
+        let iFollow = false;
 
        if(req.isAuthenticated()){
             for(let me of user.followers){
-                console.log(me, `mweeee`)
+        
                 if(req.user.username === me.username){
-                    alreadyFollow = true;
-                    console.log('were true')
+                    iFollow = true;
+                    
                 }
             }
         }
@@ -39,217 +38,252 @@ router.get('/:user', (req, res) => {
            avatar: user.profile.avatar,
            posts: user.posts,
            username: user.username,
-           alreadyFollowing: alreadyFollow
+           iFollow: iFollow
        };
 
-       console.log(`==========GET REQUEST FOLLOWERS=======`)
-       console.log(user.followers)
-       console.log(user.following)
-       
-       
 
-       res.json({user: neededData});
+        models.Posts.find(query).then((data) => {
+
+            neededData.posts = data;
+
+            console.log(data);
+            res.json({success: true, user: neededData});
+        });
+              
+
+       
    })
    .catch( (err) => {
+       res.json({success: false});
        console.log(err);
    });
 
 });
 
-
+// User's Post Page
 router.get('/:user/:postid', (req, res) => {
-
     const query = {
        username: req.params.user
-   };
+    };
     const postID = req.params.postid;
 
 
-   AccountInfo.findOne(query)
-   .then( (user) => {
+    // Search through all the user's post to get the specific post and to create 'Other Posts' section
+    models.Posts.find(query).then((posts) => {
 
-    if(!user) res.status(404).send('Page does not exist');
+        let requestedPostData;
+       
+        // Get the needed post
+        posts.forEach((post) => {
+            if(post.post_id === postID){
+                if(!post.post_id) res.status(404).send('Page does not exist');
+                requestedPostData = post;
+            }
+        });
 
-
-       let neededPostData;
-
-       user.posts.forEach((post) => {
-        if(post.post_id === postID){
-            if(!post.post_id) res.status(404).send('Page does not exist');
-            neededPostData = post;
-        }
-       });
-
-       console.log(neededPostData, ` the needed post data`);
-
-
-        const username = user.username;
-
-        if(req.isAuthenticated()){
-            res.json({post: neededPostData, username: username, myUsername: req.user.username, otherPosts: user.other_posts});
-        }
-        else{
-            res.json({post: neededPostData, username: username, otherPosts: user.other_posts});
-        }
-
+        // Make 'Other Posts' Section, filter out the post that is requested
+        // const otherPosts = posts.filter((post) => post.post_id !== postID);
+        models.Posts.find({post_id: {$ne: postID}}, {post_id: 1, image: 1})
+        .then((otherPosts) => {
+            res.json({post: requestedPostData, otherPosts: otherPosts});
+        });
+        
+        
+        
        
    })
    .catch( (err) => {
-       console.log(err);
+        console.log(err);
+        res.status(415).json({success: false});
    });
 
 });
 
-router.post('/:postid/like', (req, res) => {
+// Get User's Like
+router.get('/:user/:postid/likes', (req, res) => {
 
-    const liked = req.body.liked;
+    const query = {
+       post_id: req.params.postid
+    };
+    
+    // Get requested posts for likes
+    models.Posts.findOne(query).then((posts) => {
+
+        let iLiked = false;
+        const likeCount = posts.likes.length;
+
+        // Check to see if user liked the requested post already
+        if(req.isAuthenticated()){
+            posts.likes.forEach((username) => {
+                if(req.user.username === username) iLiked = true;
+            });
+        }
+
+        res.json({iLiked: iLiked, likeCount: likeCount});
+   })
+   .catch( (err) => {
+        console.log(err);
+        res.status(500).json({success: false});
+   });
+
+});
+
+// Liking a user's post
+router.post('/:user/:postid/likes', (req, res) => {
+
+    const query = {
+        'post_id': req.params.postid
+    };
+    const liked = req.body.iLiked;
     let performUpdateAction;
 
     liked ? 
-            performUpdateAction = { $pull: {'posts.$.liked': req.user.username} } 
+            performUpdateAction = { $pull: {'likes': req.user.username} } 
             : 
-            performUpdateAction = { $push: {'posts.$.liked': req.user.username} }
+            performUpdateAction = { $push: {'likes': req.user.username} }
 
-    const query = {
-        'posts.post_id': req.params.postid
-    };
-
-    // res.json({success: false})
-
-
-    AccountInfo.findOneAndUpdate(query, performUpdateAction, {'new': true})
-    .then((post) => {
-        AccountInfo.findOne(query, {'posts.$.liked': 1})
-        .then((data) => {
-            res.json({success: true});
-        });
-    })
-    .catch((err) => {
-        res.json({success: false});
-        console.log(err);
-    });
-
-});
-
-
-router.get('/:user/followers', (req, res) => {
     
-    const query = {
-        username: req.params.username
-    };
 
-    AccountInfo.findOne(query, {followers: 1})
-    .then((data) => {
-        console.log(data);
+    models.Posts.findOneAndUpdate(query, performUpdateAction, {'new': true})
+    .then(() => {
+        res.json({success: true});
     })
     .catch((err) => {
+        res.status(500).json({success: false});
         console.log(err);
     });
 
-
 });
 
+// For length of followers
+// router.get('/:user/followers', (req, res) => {
+    
+//     const query = {
+//         username: req.params.username
+//     };
+
+//     models.Users.findOne(query, {followers: 1})
+//     .then((data) => {
+//         console.log(data);
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
+
+
+// });
+
+// User following another user
 router.post('/:user/followers', (req, res) => {
     
     const query = {
         username: req.params.user
     };
-
-    const myUserData = {
-        username: req.user.username,
-        avatar: req.body.myUserData.avatar
-    };
-
-    const addUser = {
-        username: req.params.user,
-        avatar: req.body.userToFollow.avatar
-    };
+    const myUserName = req.user.username;
+    const userIWantToFollow = req.params.user;
 
     let myFollowingAction;
-
     let updateAction;
 
 
-    if(req.body.myUserData.isFollowing){
-        updateAction = {$pull: {followers: myUserData} };
-        myFollowingAction = {$pull: {following: addUser} };
-        
+    // If I follow them already pull their name from their follower list and my following list
+    if(req.body.iFollow){
+        updateAction = {$pull: {followers: myUserName} };
+        myFollowingAction = {$pull: {following: userIWantToFollow} };
     }
     else{
-
-        updateAction = {$push: {followers: myUserData} };
-        myFollowingAction = {$push: {following: addUser} };
+        updateAction = {$push: {followers: myUserName} };
+        myFollowingAction = {$push: {following: userIWantToFollow} };
     }
             
 
-
-    // Go to user profile add my data to their follower array
-    AccountInfo.findOneAndUpdate(query, updateAction, {new: true})
-    .then((data) => {
-
+    // Go to the user I want to follow and add my data to their follower array
+    models.Users.findOneAndUpdate(query, updateAction)
+    .then(() => {
         // Add user's data to my following array
-        AccountInfo.findOneAndUpdate({username: req.user.username}, myFollowingAction, {new: true})
-        .then((data) => {
+        models.Users.findOneAndUpdate({username: req.user.username}, myFollowingAction)
+        .then(() => {
 
+            const prevFollowingData = req.body.iFollow;
             let nowFollowing;
-            const prevFollowingData = req.body.myUserData.isFollowing;
-
-            // If we previously followed, we don't now
+           
             prevFollowingData ? nowFollowing = false : nowFollowing = true;
-
-
-            res.json({actionSuccess: true, isFollowing: nowFollowing});
+            res.json({actionSuccess: true, iFollow: nowFollowing});
         });
         
     })
     .catch((err) => {
+
         console.log(err);
     });
 
 
 });
 
-
+// Getting list of users of followers (MODAL DISPLAY)
 router.get('/:user/ff/followers', (req, res) => {
-
-    console.log('got followers')
     
     const query = {
         username: req.params.user
     };
 
-    let projection = { followers: 1 };
-    let secondProjection = { following: 1};
+    // Projection
+    const filterFollowers = { followers: 1 };
+    const filterFollowing = { following: 1};
     
-
-
-    AccountInfo.findOne(query, projection)
+    // Find the user whose followers we'd like to view, project only their followers
+    models.Users.findOne(query, filterFollowers)
     .then((data) => {
 
-         
+        console.log(data.followers);
+        
+        // Place the usernames into our array
+        const followers = data.followers.map((username) => username);
 
-        AccountInfo.findOne({username: req.user.username}, secondProjection)
-        .then((myFollowing) => {
- 
+        // Find those users and only project their username and avatar
+        models.Users.find({username: {$in: followers}}, {username: 1, 'profile.avatar':1})
+        .then((result) => {
+            console.log(result.following, `result trying the map`)
+
+
+            // models.Users.find({username: req.user.username}, {filterFollowing})
+            // .then((following) => {
+
+                // for(let i = 0; i < followers.length; i++){
+
+            //             for(let j = 0; j < myFollowing.following.length; j++){
+        
+        
+            //                 if(data.followers[i].username === myFollowing.following[j].username){
+            //                     data.followers[i].iFollow = true;
+            //                 }
+            //             }
+            //         }
+
+            // });
+            // Get my following data
+
+
+
+            
+
+
+            res.json({ff: result});
+        });
 
 
             // By sorting can probably speed this up
-            for(let i = 0; i < data.followers.length; i++){
+        //   
 
-                for(let j = 0; j < myFollowing.following.length; j++){
-
-
-                    if(data.followers[i].username === myFollowing.following[j].username){
-                        data.followers[i].iFollow = true;
-                    }
-                }
-            }
+        
+        // Query my following list to see if there are users that I already follow in another user's followers list
+        // models.Users.findOne({username: req.user.username}, filterFollowing)
+        // .then((myFollowing) => {
+ 
+        
     
-            
-    
-            res.json({ff: data});
-        });
-
+        //     res.json({ff: data});
+        // });
     })
     .catch((err) => {
         console.log(err);
@@ -258,28 +292,33 @@ router.get('/:user/ff/followers', (req, res) => {
 
 });
 
+// Getting list of users of following (MODAL DISPLAY)
 router.get('/:user/ff/following', (req, res) => {
     
+
     const query = {
         username: req.params.user
     };
+    const filterFollowing = { following: 1};
 
-    let projection = { following: 1};
-    
 
-    AccountInfo.findOne(query, projection)
+    models.Users.findOne(query, filterFollowing)
     .then((data) => {
-        let test = data;
-        
-        
-        for(let user of data.following){
-            
-            user.iFollow = true;
-        }
 
         
+        
+        // Place the usernames into our array
+        const following = data.following.map((username) => username);
 
-        res.json({ff: data});
+        // Find those users and only project their username and avatar
+        models.Users.find({username: {$in: following}}, {username: 1, 'profile.avatar':1})
+        .then((result) => {
+            console.log(result, `result trying the map`)
+
+            res.json({ff: result});
+        });
+
+
 
     })
     .catch((err) => {
@@ -287,36 +326,38 @@ router.get('/:user/ff/following', (req, res) => {
     });
 
 
+
 });
 
-router.get('/:user/followers', (req, res) => {
-    
-    const query = {
-        username: req.params.user
-    };
 
-    let projection;
+// router.get('/:user/ff/:followers', (req, res) => {
     
+//     const query = {
+//         username: req.params.user
+//     };
 
-    if(req.params.follow === 'followers') projection = { followers: 1 };
-    if(req.params.follow === 'following') projection = { following: 1};
-    if(!req.params.follow) res.json({success: false});
+//     let projection;
     
 
-    AccountInfo.findOne(query, projection)
-    .then((data) => {
+//     if(req.params.follow === 'followers') projection = { followers: 1 };
+//     if(req.params.follow === 'following') projection = { following: 1};
+//     if(!req.params.follow) res.json({success: false});
+    
+
+//     AccountInfo.findOne(query, projection)
+//     .then((data) => {
         
 
     
 
-        res.json({ff: data});
+//         res.json({ff: data});
 
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
 
 
-});
+// });
 
 module.exports = router;

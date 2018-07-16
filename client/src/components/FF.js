@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import PageHead from './PageHead';
 import {ShowButton} from './buttons/Buttons';
 import FollowButton from './FollowButton';
-
+import { connect } from 'react-redux';
+ 
 class FF extends Component{
 
     constructor(props){
@@ -44,29 +45,33 @@ class FF extends Component{
 
 
     render(){
+        
         let users;
-        const followAction = this.props.followAction.toLowerCase();
-        const followText = this.props.followAction;
+        let showFollowButton = true;
 
+        // Checking to see if requested user is the same user logged in viewing their own profile
+        // If so, include upload post feature, remove follow button
+        if(this.props.urlParamUser === this.props.username){
+            showFollowButton = false;
+        }
 
 
 
         console.log(this.state.users)
-        if(this.state.users.followers || this.state.users.following){
+        if(this.state.users.length > 0){
 
         
-            users = this.state.users[followAction].map((user) => {
+            users = this.state.users.map((user) => {
                 console.log(user)
                 return(
-                        <section key={`li-${user.username}`}>
-                            <a href={`/user/${user.username}`}>
-                            <Avatar avatar={user.avatar} username={user.username}/></a>
+                        <section key={user._id}>
+                            <Link to= {`/user/${user.username}`}>
+                            <Avatar avatar={user.profile.avatar} username={user.username}/></Link>
                             <span>{user.username}</span>
-                            {user.iFollow ? (
-                                <FollowButton text='Following' userAvatar={user.avatar} username={user.username}/>
-                            ) : (
-                                <FollowButton text='Follow' userAvatar={user.avatar} username={user.username}/>
-                            )}
+
+                            {this.props.username !== user.username &&
+                                <FollowButton followText='Following' username={user.username} iFollow={user.iFollow}/>
+                            }
                             
                             
                         </section>
@@ -91,6 +96,11 @@ class FF extends Component{
 }
 
 
+function mapStateToProps(state) {
+    return {
+      username: state.username,
+      isAuth: state.isAuth
+    };
+}
 
-
-export default FF;
+export default connect(mapStateToProps)(FF);

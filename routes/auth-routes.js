@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // Models
-const { Users, Followers, Following, Boards, Feed } = require('../models/schemas');
+const { Users, Feed } = require('../models/schemas');
 
 
 
@@ -137,9 +137,6 @@ router.post('/signup', [
                     username: newUser.username 
                 };
 
-                Boards.create(initiateUser);
-                Followers.create(initiateUser);
-                Following.create(initiateUser);
                 Feed.create(initiateUser);
 
  

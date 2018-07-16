@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
-// import PostDescription from './PostDescription';
 import PageHead from './PageHead';
-import PostEngage from './PostEngage';
-import Modal from './Modal';
 import Comments from './Comments';
 import OtherPosts from './OtherPosts';
 import ItemDescription from './ItemDescription';
-import Notifications from './Notifications';
 import { getData } from '../util/serverFetch';
 import PostImage from './PostImage';
-
 
 
 class Post extends Component{
@@ -22,36 +17,17 @@ class Post extends Component{
             username: '',
             image: '',
             showModal: false,
-            likeCount: '',
-            liked: false,
             caption: '',
             postID: '',
             dataLoaded: false,
-            myUsername: '',
             showOtherPosts: false
         };
 
-        this.openBoards = this.openBoards.bind(this);
-        this.closeModal = this.closeModal.bind(this);
         this.shuffle = this.shuffle.bind(this);
         
     }
 
-    openBoards(){
-        this.setState({
-            showModal: true
-        });
-       
-    }
-
-    closeModal(evt){
-        if(evt.target.className === 'modal'){
-            this.setState({
-                showModal: false
-            });
-        }   
-    }
-
+    // Fisher-Yates Shuffle
     shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
       
@@ -67,17 +43,16 @@ class Post extends Component{
           array[currentIndex] = array[randomIndex];
           array[randomIndex] = temporaryValue;
         }
-      
         return array;
       }
         
 
-
+    // Retrieve Posts, Comments, Other Posts and Items
     componentDidMount(){
         
 
         const urlUsernameParam = this.props.urlParams.match.params.user;
-        const urlPostID = this.props.urlParams.match.params.postid
+        const urlPostID = this.props.urlParams.match.params.postid;
         const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}`);
 
         // Get Profile Data
@@ -85,10 +60,9 @@ class Post extends Component{
         .then((data) => {
 
             const otherPostLength = data.otherPosts.length;
+            
             let showOtherPosts;
-
-
-            if(otherPostLength > 1){
+            if(otherPostLength > 0){
                 showOtherPosts = true;
             }
 
@@ -97,18 +71,12 @@ class Post extends Component{
                 if(post.post_id !== urlPostID) return post;
             });
 
-            let shuffledOtherPosts = this.shuffle(filteredOtherPosts);
-
+            // Shuffle and slice for 'Other Posts' section
+            const shuffledOtherPosts = this.shuffle(filteredOtherPosts);
             const slicedOtherPosts = shuffledOtherPosts.slice(0, 4);
 
-
-           
-
-            
-            console.log(data);
-
             this.setState({
-                username: data.username,
+                username: data.post.username,
                 image: data.post.image,
                 comments: data.post.comments,
                 caption: data.post.caption,
@@ -116,7 +84,7 @@ class Post extends Component{
                 items: data.post.items,
                 postID: data.post.post_id,
                 dataLoaded: true,
-                showOtherPosts: showOtherPosts
+                showOtherPosts: showOtherPosts,
             });
         })
         .catch((err) => {
@@ -145,14 +113,9 @@ class Post extends Component{
 
         if(this.state.otherPosts){
             otherPosts = this.state.otherPosts.map((post)=> {
-                console.log(post);
                 return <OtherPosts post={post} username={this.state.username} key={post._id}/>
             })
         }
-        
-        
-        
-        
 
         return(
             <div>
@@ -167,8 +130,6 @@ class Post extends Component{
                 <section style={{display: 'flex'}}>
                     <div className="comments" style={{marginTop: '40px', width: '30%'}}>
                         <Comments comments={this.state.comments} urlParams={urlParams}/>
-                        {/* {this.state.comments} */}
-                        {/* <a href="/viewallcomments">View all comments</a> */}
                     </div>
                     {this.state.showOtherPosts &&
                     <div className="otherPosts">
@@ -178,11 +139,7 @@ class Post extends Component{
                         </div>
                     </div>
                     }
-                </section>
-                
-
-                
-                
+                </section>   
             </div>
         )
     }

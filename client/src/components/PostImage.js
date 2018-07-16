@@ -10,9 +10,8 @@ class PostImage extends Component{
     
     this.state = {
         showModal: false,
-        liked: false,
+        iLiked: false,
         likeCount: ''
-   
     };
 
     this.openBoards = this.openBoards.bind(this);
@@ -20,28 +19,22 @@ class PostImage extends Component{
     this.handleLikeCount = this.handleLikeCount.bind(this);
 }
 
+    // Data to see if liked post and the amount of likes on a post
     componentDidMount(){
-            
+
+
         const urlUsernameParam = this.props.urlParams.username;
         const urlPostID = this.props.urlParams.postID;
 
-        const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}`);
+        // Fetch to server to see if user liked post and like count
+        const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}/likes`);
         
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data);
-
-            let liked = false;
-
-            for(let users of data.post.liked){
-                if(users === data.myUsername){  
-                    liked = true;
-                }
-            }
-
+            
             this.setState({
-                liked: liked,
-                likeCount: data.post.liked.length
+                iLiked: data.iLiked,
+                likeCount: data.likeCount
             });
 
         })
@@ -50,59 +43,64 @@ class PostImage extends Component{
         });
     }
 
-openBoards(){
-    this.setState({
-        showModal: true
-    });
-   
-}
-
-closeModal(evt){
-    if(evt.target.className === 'modal'){
+    // Show boards to add the post to
+    openBoards(){
         this.setState({
-            showModal: false
+            showModal: true
         });
-    }   
-}
+    
+    }
 
-handleLikeCount(){
+    // Close Boards Modal
+    closeModal(evt){
+        if(evt.target.className === 'modal'){
+            this.setState({
+                showModal: false
+            });
+        }   
+    }
 
-    const count = this.state.likeCount;
-    const postID = this.props.urlParams.postID;
-    const data = {
-        liked: this.state.liked
-    };
-    const serverResponse = sendUserData(`/user/${postID}/like`, data);
+    // Mutate like count on click
+    handleLikeCount(){
 
-    serverResponse.then( response => response.json())
-    .then((data) => {
+        const urlUsernameParam = this.props.urlParams.username;
+        const count = this.state.likeCount;
+        const urlPostID = this.props.urlParams.postID;
+        const data = {
+            iLiked: this.state.iLiked
+        };
+        const serverResponse = sendUserData(`/user/${urlUsernameParam}/${urlPostID}/likes`, data);
 
-        if(data.success){
-            if(this.state.liked){
-                this.setState({
-                    likeCount: count - 1,
-                    liked: false
-                });
+        serverResponse.then( response => response.json())
+        .then((data) => {
+
+            if(data.success){
+                if(this.state.iLiked){
+                    this.setState({
+                        likeCount: count - 1,
+                        iLiked: false
+                    });
+                }
+                else{
+                    // Change the image of the heart to be filled
+                    this.setState({
+                        likeCount: count + 1,
+                        iLiked: true
+                    });
+                }
             }
-            else{
-                // Change the image of the heart to be filled
-                this.setState({
-                    likeCount: count + 1,
-                    liked: true
-                });
-            }
-        }
+
+            
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
 
         
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    }
 
-
-    
-}
-
+    // Close Modal with Escape Key
     componentDidUpdate(){
 
         window.addEventListener('keydown', (evt) => {
@@ -116,12 +114,11 @@ handleLikeCount(){
 
     render(){
 
-        console.log(this.props)
         return(
             <article style={ {"width": "40%"}}>
                 <img  className='post__image' src={this.props.image} style={ {"width": "100%"}}/>
 
-                <PostEngage openBoards={this.openBoards} commentCount={this.props.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount} liked={this.state.liked}/>
+                <PostEngage openBoards={this.openBoards} commentCount={this.props.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount} iLiked={this.state.iLiked}/>
 
                 {this.state.showModal && 
                     <Modal source="addToBoard" closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}

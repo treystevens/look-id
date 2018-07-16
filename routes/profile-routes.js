@@ -1,14 +1,10 @@
 const router = require('express').Router();
 const mime = require('mime');
 const multer = require('multer');
-const AccountInfo = require('../models/accInfo');
-const User = require('../models/user');
 const fs = require('fs');
-const TestExplore = require('../models/testexplore');
 
 // Mongoose Models
 const models = require('../models/schemas');
-
 
 // express-validator
 const { validationResult } = require('express-validator/check');
@@ -20,9 +16,6 @@ const saltRounds = 10;
 
 // cloudinary
 const cloudinary = require('cloudinary');
-
-
-
 
 
 // Store files and name format them - 'li-(date).(type)'
@@ -41,8 +34,8 @@ const upload = multer({
     fileFilter: function (req, file, cb) {
 
         let accept = false;
-        let acceptableTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-        let uploadedFileExtension = file.mimetype;
+        const acceptableTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        const uploadedFileExtension = file.mimetype;
     
         
         for(let extension of acceptableTypes){
@@ -191,8 +184,6 @@ router.get('/edit', (req, res) => {
 
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
-    // console.log(`posing to edit`)
-    // console.log(req.body);
 
     const query = {
         username: req.user.username

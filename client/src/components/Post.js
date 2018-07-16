@@ -67,9 +67,9 @@ class Post extends Component{
             }
 
             // Make sure this post doens't show up in other post
-            let filteredOtherPosts = data.otherPosts.filter((post) => {
-                if(post.post_id !== urlPostID) return post;
-            });
+            // let filteredOtherPosts = data.otherPosts.filter((post) => {
+            //     if(post.post_id !== urlPostID) return post;
+            // });
 
             // Shuffle and slice for 'Other Posts' section
             const shuffledOtherPosts = this.shuffle(filteredOtherPosts);

@@ -1,6 +1,4 @@
 const router = require('express').Router();
-const AccountInfo = require('../models/accInfo');
-const User = require('../models/user');
 const models = require('../models/schemas');
 
 
@@ -49,9 +47,6 @@ router.get('/:user', (req, res) => {
             console.log(data);
             res.json({success: true, user: neededData});
         });
-              
-
-       
    })
    .catch( (err) => {
        res.json({success: false});
@@ -87,10 +82,6 @@ router.get('/:user/:postid', (req, res) => {
         .then((otherPosts) => {
             res.json({post: requestedPostData, otherPosts: otherPosts});
         });
-        
-        
-        
-       
    })
    .catch( (err) => {
         console.log(err);
@@ -155,24 +146,6 @@ router.post('/:user/:postid/likes', (req, res) => {
 
 });
 
-// For length of followers
-// router.get('/:user/followers', (req, res) => {
-    
-//     const query = {
-//         username: req.params.username
-//     };
-
-//     models.Users.findOne(query, {followers: 1})
-//     .then((data) => {
-//         console.log(data);
-//     })
-//     .catch((err) => {
-//         console.log(err);
-//     });
-
-
-// });
-
 // User following another user
 router.post('/:user/followers', (req, res) => {
     
@@ -229,61 +202,46 @@ router.get('/:user/ff/followers', (req, res) => {
 
     // Projection
     const filterFollowers = { followers: 1 };
-    const filterFollowing = { following: 1};
+    const filterFollowing = { following: 1 };
     
     // Find the user whose followers we'd like to view, project only their followers
     models.Users.findOne(query, filterFollowers)
-    .then((data) => {
-
-        console.log(data.followers);
+    .then((user) => {
         
-        // Place the usernames into our array
-        const followers = data.followers.map((username) => username);
+        // Place the usernames into our array (LIST OF USERNAMES)
+        const followers = user.followers.map((username) => username);
 
         // Find those users and only project their username and avatar
         models.Users.find({username: {$in: followers}}, {username: 1, 'profile.avatar':1})
         .then((result) => {
-            console.log(result.following, `result trying the map`)
 
-
-            // models.Users.find({username: req.user.username}, {filterFollowing})
-            // .then((following) => {
-
-                // for(let i = 0; i < followers.length; i++){
-
-            //             for(let j = 0; j < myFollowing.following.length; j++){
-        
-        
-            //                 if(data.followers[i].username === myFollowing.following[j].username){
-            //                     data.followers[i].iFollow = true;
-            //                 }
-            //             }
-            //         }
-
-            // });
-            // Get my following data
-
-
-
+            // Shadow variable (LIST OF USER DOCUMENTS)
+            const followers = result.map( (user) => user.toObject());
             
+            // Query for the users that I follow
+            models.Users.findOne({username: req.user.username}, filterFollowing).then((data) => {
 
+                const myFollowing = data.following;
 
-            res.json({ff: result});
+                // See if I one of the requested user's followers already
+                for(let i = 0; i < followers.length; i++){
+                    for(let j = 0; j < myFollowing.length; j++){
+                        if(followers[i].username === myFollowing[j]){
+                            followers[i].iFollow = true;
+                        }
+                        else{
+                            followers[i].iFollow = false;
+                        }
+                    }
+                }
+                res.json({ff: followers});
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+            
         });
-
-
-            // By sorting can probably speed this up
-        //   
-
         
-        // Query my following list to see if there are users that I already follow in another user's followers list
-        // models.Users.findOne({username: req.user.username}, filterFollowing)
-        // .then((myFollowing) => {
- 
-        
-    
-        //     res.json({ff: data});
-        // });
     })
     .catch((err) => {
         console.log(err);
@@ -299,65 +257,62 @@ router.get('/:user/ff/following', (req, res) => {
     const query = {
         username: req.params.user
     };
-    const filterFollowing = { following: 1};
+   // Projection
+   const filterFollowing = { following: 1 };
+   
+   // Find the user whose followers we'd like to view, project only their followers
+   models.Users.findOne(query, filterFollowing)
+   .then((user) => {
+       
+       // Place the usernames into our array
+       const following = user.following.map((username) => username);
 
+       // Find those users and only project their username and avatar
+       models.Users.find({username: {$in: following}}, {username: 1, 'profile.avatar':1})
+       .then((result) => {
 
-    models.Users.findOne(query, filterFollowing)
-    .then((data) => {
+           const following = result.map( (user) => user.toObject());
+       
+           // Query for the users that I follow
+           models.Users.findOne({username: req.user.username}, filterFollowing).then((data) => {
 
-        
-        
-        // Place the usernames into our array
-        const following = data.following.map((username) => username);
+               let myFollowing = data.following;
 
-        // Find those users and only project their username and avatar
-        models.Users.find({username: {$in: following}}, {username: 1, 'profile.avatar':1})
-        .then((result) => {
-            console.log(result, `result trying the map`)
+               // See if I follow a user that the requested user follows
+               for(let i = 0; i < following.length; i++){
+   
+                    // If I'm viewing my own page set all iFollow to true 
+                    if(req.user.username == req.params.user){
+                        following[i].iFollow = true;
+                    }
+                    else{
+                        for(let j = 0; j < myFollowing.length; j++){
+                            
+                            if(following[i].username === myFollowing[j]){
+                                following[i].iFollow = true;
+                            }
+                            else{
+                                following[i].iFollow = false;
+                            }
+                        }
+                    } 
+                }   
 
-            res.json({ff: result});
-        });
-
-
-
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-
+               res.json({ff: following});
+           })
+           .catch((err) => {
+               console.log(err);
+           });
+           
+       });
+       
+   })
+   .catch((err) => {
+       console.log(err);
+   });
 
 
 });
 
-
-// router.get('/:user/ff/:followers', (req, res) => {
-    
-//     const query = {
-//         username: req.params.user
-//     };
-
-//     let projection;
-    
-
-//     if(req.params.follow === 'followers') projection = { followers: 1 };
-//     if(req.params.follow === 'following') projection = { following: 1};
-//     if(!req.params.follow) res.json({success: false});
-    
-
-//     AccountInfo.findOne(query, projection)
-//     .then((data) => {
-        
-
-    
-
-//         res.json({ff: data});
-
-//     })
-//     .catch((err) => {
-//         console.log(err);
-//     });
-
-
-// });
 
 module.exports = router;

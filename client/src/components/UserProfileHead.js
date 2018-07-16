@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
-import { getData } from '../util/serverFetch';
-
 import Modal from './Modal';
 import { connect } from 'react-redux';
-import { ShowButton } from './buttons/Buttons';
 import FollowButton from './FollowButton';
 
 
@@ -20,11 +17,7 @@ class UserProfileHead extends Component{
         };
             this.handleClick = this.handleClick.bind(this);
             this.closeModal = this.closeModal.bind(this);
-
     }
-
-
-
 
     // Click Event for 'Followers' & 'Followers' to show Modal - FF Component
     handleClick(evt){
@@ -49,6 +42,7 @@ class UserProfileHead extends Component{
         }
     }
 
+    // Close modal with `esc` key
     componentDidUpdate(){
 
         window.addEventListener('keydown', (evt) => {
@@ -61,19 +55,16 @@ class UserProfileHead extends Component{
     }
 
     render(){
-        console.log(this.props)
-
-
+        
         let uploadPost = false;
         let showFollowButton = true;
 
         // Checking to see if requested user is the same user logged in viewing their own profile
-        // If so, include upload post feature, remove follow button
+        // If so, include upload post feature and remove follow button
         if(this.props.urlParamUser === this.props.username){
             uploadPost = true;
             showFollowButton = false;
         }
-
 
         return(
             <section>
@@ -89,8 +80,8 @@ class UserProfileHead extends Component{
                     </div>
                     <div>
                         <a onClick={this.handleClick} >
-                        <span className='user__ff'>Following</span>
-                        <span>{this.props.data.followingCount}</span>
+                            <span className='user__ff'>Following</span>
+                            <span>{this.props.data.followingCount}</span>
                         </a>
                     </div>
 
@@ -99,7 +90,7 @@ class UserProfileHead extends Component{
                     <a href={this.props.data.website}>{this.props.data.website}</a>
 
                     {showFollowButton &&
-                        <FollowButton text={this.props.followText} iFollow={this.props.iFollow} urlParamUser={this.props.urlParamUser} reqUserAvatar={this.props.data.avatarUrl} username={this.props.data.username}  handleFollowerCount={this.props.handleFollowerCount}/>
+                        <FollowButton followText={this.props.followText} iFollow={this.props.iFollow} urlParamUser={this.props.urlParamUser} reqUserAvatar={this.props.data.avatarUrl} user={this.props.data.username}  handleFollowerCount={this.props.handleFollowerCount}/>
                     }
                 </section>
 
@@ -108,7 +99,7 @@ class UserProfileHead extends Component{
                 }
 
                 {this.state.showModal &&
-                    <Modal source="ff" closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} />
+                    <Modal source="ff" closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} handleFollowingCount={this.props.handleFollowingCount}/>
                 }
                 
             </section>
@@ -124,6 +115,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(UserProfileHead);
-
-
- {/* <ShowButton text={this.props.followText} handleClick={this.handleFollow}/> */}

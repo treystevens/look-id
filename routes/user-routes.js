@@ -10,25 +10,24 @@ router.get('/:user', (req, res) => {
        username: req.params.user
    };
    
-
+   // Retrieving user's profile information
    models.Users.findOne(query)
    .then( (user) => {
 
         if(!user) res.status(404).send('Page does not exist');
 
+        // For the FollowButton component to see if I follow the user
         let iFollow = false;
-
-       if(req.isAuthenticated()){
+        if(req.isAuthenticated()){
             for(let me of user.followers){
-        
-                if(req.user.username === me.username){
+                if(req.user.username === me){
                     iFollow = true;
-                    
                 }
             }
         }
 
-       const neededData = {
+        // Send back to the client
+        const neededData = {
            followerCount: user.followers.length,
            followingCount: user.following.length,
            bio: user.profile.bio,
@@ -39,12 +38,10 @@ router.get('/:user', (req, res) => {
            iFollow: iFollow
        };
 
-
+       // Getting the user's posts
         models.Posts.find(query).then((data) => {
 
             neededData.posts = data;
-
-            console.log(data);
             res.json({success: true, user: neededData});
         });
    })
@@ -57,6 +54,8 @@ router.get('/:user', (req, res) => {
 
 // User's Post Page
 router.get('/:user/:postid', (req, res) => {
+
+
     const query = {
        username: req.params.user
     };
@@ -77,7 +76,6 @@ router.get('/:user/:postid', (req, res) => {
         });
 
         // Make 'Other Posts' Section, filter out the post that is requested
-        // const otherPosts = posts.filter((post) => post.post_id !== postID);
         models.Posts.find({post_id: {$ne: postID}}, {post_id: 1, image: 1})
         .then((otherPosts) => {
             res.json({post: requestedPostData, otherPosts: otherPosts});
@@ -128,6 +126,7 @@ router.post('/:user/:postid/likes', (req, res) => {
     const liked = req.body.iLiked;
     let performUpdateAction;
 
+    // Action we will do depending on if we liked the user's post or not
     liked ? 
             performUpdateAction = { $pull: {'likes': req.user.username} } 
             : 
@@ -135,7 +134,7 @@ router.post('/:user/:postid/likes', (req, res) => {
 
     
 
-    models.Posts.findOneAndUpdate(query, performUpdateAction, {'new': true})
+    models.Posts.findOneAndUpdate(query, performUpdateAction)
     .then(() => {
         res.json({success: true});
     })
@@ -177,6 +176,7 @@ router.post('/:user/followers', (req, res) => {
         models.Users.findOneAndUpdate({username: req.user.username}, myFollowingAction)
         .then(() => {
 
+            // Compare to see if I now follow the user now
             const prevFollowingData = req.body.iFollow;
             let nowFollowing;
            
@@ -222,19 +222,9 @@ router.get('/:user/ff/followers', (req, res) => {
             models.Users.findOne({username: req.user.username}, filterFollowing).then((data) => {
 
                 const myFollowing = data.following;
+                const iFollowData = seeIfIFollow(followers, myFollowing);
 
-                // See if I one of the requested user's followers already
-                for(let i = 0; i < followers.length; i++){
-                    for(let j = 0; j < myFollowing.length; j++){
-                        if(followers[i].username === myFollowing[j]){
-                            followers[i].iFollow = true;
-                        }
-                        else{
-                            followers[i].iFollow = false;
-                        }
-                    }
-                }
-                res.json({ff: followers});
+                res.json({ff: iFollowData});
             })
             .catch((err) => {
                 console.log(err);
@@ -252,11 +242,12 @@ router.get('/:user/ff/followers', (req, res) => {
 
 // Getting list of users of following (MODAL DISPLAY)
 router.get('/:user/ff/following', (req, res) => {
-    
+
 
     const query = {
         username: req.params.user
     };
+
    // Projection
    const filterFollowing = { following: 1 };
    
@@ -271,41 +262,28 @@ router.get('/:user/ff/following', (req, res) => {
        models.Users.find({username: {$in: following}}, {username: 1, 'profile.avatar':1})
        .then((result) => {
 
-           const following = result.map( (user) => user.toObject());
-       
-           // Query for the users that I follow
-           models.Users.findOne({username: req.user.username}, filterFollowing).then((data) => {
+            const following = result.map( (user) => user.toObject());
 
-               let myFollowing = data.following;
+            // Check if I'm viewing my own Following list
+            if(req.user.username === req.params.user){
+                following.forEach((user) => user.iFollow = true);
 
-               // See if I follow a user that the requested user follows
-               for(let i = 0; i < following.length; i++){
-   
-                    // If I'm viewing my own page set all iFollow to true 
-                    if(req.user.username == req.params.user){
-                        following[i].iFollow = true;
-                    }
-                    else{
-                        for(let j = 0; j < myFollowing.length; j++){
-                            
-                            if(following[i].username === myFollowing[j]){
-                                following[i].iFollow = true;
-                            }
-                            else{
-                                following[i].iFollow = false;
-                            }
-                        }
-                    } 
-                }   
+                res.json({ff: following});
+                return 1;
+            }
+            
+            // Query for the users that I follow
+            models.Users.findOne({username: req.user.username}, filterFollowing).then((data) => {
 
-               res.json({ff: following});
-           })
-           .catch((err) => {
-               console.log(err);
-           });
-           
-       });
-       
+                const myFollowing = data.following;
+                const iFollowData = seeIfIFollow(following, myFollowing);
+
+                res.json({ff: iFollowData});
+            })
+            .catch((err) => {
+                console.log(err);
+            }); 
+       }); 
    })
    .catch((err) => {
        console.log(err);
@@ -314,5 +292,53 @@ router.get('/:user/ff/following', (req, res) => {
 
 });
 
+// Create iFollow property
+function seeIfIFollow(usersData, myData){
+        
+    if(myData.length < usersData.length){
+
+        // Tracker will tell us to stop looping through the usersData once we found all of our matches. 
+        const tracker = [];
+
+        loop1: 
+            for(let i = 0; i < usersData.length; i++){
+
+                loop2:
+                for(let j = 0; j < myData.length; j++){
+                    // All the people that I follow are found in their followers list
+                    if(tracker.length === myData.length){
+                        break loop1;
+                    }
+
+                    // Continue loop once we find a match to help avoid unncessary looping
+                    if(usersData[i].username === myData[j]){
+                        
+                        usersData[i].iFollow = true;
+                        tracker.push(usersData[i].username);
+                        continue loop1;
+                    }
+                }
+            }
+    }
+    else{
+
+        loop1: 
+            for(let i = 0; i < usersData.length; i++){
+                loop2:
+                for(let j = 0; j < myData.length; j++){
+
+                    // Continue loop once we find a match to help avoid unncessary looping
+                    if(usersData[i].username === myData[j]){
+                        
+                        usersData[i].iFollow = true;
+                        continue loop1;
+                    }
+                }
+            }
+    }
+
+    // Return with the iFollow property on those I follow
+    return usersData;
+}
 
 module.exports = router;

@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
-import { getData, sendUserData } from '../util/serverFetch';
-import { connect } from 'react-redux';
-import Avatar from './Avatar';
+import { getData } from '../util/serverFetch';
 
 
 class Profile extends Component{
@@ -15,27 +13,24 @@ class Profile extends Component{
             userProfileHead: {},
             streamData: {},
             iFollow: false,
-            followerCount: 0,
-            followText: 'Follow',
         };
 
-        // this.handleClickFollowText = this.handleClickFollowText.bind(this);
         this.handleFollowerCount = this.handleFollowerCount.bind(this);
+        this.handleFollowingCount = this.handleFollowingCount.bind(this);
     }
 
 
     // Get the requested user's profile data
     componentDidMount(){
+
+    
         const urlParamUser = this.props.urlParams.match.params.user;
         const serverResponse = getData(`/user/${urlParamUser}`);
 
 
-        
+        // Fetch Data
         serverResponse.then(response => response.json())
         .then((data) => {
-            let followText;
-
-            data.user.alreadyFollowing ? followText = 'Unfollow' : followText = 'Follow' ;
 
             // Send to profile header (Avatar, Followers/Following, Bio, Website)
             const userProfileHeadData = {
@@ -56,73 +51,68 @@ class Profile extends Component{
             this.setState({
                     userProfileHead: userProfileHeadData,
                     streamData: streamUserData,
-                    followText: followText,
-                    iFollow: data.user.alreadyFollowing,
+                    iFollow: data.user.iFollow,
                 });
         })
         .catch((err) => {
             console.log(err);
         });
     }
+   
 
+    // Passed down to FollowButton Component
+    handleFollowerCount(isFollowing){     
 
-    // Pass to FollowButton
-    handleFollowerCount(isFollowing){
+        // Follower count is nested inside our user profile head
+        const updateFollowerCount = Object.assign({}, this.state.userProfileHead);
 
-        console.log(isFollowing)
-         
-
-        // isFollowing ? action = 'INCREMENT' : action = 'DECREMENT';
-
-        // this.props.handleFollowerCount(action);
-
-        // console.log(action)
-        let updatedFollowerCount = Object.assign({}, this.state.userProfileHead);
-
+        // If we follow update count and switch FollowButton component text to 'Unfollow'
         if(isFollowing){
-            updatedFollowerCount.followerCount += 1;
+            updateFollowerCount.followerCount += 1;
 
             this.setState({
-                followText: 'Unfollow',
                 iFollow: true,
-                userProfileHead: updatedFollowerCount
+                userProfileHead: updateFollowerCount
             });
         }
         else{
-            updatedFollowerCount.followerCount -= 1;
+            updateFollowerCount.followerCount -= 1;
+
             this.setState({
-                followText: 'Follow',
                 iFollow: false,
-                userProfileHead: updatedFollowerCount
+                userProfileHead: updateFollowerCount
             });
         }
+    }
 
-    
+    // Passed down to FollowButton Component with FF Component as Ancestor
+    handleFollowingCount(){
+        const updateFollowingCount = Object.assign({}, this.state.userProfileHead);
+        
+        updateFollowingCount.followingCount -= 1;
+
+        this.setState({
+            userProfileHead: updateFollowingCount
+        });
 
     }
 
       
     render(){
     
-        // Store the requested user
-        let user = this.props.urlParams.match.params.user;
+        // Reference the requested user
+        const user = this.props.urlParams.match.params.user;
         
         return(
             <section>
                 <PageHead pageHead='Profile' />
-                <UserProfileHead urlParamUser={user} data={this.state.userProfileHead} iFollow={this.state.iFollow} handleClickFollowText={this.handleClickFollowText} handleFollowerCount={this.handleFollowerCount} followText={this.state.followText}/>
+                <UserProfileHead urlParamUser={user} data={this.state.userProfileHead} iFollow={this.state.iFollow} handleClickFollowText={this.handleClickFollowText} handleFollowerCount={this.handleFollowerCount} handleFollowingCount={this.handleFollowingCount}/>
                 <Stream sourceFetch='profile' urlParamUser={user} data={this.state.streamData}/>
             </section>
         )
     }
 }
 
-function mapStateToProps(state){
-    console.log(state)
-    return{
-        myAvatar: state.avatar
-    }
-}
 
 
-export default connect(mapStateToProps)(Profile)
+export default Profile

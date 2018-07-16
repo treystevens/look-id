@@ -8,18 +8,24 @@ class FollowButton extends Component{
 
         this.state = {
             followText: 'Follow',
-        }
+        };
 
         this.handleClick = this.handleClick.bind(this);
         this.changeFollowText = this.changeFollowText.bind(this);
     }
 
-
+    // Change followText on mount
     componentDidMount(){
-        
         this.changeFollowText(this.props.iFollow);
-
     }
+
+    // Update followText when component recieves new props
+    componentDidUpdate(prevProps){ 
+        if(prevProps.iFollow !== this.props.iFollow){
+            this.changeFollowText(this.props.iFollow);
+        }
+    }
+
 
     changeFollowText(iFollow){
         let followText;
@@ -30,33 +36,35 @@ class FollowButton extends Component{
         });
     }
 
-
     // On click send to server a request to follow or unfollow
-    handleClick(){
-        console.log(this.props);
-        
+    handleClick(){    
 
         const iFollow = this.props.iFollow;
         const urlParamUser = this.props.urlParamUser;
-        const username = this.props.username;
+        const user = this.props.user;
         const data = {
             iFollow: iFollow,
         };
-        console.log(username)
 
-        // Send to server if we follow user or not
-        const serverResponse = sendUserData(`/user/${username}/followers`, data);
+        // Follow or unfollow user
+        const serverResponse = sendUserData(`/user/${user}/followers`, data);
 
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data.iFollow);
             
+            // Update followText state
             this.changeFollowText(data.iFollow);
             
-            // Lift iFollow (Boolean) state to ~ UserProfileHead > Profile
+            // Lift iFollow (Boolean) state to UserProfileHead > Profile
             // Only do if this component is a descendant of Profile 
             if(this.props.handleFollowerCount){
                 this.props.handleFollowerCount(data.iFollow);
+            }
+            
+            // If viewing your own 'Following' list and you unfollow someone update 'followingCount' state found in Profile Component
+            if(this.props.followAction === 'Following' && this.props.myUsername === urlParamUser){
+                this.props.handleRemoveFollowing(this.props.index);
+                this.props.handleFollowingCount();
             }
 
         })
@@ -66,17 +74,14 @@ class FollowButton extends Component{
     }
 
     render(){
-
-        
-
         return(
-             <div onClick={this.handleClick}>
-                <button type='button'>{this.state.followText}</button>
-            </div>
+                <button type='button'  onClick={this.handleClick}>{this.state.followText}</button>
+            
         )
     }
 
 }
+
 
 
 

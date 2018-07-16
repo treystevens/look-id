@@ -6,9 +6,29 @@ class FollowButton extends Component{
     constructor(props){
         super(props);
 
+        this.state = {
+            followText: 'Follow',
+        }
+
         this.handleClick = this.handleClick.bind(this);
+        this.changeFollowText = this.changeFollowText.bind(this);
     }
 
+
+    componentDidMount(){
+        
+        this.changeFollowText(this.props.iFollow);
+
+    }
+
+    changeFollowText(iFollow){
+        let followText;
+        iFollow ? followText = 'Following' : followText = 'Follow';
+
+        this.setState({
+            followText: followText
+        });
+    }
 
 
     // On click send to server a request to follow or unfollow
@@ -30,7 +50,8 @@ class FollowButton extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
             console.log(data.iFollow);
-
+            
+            this.changeFollowText(data.iFollow);
             
             // Lift iFollow (Boolean) state to ~ UserProfileHead > Profile
             // Only do if this component is a descendant of Profile 
@@ -50,7 +71,7 @@ class FollowButton extends Component{
 
         return(
              <div onClick={this.handleClick}>
-                <button type='button'>{this.props.followText}</button>
+                <button type='button'>{this.state.followText}</button>
             </div>
         )
     }

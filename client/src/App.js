@@ -64,7 +64,7 @@ class App extends Component{
             {/* <Route exact={true} path="/explore" component={Stream} /> */}
             <Route exact path="/" render={ () => <Explore pageName={'Explore'}/>}/>
             <Route path="/feed" render={ () => <Stream sourceFetch='explore' pageName={'Feed'} />}/>
-            <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match}/>}/>
+            <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match} key={match.match.params.user} />}/>
             <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
             {/* <Route path="/user/:user/:postid" render={ (match) => <Post sourceFetch='post' urlParams={match}/>}/> */}
             <Route exact path="/user/:user/boards/:boardid" render={ (match) => <Board urlParams={match}/>} />

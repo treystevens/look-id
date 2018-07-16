@@ -5,7 +5,6 @@ const { Users } = require('../models/schemas');
 
 // Packs the user id into a cookie
 passport.serializeUser((user, done) => {
-    console.log(user, `this serialize user from thepassport srtdup`)
     done(null, user.id);
 });
 

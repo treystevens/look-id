@@ -29,7 +29,7 @@ class Post extends Component{
 
     // Fisher-Yates Shuffle
     shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+        let currentIndex = array.length, temporaryValue, randomIndex;
       
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
@@ -67,9 +67,9 @@ class Post extends Component{
             }
 
             // Make sure this post doens't show up in other post
-            // let filteredOtherPosts = data.otherPosts.filter((post) => {
-            //     if(post.post_id !== urlPostID) return post;
-            // });
+            let filteredOtherPosts = data.otherPosts.filter((post) => {
+                if(post.post_id !== urlPostID) return post;
+            });
 
             // Shuffle and slice for 'Other Posts' section
             const shuffledOtherPosts = this.shuffle(filteredOtherPosts);

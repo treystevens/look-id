@@ -11,7 +11,7 @@ class Profile extends Component{
 
         this.state = {
             userProfileHead: {},
-            streamData: {},
+            streamData: [],
             iFollow: false,
         };
 
@@ -32,26 +32,10 @@ class Profile extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
 
-            // Send to profile header (Avatar, Followers/Following, Bio, Website)
-            const userProfileHeadData = {
-                followerCount: data.user.followerCount,
-                followingCount: data.user.followingCount,
-                bio: data.user.bio,
-                website: data.user.website,
-                avatarUrl: data.user.avatar,
-                username: data.user.username,
-            };
-
-            // For outputting the requested user's post
-            const streamUserData = {
-                username: data.user.username,
-                posts: data.user.posts
-            };
-
             this.setState({
-                    userProfileHead: userProfileHeadData,
-                    streamData: streamUserData,
-                    iFollow: data.user.iFollow,
+                    userProfileHead: data.user,
+                    streamData: data.stream,
+                    iFollow: data.iFollow,
                 });
         })
         .catch((err) => {
@@ -107,7 +91,7 @@ class Profile extends Component{
             <section>
                 <PageHead pageHead='Profile' />
                 <UserProfileHead urlParamUser={user} data={this.state.userProfileHead} iFollow={this.state.iFollow} handleClickFollowText={this.handleClickFollowText} handleFollowerCount={this.handleFollowerCount} handleFollowingCount={this.handleFollowingCount}/>
-                <Stream sourceFetch='profile' urlParamUser={user} data={this.state.streamData}/>
+                <Stream sourceFetch='profile' stream={this.state.streamData}/>
             </section>
         )
     }

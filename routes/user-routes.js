@@ -27,22 +27,19 @@ router.get('/:user', (req, res) => {
         }
 
         // Send back to the client
-        const neededData = {
+        const userData = {
            followerCount: user.followers.length,
            followingCount: user.following.length,
            bio: user.profile.bio,
            website: user.profile.website,
            avatar: user.profile.avatar,
-           posts: user.posts,
-           username: user.username,
-           iFollow: iFollow
+           username: user.username
        };
 
-       // Getting the user's posts
-        models.Posts.find(query).then((data) => {
-
-            neededData.posts = data;
-            res.json({success: true, user: neededData});
+        // Getting the user's posts
+        models.Posts.find(query)
+        .then((posts) => {
+            res.json({success: true, user: userData, stream: posts, iFollow: iFollow});
         });
    })
    .catch( (err) => {

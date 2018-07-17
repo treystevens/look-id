@@ -3,10 +3,8 @@ import BoardItem from './BoardItem';
 import CreateBoard from './CreateBoard';
 import BoardModal from './BoardModal';
 import PageHead from './PageHead';
-import PostAddToBoard from './PostAddToBoard';
 import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
-// import BoardModal from './BoardModal';
 
 
 class Boards extends Component{
@@ -25,14 +23,13 @@ class Boards extends Component{
         this.disableConfirmAction = this.disableConfirmAction.bind(this);
     }
 
+    // Get all of user's boards
     componentDidMount(){
         
         const serverResponse = getData('/board');
 
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data);
-
             this.setState({
                 boards: data.boards
             });
@@ -40,9 +37,9 @@ class Boards extends Component{
         .catch((err) => {
             console.log(err);
         });
-
     }
 
+    // Add key listener on window to close modal with 'esc' key
     componentDidUpdate(){
 
 
@@ -55,6 +52,7 @@ class Boards extends Component{
         });
     }
 
+    // Close modal on click
     closeModal(evt){
 
         if(evt.target.className === 'modal'){
@@ -64,15 +62,14 @@ class Boards extends Component{
         }   
     }
 
-
-
+    // Open modal to create a new board
     handleClickCreateBoard(){
-
         this.setState({
             showModal: true
         });
     }
 
+    // Creating a new board
     handleNewBoardSubmit(boardName){
 
         this.setState({
@@ -87,13 +84,11 @@ class Boards extends Component{
 
         serverResponse.then( response => response.json())
         .then((data) => {
-            console.log(data);
-
-
-            // Only add the new board..I'm sending bac all the ones again making it a duplicate key
+            
+            // Add the newly created board to state after server response
             this.setState({
                 boards: this.state.boards.concat(data.boards)
-            })
+            });
         })
         .catch((err) => {
             console.log(err);
@@ -106,15 +101,13 @@ class Boards extends Component{
         });
     }
 
+    // For adding an image to the board from a post
     handleClickBoard(evt){
-        console.log(evt.target);
-
-
+        
         if(evt.target.classList.contains('boardImg')){
             const boardID = evt.target.getAttribute('data-board-id');
             const postImageElement = document.querySelector('.post__image');
             const postImageSrc = postImageElement.getAttribute('src');
-
 
             const data = {
                 username: this.props.urlParams.username,
@@ -125,7 +118,6 @@ class Boards extends Component{
 
             const serverResponse  = sendUserData('/board/addpost', data);
             
-
             serverResponse.then(response => response.json())
             .then((data) => {
                 // Make confirmation that it was added
@@ -138,13 +130,7 @@ class Boards extends Component{
             .catch((err) => {
                 console.log(err);
             });
-
         }
-
-            
-
-        console.dir(evt.target); // would need prevElementSibling to get the image dataset if you click on the board
-        console.log('we clicking the baord dawogg!!!')
     }
 
 
@@ -154,27 +140,11 @@ class Boards extends Component{
             setTimeout(this.disableConfirmAction, 1000);
         } 
 
-
-        console.log(this.props);
-        console.log(this.state);
-
         let userBoards = this.state.boards.map((board) => {
             return <BoardItem key={board.board_id} board={board} addToBoard={this.props.addToBoard}  urlParams={this.props.urlParams} handleClickBoard={this.handleClickBoard}/> })
 
-        // if(this.props.addToBoard){
-        //     userBoards = this.state.boards.map((board) => {
-        //         return <PostAddToBoard key={board.board_id} boardInfo={board} postImage={this.props.postImage}/>
-        //     })
-        // }
-        // else{
-        //     userBoards = this.state.boards.map((board) => {
-        //         return <BoardItem key={board.board_id} boardInfo={board} />
-        //     })
-        // }
-
-
         return(
-            <div>
+            <section>
                 <PageHead pageHead={this.props.pageName} />
                 <div className="boardContainer">
                     <CreateBoard handleClickCreateBoard={this.handleClickCreateBoard} />
@@ -182,9 +152,8 @@ class Boards extends Component{
 
                     {this.state.showModal && 
                     <BoardModal source="createBoard" closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit}/>}
-                    
                 </div>
-            </div>
+            </section>
         )
     }
 }

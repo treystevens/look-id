@@ -3,9 +3,6 @@ import React from 'react';
 
 const CreateBoard = (props) => {
 
-
-
-
     return(
         <div>
             <div className="boardBox" onClick={props.handleClickCreateBoard}>

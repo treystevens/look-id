@@ -2,52 +2,33 @@ import React, { Component } from 'react';
 import StreamItem from './StreamItem';
 
 
-/* jshint ignore:start */
+const Stream = (props) => {
 
-class Stream extends Component{
-    constructor(props){
-        super(props);
+    let listPosts;
+    let postData;
+
+    // Boolean to check if we should add a username header to our stream of posts
+    const sourceFetch = props.sourceFetch === 'stream';
+
+    if(props.stream){
+        postData = props.stream;
     }
 
-    render(){
+    if(postData !== undefined){
+        listPosts = props.stream.map( (post) => {
+            return <StreamItem post={post} usernameHeader={sourceFetch} key={post._id}/>
+        })
+    }
 
-        let listItems;
-        let postData;
-        
-        if(this.props.data){
-            postData = this.props.data.posts
-        }
-
-        if(this.props.sourceFetch === 'feed'){
-            listItems = this.props.data.posts.map( (item) => {
-                return <StreamItem stream={item} usernameHeader={this.props.data.username}/>
-            })
-        }
-    
-        if(this.props.sourceFetch === 'explore' && postData !== undefined){
-            listItems = this.props.data.posts.map( (item) => {
-                return <StreamItem stream={item.post} usernameHeader={true} username={item.username} explore='explore' key={item._id}/>
-            })
-        }
-
-        if(this.props.sourceFetch === 'profile' && postData !== undefined){
-            listItems = this.props.data.posts.map( (item) => {
-                return <StreamItem stream={item} username={this.props.data.username} key={item._id}/>
-            })
-
-        }
-    
-        return(
-            <div>
-                <div className="testMore">
-                    {listItems}
-                </div>
+    return(
+        <div>
+            <div className="testMore">
+                {listPosts}
             </div>
-        )
-    }
+        </div>
+    )
 }
 
-export default Stream;
 
-// Code here will be ignored by JSHint.
-/* jshint ignore:end */
+
+export default Stream;

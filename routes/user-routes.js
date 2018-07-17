@@ -73,7 +73,7 @@ router.get('/:user/:postid', (req, res) => {
         });
 
         // Make 'Other Posts' Section, filter out the post that is requested
-        models.Posts.find({post_id: {$ne: postID}}, {post_id: 1, image: 1})
+        models.Posts.find({username: req.params.user, post_id: {$ne: postID}}, {post_id: 1, image: 1})
         .then((otherPosts) => {
             res.json({post: requestedPostData, otherPosts: otherPosts});
         });

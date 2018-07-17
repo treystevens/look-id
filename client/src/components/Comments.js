@@ -3,8 +3,6 @@ import CommentBox from './CommentBox';
 import CommentRow from './CommentRow';
 import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
-// import Notifications from './Notifications';
-
 
 
 class Comments extends Component{
@@ -12,109 +10,52 @@ class Comments extends Component{
         super(props);
         this.state = {
             comments: [],
-            shownComments: [],
             commentsViewAll: false
-            
         };
 
         this.handleAddComment = this.handleAddComment.bind(this);
         this.handleDeleteComment = this.handleDeleteComment.bind(this);
         this.handleClickViewAll = this.handleClickViewAll.bind(this);
-        this.getInitialComments = this.getInitialComments.bind(this);
-        this.showAllComments = this.showAllComments.bind(this);
     }
 
-    getInitialComments(){
-        const urlPageUsername = this.props.urlParams.username;
-        const urlPagePostID = this.props.urlParams.postID;
 
-        const serverResponse = getData(`/comment/${urlPageUsername}/${urlPagePostID}`);
-        
-        serverResponse.then( response => response.json())
-        .then((data) => {
-            console.log(data);
-
-
-            let viewingUser = this.props.username || false;
-
-
-            let userComments = data.comments.map((comment) => {
-                return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} />
-            })
-    
-    
-            this.setState({
-                comments: userComments
-            })
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
-
-    showAllComments(){
-        const urlPageUsername = this.props.urlParams.username;
-        const urlPagePostID = this.props.urlParams.postID;
-
-        const serverResponse = getData(`/comment/${urlPageUsername}/${urlPagePostID}/viewall`);
-        
-        serverResponse.then( response => response.json())
-        .then((data) => {
-            console.log(data);
-
-            let viewingUser = this.props.username || false;
-
-            let userComments = data.comments.map((comment) => {
-                return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} />
-            })
-    
-    
-            this.setState({
-                comments: userComments
-            })
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
-
+    // View all comments
     handleClickViewAll(evt) {
         evt.preventDefault();
 
         let view;
 
-        // Mimic toggle
+        // Toggle view
         this.state.commentsViewAll ? view = false : view = true
-
 
         this.setState({
             commentsViewAll: view
-        }, () => {
-            this.state.commentsViewAll ? this.showAllComments() : this.getInitialComments();
-        })
-    
+        });
     }
 
-
+    // Adding new comment
     handleAddComment(newComment){
-
-        let viewingUser = this.props.username || false;
-        let userComments = [newComment].map((comment) => {
-            return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} />
-        })
-
         this.setState({
-            comments: this.state.comments.concat(userComments)
+            comments: this.state.comments.concat(newComment)
         });
     }
     
+    // Deleting comment
+    handleDeleteComment(commentIndex, componentKeyID){
 
-    handleDeleteComment(componentKeyID){
+        console.log(componentKeyID);
+
 
         let currentState = this.state.comments;
-        let updatedStateComment = currentState.filter((item) => {
-            if(item.key != componentKeyID){
+        let updatedStateComment = currentState.filter((item, index) => {
+            if(index != commentIndex){
+
+                console.log(index)
+                
                 return item;
+            }
+            else{
+                console.log('huhushauishdasjd')
             }
         });
 
@@ -143,27 +84,63 @@ class Comments extends Component{
         
     }
 
+    // Fetch comments
     componentDidMount(){
-        this.getInitialComments();       
+
+
+        const urlPageUsername = this.props.urlParams.username;
+        const urlPagePostID = this.props.urlParams.postID;
+
+        // Fetch to Server
+        const serverResponse = getData(`/comment/${urlPageUsername}/${urlPagePostID}`);
+        
+        serverResponse.then( response => response.json())
+        .then((data) => {
+    
+            this.setState({
+                comments: data.comments
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });     
     }
 
 
     render(){
 
+
+        const viewingUser = this.props.username || false;
+
+        let userComments;
         let commentViewAction;
 
+        // Handle view all
+        if(this.state.comments.length > 0){
+            if(this.state.commentsViewAll){
+                userComments = this.state.comments.map((comment, index) => {
+                    return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} index={index}/>
+                })
+            }
+            else{
+                userComments = this.state.comments.slice(0,5).map((comment, index) => {
+                    return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} index={index}/>
+                })
+            }
+            
+        }
         this.state.commentsViewAll ? commentViewAction = 'Collapse comments' : commentViewAction = 'View all comments'
 
         return(
-            <div>
+            <section>
                 <CommentBox handleAddComment={this.handleAddComment} urlParams={this.props.urlParams}/>
                 <div>
                     <div style={{height: '400px', 'overflow': 'auto'}}>
-                        {this.state.comments}
+                        {userComments}
                     </div>
                 </div> 
                 <a href="/viewallcomments" onClick={this.handleClickViewAll}>{commentViewAction}</a>
-            </div>
+            </section>
             
         )
     }

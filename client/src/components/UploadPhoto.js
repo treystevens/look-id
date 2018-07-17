@@ -1,6 +1,7 @@
 import React from 'react';
 
  
+// Setting the image of the file to the div for a preview
 function handleFiles(evt) {
     let preview = document.querySelector('.preview');
     let files = evt.target.files;
@@ -35,7 +36,7 @@ const UploadPhoto = (props) => {
     let imgSrc;
     let showRemoveButton;
        
-
+    // Display for UploadPhoto if uploading an avatar
     if(props.isAvatar){
         let previewImgSrc = props.avatar;
         
@@ -51,6 +52,7 @@ const UploadPhoto = (props) => {
         
 
     }
+    // Display for UploadPhoto if posting a new photo
     if(props.isNewPost){
         containerClass = 'upload-post-container';
         inputName = 'user-photo';
@@ -63,7 +65,7 @@ const UploadPhoto = (props) => {
             <div className={containerClass} >
                 <img src={imgSrc} className='preview' />
             </div>
-            <input type="file" className='photo-upload' name={inputName} onChange={handleFiles}/>
+            <input type="file" className='photo-upload' name={inputName} onChange={handleFiles} accept=".jpg, .jpeg, .png"/>
             {showRemoveButton && 
             <button type='button' onClick={removeAvatar}>Remove Profile Picture</button>} 
         </div>

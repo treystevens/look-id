@@ -1,6 +1,5 @@
 const router = require('express').Router();
-
-const AccountInfo = require('../models/accInfo');
+const models = require('../models/schemas');
 
 
 // Get Boards from user
@@ -10,19 +9,17 @@ router.get('/', (req, res) => {
         username: req.user.username
     };
 
-    AccountInfo.findOne(query)
+    models.Users.findOne(query)
     .then((user) => {
         res.json({boards: user.boards});  
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).json({errors: 'Could not retrieve boards.'});
     });
-
-
-    console.log(req.body);
-    
 });
 
+// Creating a new board
 router.post('/createboard', (req, res) => {
 
     // Create an ID for the board
@@ -35,34 +32,31 @@ router.post('/createboard', (req, res) => {
         username: req.user.username
     };
 
+
     const newBoard = {
         board_id: boardID,
-        // username: req.user.username,
         name: req.body.boardName,
         display_image: '',
-        board_posts: []
+        posts: []
     };
 
-    if(req.body.boardImage) newBoard.display_image = req.body.boardImage;
-
-    AccountInfo.findOneAndUpdate(query, {$push: {boards: newBoard}}, {'new': true})
+    
+    models.Users.findOneAndUpdate(query, {$push: {boards: newBoard}}, {'new': true})
     .then((user) => {
 
         const boardsLength = user.boards.length;
-
         const newUserBoard = user.boards[boardsLength - 1];
-        console.log(newUserBoard);
 
         res.json({boards: newUserBoard});
-        
     })
     .catch((err) => {
         console.log(err);
+        res.status(503).json({errors: 'Could not create board at the moment.'});
     });
 
 });
 
-
+// Adding a post to a board
 router.post('/addpost', (req, res) => {
     
     const query = {
@@ -70,48 +64,56 @@ router.post('/addpost', (req, res) => {
     };
 
     const postToAdd = {
-        username: req.body.username,
-        post: {
-            post_id: req.body.postID,
-            image: req.body.postImage
-        }
+        post_id: req.body.postID,
     };
 
-    AccountInfo.findOneAndUpdate(query, {$push: {'boards.$.images': postToAdd}})
+
+    // Query the post to get the _id to save into Board's 'posts' property
+    models.Posts.findOne(postToAdd)
+    .then((post) => {
+
+        const referenceToPost = post._id;
+        return referenceToPost;
+    })
+    .then((postID) => {
+
+       return models.Users.findOneAndUpdate(query, {$push: {'boards.$.posts': postID}});
+
+    })
     .then(() => {
 
         // Update the board display image with new image
-        AccountInfo.findOneAndUpdate(query, {$set: {'boards.$.display_image': postToAdd.post.image}})
-        .then(() => {
-            res.json({success: true});
-        });
-        
+        return models.Users.findOneAndUpdate(query, {$set: {'boards.$.display_image': req.body.postImage}});
+    })
+    .then(() => {
+        res.json({success: true});
     })
     .catch((err) => {
-        res.json({success: false});
         console.log(err);
+        res.status(500).json({errors: 'Could not add post to the board at the moment'});
     });
 });
 
-
+// Get individual board
 router.get('/:boardid', (req, res) => {
     
     const query = {
         'boards.board_id': req.params.boardid
     };
 
-    AccountInfo.findOne(query, {'boards.$.images': 1})
+
+    models.Users.findOne(query, {'boards.$.posts': 1}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec()
     .then((response) => {
-        console.log(response);
 
-        const boardImages = response.boards[0].images;
         const boardName = response.boards[0].name;
-
-        res.json({stream: boardImages, username: boardName});
+        const posts = response.boards[0].posts;
+     
+        res.json({stream: posts, boardName: boardName});
 
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).json({errors: 'Failed to retrieve board.'});
     });
 });
 

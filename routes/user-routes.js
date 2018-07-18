@@ -154,6 +154,12 @@ router.post('/:user/followers', (req, res) => {
     let myFollowingAction;
     let updateAction;
 
+    // Compare to see if I now follow the user now
+    const prevFollowingData = req.body.iFollow;
+    let nowFollowing;
+    
+    prevFollowingData ? nowFollowing = false : nowFollowing = true;
+
 
     // If I follow them already pull their name from their follower list and my following list
     if(req.body.iFollow){
@@ -165,29 +171,45 @@ router.post('/:user/followers', (req, res) => {
         myFollowingAction = {$push: {following: userIWantToFollow} };
     }
             
-
+    
     // Go to the user I want to follow and add my data to their follower array
     models.Users.findOneAndUpdate(query, updateAction)
     .then(() => {
-        // Add user's data to my following array
-        models.Users.findOneAndUpdate({username: req.user.username}, myFollowingAction)
-        .then(() => {
 
-            // Compare to see if I now follow the user now
-            const prevFollowingData = req.body.iFollow;
-            let nowFollowing;
-           
-            prevFollowingData ? nowFollowing = false : nowFollowing = true;
-            res.json({actionSuccess: true, iFollow: nowFollowing});
-        });
-        
+        // Add user's data to my following array
+       return models.Users.findOneAndUpdate({username: req.user.username}, myFollowingAction);
+    })
+    .then(() => {
+        // Search for the user's post to get ids to add to my feed_items
+        return models.Posts.find(query, {_id: 1});        
+    })
+    .then((postIDs) => {
+
+        console.log(postIDs, `the post IDS`);
+
+        // Pull ids if we no longer follow
+        if(req.body.iFollow){
+            // $pull out the post ids
+            return models.Feed.findOneAndUpdate(
+                { username: req.user.username},
+                { $pull: { feed_items: { $in: postIDs } } }
+            );
+        }
+        // Push in new ids if we now follow and sort the array
+        else{
+            return models.Feed.findOneAndUpdate(
+                { username: req.user.username},
+                { $push: { feed_items: { $each: postIDs, $sort: -1 } } }
+            );
+        }
+    })
+    .then(() => {
+        res.json({actionSuccess: true, iFollow: nowFollowing});
     })
     .catch((err) => {
 
         console.log(err);
     });
-
-
 });
 
 // Getting list of users of followers (MODAL DISPLAY)

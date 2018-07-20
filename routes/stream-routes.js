@@ -3,10 +3,12 @@ const models = require('../models/schemas');
 
 
 // Route for global explore feed
-router.get('/explore', (req, res) => {
+router.get('/explore/:page', (req, res) => {
     
+    const skipNum = req.params.page * 10;
+
     // Get documents back in the descending order
-    models.Explore.find({}).populate('post').sort({_id:-1}).exec()
+    models.Explore.find({}).populate('post').sort({_id:-1}).skip(skipNum).limit(10).exec()
     .then((data) => {
 
         // Sending back only necessary post information

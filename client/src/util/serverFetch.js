@@ -8,7 +8,6 @@ function sendUserData(url, data){
         credentials: 'include'
     })
     .then((res) => {
-        console.log(res);
         return res;
     })
     .catch((err) => {
@@ -24,7 +23,6 @@ function getData(url){
         credentials: 'include'
     })
     .then((res) => {
-        console.log(res);
         return res;
     })
     .catch((err) => {
@@ -41,7 +39,6 @@ function sendPhoto(url, formData){
         credentials: 'include'
     })
     .then((res) => {
-        console.log(res);
         return res; 
     })
     .catch((err) => {

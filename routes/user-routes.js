@@ -39,7 +39,7 @@ router.get('/:user', (req, res) => {
        };
 
         // Getting the user's posts
-        return models.Posts.find(query);
+        return models.Posts.find(query).sort({timestamp: -1});
         
    })
    .then( (posts) => {
@@ -77,6 +77,87 @@ router.get('/:user/:postid', (req, res) => {
    })
    .then((results) => {
         res.json({post: requestedPost, otherPosts: results});
+    })
+   .catch( (err) => {
+        console.log(err);
+        res.status(500).json({success: false});
+   });
+
+});
+
+// Edit User's Post
+router.post('/:user/:postid/edit', (req, res) => {
+
+
+    const postID = req.params.postid;
+    const postQuery = {
+        post_id: postID
+    };
+    const caption = req.body.caption;
+    const items = req.body.items;
+    
+    // Get post and create 'Other Posts' section
+    models.Posts.findOneAndUpdate(
+        postQuery, 
+        { $set: { caption: caption } } 
+    )
+    .then((post) => {
+
+        const itemID = post.items;
+
+        return models.Items.findByIdAndUpdate(
+            itemID, 
+            { $set: {items: items} } 
+        );
+   })
+   .then(() => {
+        res.status(200).json({success: true});
+    })
+   .catch( (err) => {
+        console.log(err);
+        res.status(500).json({success: false});
+   });
+
+});
+
+// Delete User's Post
+router.delete('/:user/:postid', (req, res) => {
+
+
+    const postQuery = {
+        post_id: req.params.postid
+    };
+    const username = req.user.username;
+
+    if(username !== req.params.user){
+        res.status(401);
+    } 
+
+    // Remove a user's post from 
+    // Posts - Feed - Boards - Explore - Items
+    models.Posts.findOneAndRemove(postQuery)
+    .then((post) => {
+
+        const postID = post._id;
+
+        const itemRemove = models.Items.findByIdAndRemove(post.items);
+        const feedRemove = models.Feed.update(
+            { },
+            { $pull: {feed_items: postID } },
+            { multi: true }
+        );
+        const boardRemove = models.Users.update(
+            { 'boards.posts': postID },
+            { $pull: { 'boards.$.posts': postID } },
+            { multi: true }
+        );
+        const exploreRemove = models.Explore.findOneAndRemove({ 'post': postID });
+       
+
+        return Promise.all([itemRemove, feedRemove, boardRemove, exploreRemove]);
+    })
+    .then((results) => {
+    res.status(200).json({success: true});
     })
    .catch( (err) => {
         console.log(err);

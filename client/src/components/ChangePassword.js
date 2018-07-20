@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
 import { sendUserData } from '../util/serverFetch';
+import ConfirmAction from './ConfirmAction';
 
 
 class ChangePassword extends Component{
@@ -12,7 +13,10 @@ class ChangePassword extends Component{
             newPassword: '',
             confirmPassword: '',
             errors: {},
-            errorStatus: false
+            errorStatus: false,
+            actionSuccess: false,
+            statusMessage: '',
+            showConfirmation: false
         };
 
         this.submitNewPassword = this.submitNewPassword.bind(this);
@@ -70,19 +74,31 @@ class ChangePassword extends Component{
             return res.json();
         })
         .then((data) => {
-            
-            if(data.success){
-                console.log(`changed the password, no issues`);
+            if(this.state.errorStatus){
+                this.setState({
+                    errors: data.errors,
+                    showConfirmation: true,
+                    statusMessage: 'Try again.'
+                    
+                });
             }
+
             else{
                 this.setState({
-                    errors: data.errors
+                    showConfirmation: true,
+                    actionSuccess: true,
+                    statusMessage: 'Saved!'
                 });
             }
 
             
         })
         .catch((err) => {
+            // If server error
+            this.setState({
+                showConfirmation: true,
+                statusMessage: 'Could not change password at the moment, try again later.'
+            });
             console.log(err);
         });
 
@@ -96,6 +112,9 @@ class ChangePassword extends Component{
         return(
             <section>
                 <PageHead pageHead='Change Password' />
+                {this.state.showConfirmation &&
+                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                }
                 <div>
                     <form action="" onSubmit={this.submitNewPassword}>
                         <label>

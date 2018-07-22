@@ -95,7 +95,7 @@ router.post('/addpost', (req, res) => {
 });
 
 // Get individual board
-router.get('/:boardid', (req, res) => {
+router.get('/:boardid/page/:page', (req, res) => {
     
     const query = {
         'boards.board_id': req.params.boardid
@@ -105,16 +105,84 @@ router.get('/:boardid', (req, res) => {
     models.Users.findOne(query, {'boards.$.posts': 1}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec()
     .then((response) => {
 
+        const skipNum = req.params.page * 10;
         const boardName = response.boards[0].name;
-        const posts = response.boards[0].posts;
-     
-        res.json({stream: posts, boardName: boardName});
+        const posts = response.boards[0].posts.splice(skipNum, 10);
+        let hasMore;
 
+        if(posts.length < 10) hasMore = false;
+        else{
+            hasMore = true;
+        }
+
+        res.json({stream: posts, boardName: boardName, hasMore: hasMore});
     })
     .catch((err) => {
         console.log(err);
         res.status(500).json({errors: 'Failed to retrieve board.'});
     });
 });
+
+// Get individual board
+router.post('/:boardid/edit', (req, res) => {
+
+    console.log(req.body.posts);
+    
+    const query = {
+        'boards.board_id': req.params.boardid
+    };
+
+    if(!req.isAuthenticated()) res.status(402);
+
+    
+
+    const pullPosts = models.Users.findOneAndUpdate(
+        query,  
+        { $pull: { 'boards.$.posts': { $in: req.body.posts }   }  },
+        {new: true}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec()
+
+    const changeName = models.Users.findOneAndUpdate(
+        query,
+        { 'boards.$.name': req.body.boardName}, {new: true}
+    );
+
+    Promise.all([pullPosts, changeName])
+    .then((response) => {
+
+        console.log(response)
+        const boardName = response[1].boards[0].name;
+        const posts = response[0].boards[0].posts;
+
+        console.log(boardName)
+        res.json({stream: posts, boardName: boardName});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).json({errors: 'Failed delete posts from boards.'});
+    });
+});
+
+// Delete an individual board
+router.delete('/:boardid/delete', (req, res) => {
+
+    const query = {
+        'boards._id': req.params.boardid
+    };
+
+    if(!req.isAuthenticated()) res.status(402);
+
+    models.Users.findOneAndUpdate(
+        query,
+        { $pull: { 'boards': {'_id': req.params.boardid } } }
+    )
+    .then(() => {
+        res.json({success: true});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).json({errors: 'Failed to delete board.'});
+    });
+});
+
 
 module.exports = router;

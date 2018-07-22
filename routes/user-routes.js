@@ -3,14 +3,16 @@ const models = require('../models/schemas');
 
 
 // User's Main Profile Page
-router.get('/:user', (req, res) => {
+router.get('/:user/page/:page', (req, res) => {
     
 
     const query = {
        username: req.params.user
    };
+   const skipNum = req.params.page * 10;
    let userData;
    let iFollow;
+   let hasMore;
 
    // Retrieving user's profile information
    models.Users.findOne(query)
@@ -27,7 +29,7 @@ router.get('/:user', (req, res) => {
                 }
             }
         }
-
+        
         // Send back to the client
         userData = {
            followerCount: user.followers.length,
@@ -39,11 +41,17 @@ router.get('/:user', (req, res) => {
        };
 
         // Getting the user's posts
-        return models.Posts.find(query).sort({timestamp: -1});
+        return models.Posts.find(query).sort({timestamp: -1}).skip(skipNum).limit(10).exec();
         
    })
    .then( (posts) => {
-        res.json({success: true, user: userData, stream: posts, iFollow: iFollow});
+
+        if(posts.length < 10) hasMore = false;
+        else{
+            hasMore = true;
+        }
+       
+        res.json({success: true, user: userData, stream: posts, iFollow: iFollow, hasMore: hasMore });
     })
    .catch( (err) => {
        res.json({success: false});

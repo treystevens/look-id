@@ -3,7 +3,7 @@ import BoardItem from './BoardItem';
 import CreateBoard from './CreateBoard';
 import BoardModal from './BoardModal';
 import PageHead from './PageHead';
-import { getData, sendUserData } from '../util/serverFetch';
+import { getData, sendUserData, goDelete } from '../util/serverFetch';
 import { connect } from 'react-redux';
 
 
@@ -21,6 +21,8 @@ class Boards extends Component{
         this.handleNewBoardSubmit = this.handleNewBoardSubmit.bind(this);
         this.handleClickBoard = this.handleClickBoard.bind(this);
         this.disableConfirmAction = this.disableConfirmAction.bind(this);
+        this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
+        
     }
 
     // Get all of user's boards
@@ -133,6 +135,23 @@ class Boards extends Component{
         }
     }
 
+    // Delete board - Click event
+    handleDeleteBoard(board){
+
+        const {board: {_id: boardID}} = board;
+
+        const serverResponse = goDelete(`/board/${boardID}/delete`);
+
+        serverResponse
+        .then(response => response.json())
+        .then((data) => {
+            console.log(data);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
 
     render(){
 
@@ -141,7 +160,20 @@ class Boards extends Component{
         } 
 
         let userBoards = this.state.boards.map((board) => {
-            return <BoardItem key={board.board_id} board={board} addToBoard={this.props.addToBoard}  urlParams={this.props.urlParams} handleClickBoard={this.handleClickBoard}/> })
+            return (
+            <article>
+                <span>...</span>
+                <div>
+                    <ul>
+                        <li>Edit Board</li>
+                        {/* <li onClick={this.handleDeleteBoard}>Delete Board</li> */}
+                        <li onClick={this.handleDeleteBoard.bind(this, {board})}>Delete Board</li>
+                        
+                    </ul>
+                </div>
+                <BoardItem key={board.board_id} board={board} addToBoard={this.props.addToBoard}  urlParams={this.props.urlParams} handleClickBoard={this.handleClickBoard}/>
+            </article>
+            ) })
 
         return(
             <section>

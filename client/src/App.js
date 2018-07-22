@@ -2,15 +2,17 @@ import React, { Component } from 'react';
 // import logo from './logo.svg';
 // import './App.css';
 // import './styles/test.css';
+// React Router
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+// Components
 import Header from './components/Header';
-// import ItemSearch from './components/ItemSearch';
-import Stream from './components/Stream';
 import Boards from './components/Boards';
 import Board from './components/Board';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import Post from './components/Post';
+import EditPost from './components/EditPost';
 import Profile from './components/Profile';
 import EditProfile from './components/EditProfile';
 import Settings from './components/Settings';
@@ -19,9 +21,18 @@ import DeleteAccount from './components/DeleteAccount';
 import UploadPost from './components/UploadPost';
 import PrivateRoute from './components/PrivateRoute';
 import Explore from './components/Explore';
-import { addAuth, updateAvatar } from './actions/actions';
+import EditBoard from './components/EditBoard';
+
+// React Redux
 import { connect } from 'react-redux';
+import { addAuth, updateAvatar } from './actions/actions';
+
+// Util functions
 import { getData } from './util/serverFetch';
+
+
+
+
 
 
 /* jshint ignore:start */
@@ -56,18 +67,20 @@ class App extends Component{
 
   render(){
 
-    console.log(this.props)
+    console.log(this.props);
     return(
       <Router basename='/'>
           <div className="container">
             <Header />
-            {/* <Route exact={true} path="/explore" component={Stream} /> */}
-            <Route exact path="/" render={ () => <Explore pageName={'Explore'}/>}/>
-            <Route path="/feed" render={ () => <Stream sourceFetch='explore' pageName={'Feed'} />}/>
+            <Route exact path="/" render={ (match) => <Explore key={match.match.path}/>}/>
+            <Route exact path="/explore" render={ (match) => <Explore endPoint='Explore' key={match.match.path}/>}/>
+            <Route exact path="/search" render={ (match) => <Explore endPoint='earch' key={match.match.path}/>}/>
+            <Route exact path="/feed" render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>}/>
             <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match} key={match.match.params.user} />}/>
             <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
-            {/* <Route path="/user/:user/:postid" render={ (match) => <Post sourceFetch='post' urlParams={match}/>}/> */}
+            <Route exact path="/user/:user/:postid/edit" render={ (match) => <EditPost urlParams={match}/>}/>
             <Route exact path="/user/:user/boards/:boardid" render={ (match) => <Board urlParams={match}/>} />
+            <Route exact path="/user/:user/boards/:boardid/edit" render={ (match) => <EditBoard urlParams={match}/>} />
             <Route path="/boards" render={ () => <Boards pageName={'Boards'} />}/>
             <Route path="/signup" component={SignUp} />
             <Route path="/login" render={ () => <Login checkAuth={this.checkAuth} />}/>
@@ -83,7 +96,6 @@ class App extends Component{
     );
   }
 }
-
 
 function mapStateToProps(state) {
     return {

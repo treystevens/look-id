@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PageHead from './PageHead';
 import UploadPhoto from './UploadPhoto';
 import { getData, sendPhoto } from '../util/serverFetch';
-
-
+import ConfirmAction from './ConfirmAction';
 
 
 class EditProfile extends Component{
@@ -11,7 +10,10 @@ class EditProfile extends Component{
         super(props);
 
         this.state = {
-            avatar: ''
+            avatar: '',
+            actionSuccess: false,
+            statusMessage: '',
+            showConfirmation: false
         };
 
         this.submitEdit = this.submitEdit.bind(this);
@@ -27,27 +29,36 @@ class EditProfile extends Component{
 
         // Get src of avatar upload just incase no file is uploaded or remove profile picture option was clicked
         const imageFromAvatarSrc = document.querySelector('.preview').getAttribute('src');
-        
-        formData.append('imageFromAvatarSrc', imageFromAvatarSrc);
-        
+        const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
 
+        // Only append avatar src if a user doesn't upload a file
+        if(imageFromAvatarSrc === '' || imageFromAvatarSrc === defaultAvatar){
+            formData.append('imageFromAvatarSrc', imageFromAvatarSrc);
+        }
+    
+        
         // Display the key/value pairs (For Debugging)
         // for(var pair of formData.entries()) {
         //     console.log(pair[0]+ ', '+ pair[1]); 
         // }
       
-       
         const serverResponse = sendPhoto('/profile/edit', formData);
 
-        serverResponse.then( response => response.json() )
-        .then((data) => {
-            // Make fade out animation of confirmation that it was saved(reminder)
+        serverResponse
+        .then( response => response.json() )
+        .then(() => {
 
-            
-            console.log(data);
-
+            this.setState({
+                showConfirmation: true,
+                actionSuccess: true,
+                statusMessage: 'Saved!'
+            });
         }) 
         .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: 'Could not update at the moment, try again later.'
+            });
             console.log(err);
         });
 
@@ -83,6 +94,11 @@ class EditProfile extends Component{
         return(
             <section>
                 <PageHead pageHead='Edit Profile' />
+
+                {this.state.showConfirmation &&
+                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
+
                 <form onSubmit={this.submitEdit} className='edit__form'>
                     <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container'/>
 

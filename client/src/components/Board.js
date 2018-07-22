@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData } from '../util/serverFetch';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 
 class Board extends Component{
@@ -35,8 +37,19 @@ class Board extends Component{
     }
 
     render(){
+
+        const urlUser = this.props.urlParams.match.params.user;
+        const urlBoardID = this.props.urlParams.match.params.boardid;
+       
+        const authorized = this.props.username === urlUser && this.props.isAuth;
+        
         return(
             <section>
+            {authorized &&
+                    <div>
+                        <Link to={`/user/${urlUser}/boards/${urlBoardID}/edit`}>Edit Board</Link>
+                    </div>
+                }
                 <PageHead pageHead={this.state.boardName} />
                 <Stream sourceFetch='stream' stream={this.state.streamData} />
             </section>
@@ -45,4 +58,11 @@ class Board extends Component{
 }
 
 
-export default Board
+function mapStateToProps(state){
+    return{
+        isAuth: state.isAuth,
+        username: state.username
+    }
+}
+
+export default connect(mapStateToProps)(Board);

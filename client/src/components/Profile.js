@@ -13,34 +13,85 @@ class Profile extends Component{
             userProfileHead: {},
             streamData: [],
             iFollow: false,
+            isLoading: false,
+            isSearching: false,
+            hasMore: true,
+            scrollCount: 0,
+            initialLoad: false
         };
 
         this.handleFollowerCount = this.handleFollowerCount.bind(this);
         this.handleFollowingCount = this.handleFollowingCount.bind(this);
+        this.loadData = this.loadData.bind(this);
+
+
+
+        window.onscroll = () => {
+
+
+            const { error, isLoading, hasMore } = this.state;
+
+            // Return if there's an error, already loading or there's no more data from the database
+            if (error || isLoading || !hasMore) return;
+    
+            // Checks that the page has scrolled to the bottom
+            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+                
+                
+                const { scrollCount } = this.state;
+                const newCount = scrollCount + 1;
+
+                this.setState({
+                    scrollCount: newCount
+
+                }, () => {
+
+                    this.loadData();
+                });
+
+                
+            }
+        };
+    }
+
+    loadData(){
+        const urlParamUser = this.props.urlParams.match.params.user;
+        const { scrollCount, streamData, initialLoad } = this.state;
+        const serverResponse = getData(`/user/${urlParamUser}/page/${scrollCount}`);
+
+        console.log('making a request')
+        // Fetch Data
+        serverResponse.then(response => response.json())
+        .then((data) => {
+            
+
+            if(initialLoad){
+                this.setState({
+                    streamData: streamData.concat(data.stream),
+                    hasMore: data.hasMore
+                });
+            }
+            else{
+                this.setState({
+                    userProfileHead: data.user,
+                    streamData: streamData.concat(data.stream),
+                    iFollow: data.iFollow,
+                    initialLoad: true,
+                    hasMore: data.hasMore
+                });
+            }
+
+            
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
 
 
     // Get the requested user's profile data
     componentDidMount(){
-
-    
-        const urlParamUser = this.props.urlParams.match.params.user;
-        const serverResponse = getData(`/user/${urlParamUser}`);
-
-
-        // Fetch Data
-        serverResponse.then(response => response.json())
-        .then((data) => {
-
-            this.setState({
-                    userProfileHead: data.user,
-                    streamData: data.stream,
-                    iFollow: data.iFollow,
-                });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+       this.loadData();
     }
    
 
@@ -80,7 +131,6 @@ class Profile extends Component{
         });
 
     }
-
       
     render(){
     

@@ -17,7 +17,6 @@ const saltRounds = 10;
 // cloudinary
 const cloudinary = require('cloudinary');
 
-
 // Store files and name format them - 'li-(date).(type)'
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -110,27 +109,45 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 
             
             // Create post in Posts Collections
-            models.Posts.create(newPost).then(() => {
-
-                // Push into User Collection with reference to original post to display 'Other Posts'
-                models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}}, {'new': true}).then((data) => {
-                    console.log(data);
-                });
+            models.Posts.create(newPost)
+            .then( (newPost) => {
 
 
                 // Send new Post to Explore Collection
-                models.Explore.create(streamPost);
+                // Push into User Collection with reference to original post to display 'Other Posts'
+                return Promise.all([
 
-                // Delete file from temporary folder
-                fs.unlink(`${req.file.path}`, (err) => {
+                    models.Explore.create({post: newPost._id}),
+
+                    models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}})
+                ]);
+            })
+            .then((result) => {
+                // console.log(result,` data after promise all`);
+
+                // Push postID to the user's followers to appear in their feed items
+                // Unshift to feed_items array
+               return models.Feed.update(
+                    { username: { $in: result[1].followers }  }, 
+                    { $push: { 
+                        feed_items: {
+                            $each: [result[0].post],
+                            $position: 0
+                            } 
+                        } 
+                    },
+                    { multi: true });
+            })
+            .then(() => {
+
+                 // Delete file from temporary folder
+                 fs.unlink(`${req.file.path}`, (err) => {
                     if (err) throw err;
                 });
-
+            
                 // Send the new post ID back for redirect on client side
                 res.json({postID: postID});
-
             })
-
             .catch( (err) => {
                 console.log(err);
             });
@@ -141,14 +158,40 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 // Upload users items after uploading photo
 router.post('/uploaditems', (req, res) => {
 
+    console.log(req.body.items)
+
+    const postQuery = {
+        post_id: req.body.postID
+    };
+    const postID = req.body.postID;
     const itemDocument = {
-        post_id : req.body.postID,
+        // post_id : req.body.postID,
         items: req.body.items
     }; 
+    let itemID;
 
-    // Add items with a reference to the post in Items Collection
-    Items.create(itemDocument)
-    .then( () => {
+    
+    // Create item document, retrieve item _id
+    models.Items.create(itemDocument)
+    .then( (item) => {
+ 
+        itemID = item.id;
+
+        // Add the items _id to the selected Posts 'item' field
+        return models.Posts.findOneAndUpdate(
+            postQuery, 
+            { $set: { items: item.id } }
+        );
+    })
+    .then((postDoc) => {
+        
+        // Update post field in Items collection with the post _id
+        return models.Items.findByIdAndUpdate(
+            itemID,
+            {$set: {post: postDoc.id}}
+        );
+    })
+    .then(() => {
         res.json({success: true});
     })
     .catch( (err) => {
@@ -158,6 +201,7 @@ router.post('/uploaditems', (req, res) => {
 });
 
 
+// Edit profile - Avatar, Website, Bio
 router.get('/edit', (req, res) => {
 
     const query = {
@@ -181,7 +225,8 @@ router.get('/edit', (req, res) => {
     });
 });
 
-
+// Having some problems on initial load
+// Upload avatar image
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
 
@@ -201,7 +246,6 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
     }
 
     
-    
     // User decides not to change their avatar, so the req.file will be undefined. Taking the src of the image that was previously uploaded to cloudinary to set back into database
     if(req.file === undefined){
 
@@ -209,10 +253,8 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         
         // Update user's website and bio
         models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
-        .then( (userRequest) => {
-
-            // Send back updated profile
-            res.json({success: true, user: userRequest, myUsername: req.user.username});
+        .then(() => {
+            res.status(200);
         })
         .catch( (err) => {
             console.log(err);
@@ -229,7 +271,6 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
             if(error){
                 return res.status(422).json({ errors: 'File could not be uploaded' });
             }
-
 
             // Set avatar to the link provided from Cloudinary
             userUpdate.avatar = result.url;

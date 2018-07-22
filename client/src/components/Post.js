@@ -3,15 +3,17 @@ import PageHead from './PageHead';
 import Comments from './Comments';
 import OtherPosts from './OtherPosts';
 import ItemDescription from './ItemDescription';
-import { getData } from '../util/serverFetch';
+import { getData, sendUserData } from '../util/serverFetch';
 import PostImage from './PostImage';
+import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
 
 
 class Post extends Component{
     constructor(props){
         super(props);
         this.state = {
-            items: '',
+            items: [],
             comments: [],
             otherPosts: [],
             username: '',
@@ -20,11 +22,15 @@ class Post extends Component{
             caption: '',
             postID: '',
             dataLoaded: false,
-            showOtherPosts: false
+            showOtherPosts: false,
+            showPostOptions: false,
+            redirect: false
+            
         };
 
         this.shuffle = this.shuffle.bind(this);
-        
+        this.showPostOptions = this.showPostOptions.bind(this);
+        this.handleDeletePost = this.handleDeletePost.bind(this);
     }
 
     // Fisher-Yates Shuffle
@@ -44,16 +50,50 @@ class Post extends Component{
           array[randomIndex] = temporaryValue;
         }
         return array;
-      }
+    }
         
+    // Click event for post options
+    showPostOptions(evt){
+        evt.preventDefault();
+
+        this.setState({
+            showPostOptions: true
+        });
+    }
+
+    handleDeletePost(evt){
+        
+        evt.preventDefault();
+
+        const { username } = this.props;
+        const urlPostID = this.props.urlParams.match.params.postid;
+        
+        // const serverResponse = sendUserData(`/user/${username}/${postID}/delete`);
+
+        fetch(`/user/${username}/${urlPostID}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then((data) => {
+            console.log(data)
+            this.setState({
+                redirect: true
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        }) ;
+
+    }
 
     // Retrieve Posts, Comments, Other Posts and Items
     componentDidMount(){
         
 
-        const urlUsernameParam = this.props.urlParams.match.params.user;
+        const urlUser = this.props.urlParams.match.params.user;
         const urlPostID = this.props.urlParams.match.params.postid;
-        const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}`);
+        const serverResponse = getData(`/user/${urlUser}/${urlPostID}`);
 
         // Get Profile Data
         serverResponse.then(response => response.json())
@@ -66,26 +106,26 @@ class Post extends Component{
                 showOtherPosts = true;
             }
 
-            // Make sure this post doens't show up in other post
-            let filteredOtherPosts = data.otherPosts.filter((post) => {
-                if(post.post_id !== urlPostID) return post;
-            });
-
             // Shuffle and slice for 'Other Posts' section
-            const shuffledOtherPosts = this.shuffle(filteredOtherPosts);
+            const shuffledOtherPosts = this.shuffle(data.otherPosts);
             const slicedOtherPosts = shuffledOtherPosts.slice(0, 4);
 
+            if(data.post.items){
+                this.setState({
+                    items: data.post.items.items,
+                });
+            }
+            
             this.setState({
                 username: data.post.username,
                 image: data.post.image,
                 comments: data.post.comments,
                 caption: data.post.caption,
                 otherPosts: slicedOtherPosts,
-                items: data.post.items,
                 postID: data.post.post_id,
                 dataLoaded: true,
                 showOtherPosts: showOtherPosts,
-            });
+            }); 
         })
         .catch((err) => {
             console.log(err);
@@ -98,16 +138,19 @@ class Post extends Component{
         let clothingItems;
         let otherPosts;
         
-        const urlUsernameParam = this.props.urlParams.match.params.user;
+        const urlUser = this.props.urlParams.match.params.user;
         const urlPostID = this.props.urlParams.match.params.postid;
         const urlParams = {
-            username: urlUsernameParam,
+            username: urlUser,
             postID: urlPostID
         };
 
-        if(this.state.dataLoaded) {
-            clothingItems = this.state.items.map((item) => {
-                return <ItemDescription item={item} />
+        const authorized = this.props.username === urlUser && this.props.isAuth;
+        const {redirect} = this.state;
+
+        if(this.state.dataLoaded && this.state.items) {
+            clothingItems = this.state.items.map((item, index) => {
+                return <ItemDescription item={item} key={`item${index}`} itemNumber={`item${index}`}/>
             })
         }
 
@@ -117,9 +160,17 @@ class Post extends Component{
             })
         }
 
+        if(redirect) return <Redirect to={`/user/${urlUser}`} />
+
         return(
             <div>
                 <PageHead pageHead={this.state.username} post={true}/>
+                {authorized &&
+                <div>
+                    <Link to={`/user/${urlUser}/${urlPostID}/edit`}>Edit Post</Link>
+                    <h5 onClick={this.handleDeletePost}>Delete Post!</h5>
+                    </div>
+                }
                 <div style={{display: 'flex', width: '100%'}}>
                     <PostImage image={this.state.image} urlParams={urlParams} />
                     <div>
@@ -128,9 +179,10 @@ class Post extends Component{
                     </div>
                 </div>
                 <section style={{display: 'flex'}}>
-                    <div className="comments" style={{marginTop: '40px', width: '30%'}}>
+                    <div className="comments" style={{marginTop: '40px', width: '30%'}} >
                         <Comments comments={this.state.comments} urlParams={urlParams}/>
                     </div>
+
                     {this.state.showOtherPosts &&
                     <div className="otherPosts">
                         <h2>Other Posts</h2>
@@ -143,7 +195,13 @@ class Post extends Component{
             </div>
         )
     }
-
 }
 
-export default Post;
+function mapStateToProps(state){
+    return{
+        isAuth: state.isAuth,
+        username: state.username
+    }
+}
+
+export default connect(mapStateToProps)(Post);

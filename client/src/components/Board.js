@@ -12,23 +12,59 @@ class Board extends Component{
 
         this.state = {
             streamData: [],
-            boardName: ''
+            boardName: '',
+            isLoading: false,
+            isSearching: false,
+            hasMore: true,
+            scrollCount: 0,
+        };
+
+        this.loadData = this.loadData.bind(this);
+
+        window.onscroll = () => {
+    
+            
+            const { error, isLoading, hasMore } = this.state;
+
+            // Return if there's an error, already loading or there's no more data from the database
+            if (error || isLoading || !hasMore) return;
+    
+            // Checks that the page has scrolled to the bottom
+            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+
+
+                const { scrollCount } = this.state;
+                const newCount = scrollCount + 1;
+            
+                this.setState({
+                    scrollCount: newCount
+
+                }, () => {
+
+                    this.loadData();
+                }); 
+            }
         };
     }
 
     // Get Board data
     componentDidMount(){
+        this.loadData();  
+    }
 
+    loadData(){
+        const { scrollCount, streamData } = this.state;
         const boardID = this.props.urlParams.match.params.boardid;
-        const serverResponse = getData(`/board/${boardID}`);
+        const serverResponse = getData(`/board/${boardID}/page/${scrollCount}`);
 
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
 
             this.setState({
-                streamData: data.stream,
-                boardName: data.boardName
+                streamData: streamData.concat(data.stream),
+                boardName: data.boardName,
+                hasMore: data.hasMore
             });
         })
         .catch((err) => {
@@ -48,6 +84,7 @@ class Board extends Component{
             {authorized &&
                     <div>
                         <Link to={`/user/${urlUser}/boards/${urlBoardID}/edit`}>Edit Board</Link>
+                        {/* <button type='button' onClick={}>Delete Board</button> */}
                     </div>
                 }
                 <PageHead pageHead={this.state.boardName} />

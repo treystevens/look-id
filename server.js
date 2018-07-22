@@ -4,18 +4,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 
-const bcrypt = require('bcrypt');
-// const { check, validationResult } = require('express-validator/check');
-// const { body } = require('express-validator/check');
-// const { sanitizeBody } = require('express-validator/filter');
-
 const passportSetup = require('./config/passport-setup');
 
-
-
-// Models
-const User = require('./models/user');
-const AccountInfo = require('./models/accInfo');
 
 // Routes
 const authRoutes = require('./routes/auth-routes');
@@ -24,6 +14,7 @@ const userRoutes = require('./routes/user-routes');
 const streamRoutes = require('./routes/stream-routes');
 const commentRoutes = require('./routes/comment-routes');
 const boardRoutes = require('./routes/board-routes');
+const searchRoutes = require('./routes/search-routes');
 
 
 
@@ -95,6 +86,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/stream', streamRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/board', boardRoutes);
+app.use('/api/search', searchRoutes);
 
 
 app.listen(port, ()=> {

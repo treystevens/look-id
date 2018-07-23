@@ -25,7 +25,7 @@ import EditBoard from './components/EditBoard';
 
 // React Redux
 import { connect } from 'react-redux';
-import { addAuth, updateAvatar } from './actions/actions';
+import { addAuth } from './actions/actions';
 
 // Util functions
 import { getData } from './util/serverFetch';
@@ -56,7 +56,6 @@ class App extends Component{
       if(user.isAuth){
 
         this.props.dispatch(addAuth(user.user));
-        this.props.dispatch(updateAvatar(user.user.avatar)) 
       }        
     })
     .catch((err) => {
@@ -72,13 +71,14 @@ class App extends Component{
       <Router basename='/'>
           <div className="container">
             <Header />
-            <Route exact path="/" render={ (match) => <Explore key={match.match.path}/>}/>
-            <Route exact path="/explore" render={ (match) => <Explore endPoint='Explore' key={match.match.path}/>}/>
-            <Route exact path="/search" render={ (match) => <Explore endPoint='earch' key={match.match.path}/>}/>
-            <Route exact path="/feed" render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>}/>
-            <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match} key={match.match.params.user} />}/>
-            <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>}/>
-            <Route exact path="/user/:user/:postid/edit" render={ (match) => <EditPost urlParams={match}/>}/>
+            <Route exact path="/" render={ (match) => <Explore key={match.match.path} isSearching={true} />} />
+            <Route exact path="/explore" render={ (match) => <Explore endPoint='Explore' key={match.match.path}/>} />
+            <Route exact path="/search" render={ (match) => <Explore endPoint='earch' key={match.match.path}/>} />
+            <Route exact path="/search/:query" render={ (match) => <Explore endPoint='earch' key={match.match.path}/>} />
+            <Route exact path="/feed" render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>} />
+            <Route exact path="/user/:user" render={ (match) => <Profile urlParams={match} key={match.match.params.user} />} />
+            <Route exact path="/user/:user/:postid" render={ (match) => <Post urlParams={match}/>} />
+            <Route exact path="/user/:user/:postid/edit" render={ (match) => <EditPost urlParams={match}/>} />
             <Route exact path="/user/:user/boards/:boardid" render={ (match) => <Board urlParams={match}/>} />
             <Route exact path="/user/:user/boards/:boardid/edit" render={ (match) => <EditBoard urlParams={match}/>} />
             <Route path="/boards" render={ () => <Boards pageName={'Boards'} />}/>
@@ -100,8 +100,7 @@ class App extends Component{
 function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
-      username: state.username,
-      myAvatar: state.avatar
+      username: state.username
     };
 }
 

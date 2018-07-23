@@ -11,6 +11,7 @@ router.get('/explore/:page', (req, res) => {
     models.Explore.find({}).populate('post').sort({_id:-1}).skip(skipNum).limit(10).exec()
     .then((data) => {
 
+        
         // Sending back only necessary post information
         const posts = data.map((post) => {
             const userPost = {
@@ -21,7 +22,14 @@ router.get('/explore/:page', (req, res) => {
             };
             return userPost;
         });
-        res.json({stream: posts});
+        let hasMore;
+
+        if(data.length < 10) hasMore = false;
+        else{
+            hasMore = true;
+        }
+
+        res.json({stream: posts, hasMore: hasMore});
     })
     .catch((err) => {
         console.log(err);
@@ -30,18 +38,20 @@ router.get('/explore/:page', (req, res) => {
 
 
 // Route for a user's feed
-router.get('/feed', (req, res) => {
+router.get('/feed/:page', (req, res) => {
 
     const query = {
         username: req.user.username
     };
     
+    const skipNum = req.params.page * 10;
+
     // Get user's feed items
     models.Feed.findOne(query).populate('feed_items').exec()
     .then((data) => {        
 
         // Sending back only necessary post information
-        const posts = data.feed_items.map((post) => {
+        const posts = data.feed_items.splice(skipNum, 10).map((post) => {
             const userPost = {
                 _id: post.id,
                 post_id: post.post_id,
@@ -50,7 +60,15 @@ router.get('/feed', (req, res) => {
             };
             return userPost;
         });
-        res.json({stream: posts});
+
+        let hasMore;
+
+        if(posts.length < 10) hasMore = false;
+        else{
+            hasMore = true;
+        }
+
+        res.json({stream: posts, hasMore: hasMore});
     })
     .catch((err) => {
         console.log(err);

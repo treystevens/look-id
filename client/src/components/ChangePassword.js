@@ -26,6 +26,7 @@ class ChangePassword extends Component{
         this.clearFields = this.clearFields.bind(this);
     }
 
+    // Clear input fields on submit
     clearFields(){
         let fields = document.querySelectorAll('.userfield');
         for(let input of fields){
@@ -45,8 +46,6 @@ class ChangePassword extends Component{
         this.setState({confirmPassword: evt.target.value});
     }
 
-
-
     submitNewPassword(evt){
 
         evt.preventDefault();
@@ -65,39 +64,36 @@ class ChangePassword extends Component{
 
         const serverResponse = sendUserData('/profile/settings/change-password', data);
 
-        serverResponse.then((res) => {
-            if(res.status === 422){
-                this.setState({
-                    errorStatus: true
-                });
-            }
-            return res.json();
-        })
+        serverResponse.then( response => response.json())
         .then((data) => {
-            if(this.state.errorStatus){
+            
+            // If validation errors were found
+            if(data.validationErrors){
+
                 this.setState({
-                    errors: data.errors,
+                    errors: data.validationErrors,
                     showConfirmation: true,
                     statusMessage: 'Try again.'
-                    
                 });
             }
 
+            // Error if problem hashing
+            else if(data.error) return Promise.reject(data.error);
+
             else{
+
                 this.setState({
                     showConfirmation: true,
                     actionSuccess: true,
                     statusMessage: 'Saved!'
                 });
             }
-
-            
         })
         .catch((err) => {
-            // If server error
+            
             this.setState({
                 showConfirmation: true,
-                statusMessage: 'Could not change password at the moment, try again later.'
+                statusMessage: err
             });
             console.log(err);
         });
@@ -106,8 +102,7 @@ class ChangePassword extends Component{
 
     render(){
 
-        let errors = this.state.errors;
-
+        const errors = this.state.errors;
 
         return(
             <section>

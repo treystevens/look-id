@@ -10,7 +10,6 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      avatar: state.avatar
     };
 }
 

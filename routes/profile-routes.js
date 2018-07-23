@@ -225,7 +225,7 @@ router.get('/edit', (req, res) => {
     });
 });
 
-// Having some problems on initial load
+
 // Upload avatar image
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 

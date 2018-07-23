@@ -12,12 +12,11 @@ const intialState = {
     isAuth: false,
     notification: '',
     username: '',
-    myAvatar: ''
 };
 
 
 function reducer(state = intialState, action) {
-    console.log(action)
+
     switch(action.type){
         case 'AUTHENTICATE':
         return {
@@ -37,11 +36,6 @@ function reducer(state = intialState, action) {
         return {
             notification: action.text
         };
-        case 'UPDATE_AVATAR':
-        return {
-            ...state,
-            myAvatar: action.updateAvatar
-        };
         default:
             return state;
     }
@@ -49,10 +43,6 @@ function reducer(state = intialState, action) {
 
 
 const store = createStore(reducer);
-
-
-
-
 
 
 ReactDOM.render(

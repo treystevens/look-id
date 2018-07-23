@@ -6,8 +6,8 @@ const userSchema = new Schema({
     username: String,
     password: String,
     profile: {
-        bio: String,
-        website: String,
+        bio: {type: String, default: ''},
+        website: {type: String, default: ''},
         avatar: {type: String, default: 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg'}
     },
     notifications: [{
@@ -15,10 +15,31 @@ const userSchema = new Schema({
         username: String,
         post_id: String,
         viewed: Boolean
-    }]
-
+    }],
+    following: [String],
+    followers: [String],
+    boards: [
+        {
+            board_id: String,
+            name: String,
+            display_image: String,
+            posts: [{ type: Schema.Types.ObjectId, ref: 'post' }]
+        }
+    ]
 });
 
+const itemSchema = new Schema({
+    post: { type: Schema.Types.ObjectId, ref: 'post' },
+    items: [{
+        category: String,
+        name: String,
+        price: String,
+        color: String,
+        stores: [],
+        link: String,
+        thrifted: Boolean
+    }],
+});
 
 const postSchema = new Schema({
 
@@ -26,98 +47,36 @@ const postSchema = new Schema({
     username: String,
     image: String,
     timestamp: { type: Date, default: Date.now },
-    liked: [{
-        username: String
-    }],
+    likes: [String],
+    caption: String,
     comments: [{
-        username: String,
-        date: String,
+        _user: { type: Schema.Types.ObjectId, ref: 'user' },
+        date_posted: String,
         comment: String,
-    }]
-});
-
-
-const itemSchema = new Schema({
-    post_id: String,
-    items: [{
-        category: String,
-        name: String,
-        price: String,
-        stores: [String],
-        online_link: String,
-        description: String
     }],
+    items: { type: Schema.Types.ObjectId, ref: 'item' }
 });
-
-
-const followingSchema = new Schema({
-    username: String,
-    following: [{
-        username: String
-    }]
-});
-
-
-const followerSchema = new Schema({
-    username: String,
-    followers: [{
-        username: String
-    }]
-});
-
 
 const exploreSchema = new Schema({
-        username: String,
-        post_id: String
+    post: { type: Schema.Types.ObjectId, ref: 'post' }
 });
-
 
 const feedSchema = new Schema({
     username: String,
-    feed_items: [{
-        username: String,
-        post_id: String, 
-    }]
+    feed_items: [{ type: Schema.Types.ObjectId, ref: 'post' }]
+                
 });
-
-
-const boardSchema = new Schema({
-    username: String,
-    boards: [
-        {
-            board_id: String,
-            name: String,
-            display_image: String,
-            images: [
-                {
-                    username: String,
-                    post_id: String,
-                    image: String
-                }
-            ] 
-        }
-    ]
-    
-});
-
 
 const Users = mongoose.model('user', userSchema);
 const Posts = mongoose.model('post', postSchema);
-const Items = mongoose.model('item', itemSchema);
-const Following = mongoose.model('following', followingSchema);
-const Followers = mongoose.model('follower', followerSchema);
 const Explore = mongoose.model('explore', exploreSchema);
 const Feed = mongoose.model('feed', feedSchema);
-const Boards = mongoose.model('board', boardSchema);
-
+const Items = mongoose.model('item', itemSchema);
 
 module.exports = {
     Users: Users,
     Posts: Posts,
-    Items: Items,
-    Following: Following,
-    Followers: Followers,
     Explore: Explore,
     Feed: Feed,
-    Boards: Boards
+    Items: Items
 };

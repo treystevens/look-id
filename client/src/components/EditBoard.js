@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
-import { Link } from 'react-router-dom';
 import ConfirmAction from './ConfirmAction';
 
 
@@ -18,7 +17,6 @@ class EditBoard extends Component{
             statusMessage: '',
             showConfirmation: false
         };
-
 
         this.handlePostDelete = this.handlePostDelete.bind(this);
         this.handleFilterPost = this.handleFilterPost.bind(this);
@@ -47,29 +45,31 @@ class EditBoard extends Component{
         });
     }
 
+    // Filter out post
     handleFilterPost(postID){
         this.setState({
             postsToDelete: this.state.postsToDelete.filter((post) => {
-                if(post !== postID) return post;
+                if(post.postID !== postID) return post;
             })
         });
     }
 
-    handlePostDelete(postID, target){
+    // Delete post
+    handlePostDelete(post, target){
 
-
-        // User toggling class - Add to state if it's an item we'd like to delete
+        // User toggling class - Add to state if it's an item user would like to delete
         // Filter if otherwise
         if(target.classList.contains('post__image--edit')){
             this.setState({
-                postsToDelete: this.state.postsToDelete.concat(postID)
+                postsToDelete: this.state.postsToDelete.concat(post)
             });
         }
         else{
-            this.handleFilterPost(postID);
+            this.handleFilterPost(post.postID);
         }
     }
 
+    // Update Board submit - Delete posts or change board name
     handleSubmit(evt){
         evt.preventDefault();
 
@@ -100,13 +100,13 @@ class EditBoard extends Component{
 
             this.setState({
                 showConfirmation: true,
-                statusMessage: 'Could not delete posts at the moment. Try again later.'
+                statusMessage: 'Something went wrong with the server. Could not delete posts at the moment. Try again later.'
             });
             console.log(err);
         });
-
     }
 
+    // onChange for changing board name
     handleNameChange(evt){
         this.setState({
             boardName: evt.target.value
@@ -114,7 +114,7 @@ class EditBoard extends Component{
     }
 
     render(){
-        console.log(this.state)
+        
 
         let deleteMessage;
 

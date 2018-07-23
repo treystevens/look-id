@@ -10,7 +10,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // Models
-const { Users, Feed } = require('../models/schemas');
+// const { Users, Feed } = require('../models/schemas');
+const models = require('../models/schemas');
 
 
 
@@ -25,7 +26,7 @@ router.get('/', (req, res) => {
         };
 
         // Find authenticated user
-        Users.findOne(query)
+        models.Users.findOne(query)
         .then((data) => {
 
             const currentUser = {
@@ -54,7 +55,7 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
     };
 
     // Query to get the user's avatar
-    Users.findOne(query)
+    models.Users.findOne(query)
     .then((data) => {
 
         currentUser.avatar = data.profile.avatar;
@@ -78,7 +79,7 @@ router.post('/signup', [
     
         const username = new RegExp(`^${value}$`);
 
-        return Users.findOne({username: {$regex: username, $options: 'i' }})
+        return models.Users.findOne({username: {$regex: username, $options: 'i' }})
         .then((user) => {
 
             // Checking to see if this username already exists
@@ -132,12 +133,12 @@ router.post('/signup', [
             user.password = hash;
 
             // Place new user with hashed password into Users Collection
-            Users.create(user).then((newUser) => {
+            models.Users.create(user).then((newUser) => {
                 const initiateUser = {
                     username: newUser.username 
                 };
 
-                Feed.create(initiateUser);
+                models.Feed.create(initiateUser);
 
  
                 // Authenticate new user

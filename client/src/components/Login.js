@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../styles/styles.css';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addAuth, updateAvatar } from '../actions/actions';
+import { addAuth } from '../actions/actions';
 import { Redirect } from 'react-router';
 import { sendUserData } from '../util/serverFetch';
 
@@ -68,9 +68,7 @@ class Login extends Component{
             
             if(logged.actionSuccess){
                 
-                this.props.dispatch(addAuth(logged.user));
-                this.props.dispatch(updateAvatar(logged.user.avatar));
-                
+                this.props.dispatch(addAuth(logged.user));                
                 
             }
 
@@ -117,8 +115,7 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID,
-      myAvatar: state.avatar
+      userID: state.userID
     };
 }
 

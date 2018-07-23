@@ -17,12 +17,14 @@ class BoardModal extends Component {
     }
 
 
+    // Handles the input change on creating a new baord
     handleBoardNameChange(evt){
         this.setState({
             boardName: evt.target.value
         });
     }
 
+    // Submission of that new board
     handleSubmit(evt){
         evt.preventDefault();
 
@@ -31,9 +33,6 @@ class BoardModal extends Component {
         this.setState({
             boardName: ''
         });
-
-        
-
     }
 
     render(){
@@ -43,7 +42,7 @@ class BoardModal extends Component {
                     <div className="modal-content">
                         <form className="create-board" onSubmit={this.handleSubmit}>
                             <label>Board Name:
-                                <input type="text" name="new-board" onChange={this.handleBoardNameChange} value={this.state.value}/>
+                                <input type="text" name="new-board" onChange={this.handleBoardNameChange} value={this.state.value} />
                             </label>
                             <input type="button" value="Cancel" />
                             <button>Create Board</button>

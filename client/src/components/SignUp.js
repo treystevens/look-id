@@ -3,7 +3,7 @@ import '../styles/styles.css';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
-import { addAuth, updateAvatar } from '../actions/actions';
+import { addAuth } from '../actions/actions';
 import { sendUserData } from '../util/serverFetch';
 
 class SignUp extends Component{
@@ -16,7 +16,7 @@ class SignUp extends Component{
             confirmation: '',
             errors: {},
             errorStatus: false,
-        }
+        };
         
         this.submitHandler = this.submitHandler.bind(this);
         this.usernameChange = this.usernameChange.bind(this);
@@ -83,7 +83,6 @@ class SignUp extends Component{
 
             else{
                 this.props.dispatch(addAuth(signUpStatus.user));
-                this.props.dispatch(updateAvatar(signUpStatus.user.avatar));
             }
 
         })
@@ -143,8 +142,7 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID,
-      myAvatar: state.avatar
+      userID: state.userID
     };
 }
 

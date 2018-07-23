@@ -5,6 +5,7 @@ import BoardModal from './BoardModal';
 import PageHead from './PageHead';
 import { getData, sendUserData, goDelete } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import ConfirmAction from './ConfirmAction';
 
 
 class Boards extends Component{
@@ -14,6 +15,9 @@ class Boards extends Component{
         this.state = {
             boards: [],
             showModal: false,
+            actionSuccess: false,
+            statusMessage: '',
+            showConfirmation: false
         };
 
         this.handleClickCreateBoard = this.handleClickCreateBoard.bind(this);
@@ -23,6 +27,15 @@ class Boards extends Component{
         this.disableConfirmAction = this.disableConfirmAction.bind(this);
         this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
         
+
+        // Add key listener on window to close modal with 'esc' key
+        window.addEventListener('keydown', (evt) => {
+            if(this.state.showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
     }
 
     // Get all of user's boards
@@ -41,19 +54,7 @@ class Boards extends Component{
         });
     }
 
-    // Add key listener on window to close modal with 'esc' key
-    componentDidUpdate(){
-
-
-        window.addEventListener('keydown', (evt) => {
-            if(this.state.showModal && evt.keyCode === 27){
-                this.setState({
-                    showModal: false
-                });
-            }
-        });
-    }
-
+    
     // Close modal on click
     closeModal(evt){
 
@@ -86,6 +87,7 @@ class Boards extends Component{
 
         serverResponse.then( response => response.json())
         .then((data) => {
+            console.log(data, `data for boards`)
             
             // Add the newly created board to state after server response
             this.setState({
@@ -122,15 +124,24 @@ class Boards extends Component{
             
             serverResponse.then(response => response.json())
             .then((data) => {
+                console.log(data)
+
+                if(data.errors) return Promise.reject(data);
                 // Make confirmation that it was added
                 if(data.success){
                     this.setState({
-                        confirmAction: true
+                        showConfirmation: true,
+                        actionSuccess: true,
+                        statusMessage: 'Saved to board!'
                     });
                 }
             })
             .catch((err) => {
-                console.log(err);
+                
+                this.setState({
+                    showConfirmation: true,
+                    statusMessage: err.errors
+                });
             });
         }
     }
@@ -155,13 +166,9 @@ class Boards extends Component{
 
     render(){
 
-        if(this.state.confirmAction){
-            setTimeout(this.disableConfirmAction, 1000);
-        } 
-
         let userBoards = this.state.boards.map((board) => {
             return (
-            <article>
+            <article key={board.board_id}>
                 <span>...</span>
                 <div>
                     <ul>
@@ -178,6 +185,10 @@ class Boards extends Component{
         return(
             <section>
                 <PageHead pageHead={this.props.pageName} />
+
+                {this.state.showConfirmation &&
+                <ConfirmAction statusMessage={this.state.statusMessage}/>}
+
                 <div className="boardContainer">
                     <CreateBoard handleClickCreateBoard={this.handleClickCreateBoard} />
                     {userBoards}

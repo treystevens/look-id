@@ -17,6 +17,15 @@ class PostImage extends Component{
     this.openBoards = this.openBoards.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.handleLikeCount = this.handleLikeCount.bind(this);
+
+    // Close Modal with Escape Key
+    window.addEventListener('keydown', (evt) => {
+        if(this.state.showModal && evt.keyCode === 27){
+            this.setState({
+                showModal: false
+            });
+        }
+    });
 }
 
     // Data to see if liked post and the amount of likes on a post
@@ -48,7 +57,6 @@ class PostImage extends Component{
         this.setState({
             showModal: true
         });
-    
     }
 
     // Close Boards Modal
@@ -88,27 +96,10 @@ class PostImage extends Component{
                         iLiked: true
                     });
                 }
-            }
-
-            
+            }    
         })
         .catch((err) => {
             console.log(err);
-        });
-
-
-        
-    }
-
-    // Close Modal with Escape Key
-    componentDidUpdate(){
-
-        window.addEventListener('keydown', (evt) => {
-            if(this.state.showModal && evt.keyCode === 27){
-                this.setState({
-                    showModal: false
-                });
-            }
         });
     }
 
@@ -123,8 +114,6 @@ class PostImage extends Component{
                 {this.state.showModal && 
                     <Modal source="addToBoard" closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
             </article>
-            
-            
         )
     }
 }

@@ -105,9 +105,9 @@ class UploadPost extends Component{
 
             this.setState({
                 showConfirmation: true,
-                statusMessage: err
+                statusMessage: err.message
             });
-            console.log(err);
+            console.log(err.message);
         });
     }
 

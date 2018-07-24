@@ -78,7 +78,7 @@ class ChangePassword extends Component{
             }
 
             // Error if problem hashing
-            else if(data.error) return Promise.reject(data.error);
+            else if(data.error) return Promise.reject(new Error(data.error));
 
             else{
 

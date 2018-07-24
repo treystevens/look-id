@@ -81,7 +81,7 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
         (error, result) => {
 
             if(error){
-                return res.status(422).json({ error: 'File could not be uploaded' });
+                return res.status(415).json({ error: 'File could not be uploaded.' });
             }
 
             // post to Posts
@@ -112,18 +112,16 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             models.Posts.create(newPost)
             .then( (newPost) => {
 
+                if(!newPost) return Promise.reject(new Error('We cannot upload your post at the moment.'));
 
                 // Send new Post to Explore Collection
                 // Push into User Collection with reference to original post to display 'Other Posts'
                 return Promise.all([
-
                     models.Explore.create({post: newPost._id}),
-
                     models.Users.findOneAndUpdate(query, {$push: {posts: userReferencePost}})
                 ]);
             })
             .then((result) => {
-                // console.log(result,` data after promise all`);
 
                 // Push postID to the user's followers to appear in their feed items
                 // Unshift to feed_items array
@@ -149,16 +147,15 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
                 res.json({postID: postID});
             })
             .catch( (err) => {
+                res.json({error: err});
                 console.log(err);
             });
         });
-     
 });
 
 // Upload users items after uploading photo
 router.post('/uploaditems', (req, res) => {
 
-    console.log(req.body.items)
 
     const postQuery = {
         post_id: req.body.postID
@@ -174,7 +171,9 @@ router.post('/uploaditems', (req, res) => {
     // Create item document, retrieve item _id
     models.Items.create(itemDocument)
     .then( (item) => {
- 
+        
+        if(!item) return Promise.reject(new Error('Problem with creating items'));
+
         itemID = item.id;
 
         // Add the items _id to the selected Posts 'item' field
@@ -184,7 +183,8 @@ router.post('/uploaditems', (req, res) => {
         );
     })
     .then((postDoc) => {
-        
+
+
         // Update post field in Items collection with the post _id
         return models.Items.findByIdAndUpdate(
             itemID,
@@ -192,14 +192,13 @@ router.post('/uploaditems', (req, res) => {
         );
     })
     .then(() => {
-        res.json({success: true});
+        res.status(200).json({success: true});
     })
     .catch( (err) => {
-        res.json({success: false});
+        res.json({error: err});
         console.log(err);
     });
 });
-
 
 // Edit profile - Avatar, Website, Bio
 router.get('/edit', (req, res) => {
@@ -210,7 +209,8 @@ router.get('/edit', (req, res) => {
 
     models.Users.findOne(query)
     .then( (user) => {
-
+        if(!user) return Promise.reject(new Error('Unable to retrieve your profile information at the moment.'));
+        
         // The available fields to edit on 'Edit Profile'
         userProfileInfo = {
             avatar: user.profile.avatar,
@@ -221,12 +221,12 @@ router.get('/edit', (req, res) => {
         res.json({user: userProfileInfo});
     })
     .catch( (err) => {
+        res.status(500).json({errors: err});
         console.log(err);
     });
 });
 
-
-// Upload avatar image
+// Upload avatar image, website or bio
 router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
 
@@ -242,7 +242,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
 
     // File for avatar display image was not permitted for upload
     if(req.fileValidationError){
-        return res.status(422).json({ errors: 'LookID only supports the following file types - .png, .jpg, and .jpeg"' });
+        return res.status(422).json({ error: 'LookID only supports the following file types - .png, .jpg, and .jpeg' });
     }
 
     
@@ -253,11 +253,13 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         
         // Update user's website and bio
         models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
-        .then(() => {
+        .then((data) => {
+            if(!data) return Promise.reject(new Error('User not found'));
+
             res.status(200);
         })
         .catch( (err) => {
-            console.log(err);
+            res.status(500).json({error: err});
         });
     }
     else{
@@ -269,7 +271,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         }, 
         (error, result) => {
             if(error){
-                return res.status(422).json({ errors: 'File could not be uploaded' });
+                return Promise.reject(new Error('File could not be uploaded'));
             }
 
             // Set avatar to the link provided from Cloudinary
@@ -285,18 +287,17 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
                 });  
 
                 // Send back updated profile
-                res.json({success: true, user: userRequest, myUsername: req.user.username});
-
-                    
+                res.json({ user: userRequest, myUsername: req.user.username });
             })
             .catch( (err) => {
+                res.json({error: err});
                 console.log(err);
             });
         });
     }    
 });
 
-
+// Change user password
 router.post('/settings/change-password',[
     body('password')
     .custom( (value, { req } ) => {
@@ -343,33 +344,32 @@ router.post('/settings/change-password',[
     if(!validationErrors.isEmpty()){  
 
         const mappedErrors = validationErrors.mapped();
-        return res.status(422).json({ errors: mappedErrors });
+        return res.status(422).json({ validationErrors: mappedErrors });
     }
 
-    const enteredPassword = req.body.password;
     const newPassword = req.body.newPassword;
     const userID = req.user.id;
                 
     // Hash the new password 
-    bcrypt.hash(newPassword, saltRounds).then( (hash) => {
+    bcrypt.hash(newPassword, saltRounds)
+    .then( (hash) => {
     
-        models.Users.findByIdAndUpdate(userID, {password: hash})
-        .then(() => {
-            res.json({success: true});
-        });
+        if(!hash) return Promise.reject(new Error('Could not properly secure your password, please try again later.'));
+
+        return models.Users.findByIdAndUpdate(userID, {password: hash});
+        
+    })
+    .then(() => {
+        res.status(200);
     })
     .catch((err) => {
-        res.json({success: false});
+        res.json({error: err});
         console.log(err);
-    });
-   
-            
-
-    
+    }); 
 });
 
 
-// Have to revisit
+// Delete user account
 router.post('/settings/delete-account',[
     body('username')
     .custom( (value, { req } ) => {
@@ -416,9 +416,8 @@ router.post('/settings/delete-account',[
 
         if(!validationErrors.isEmpty()){  
             let mappedErrors = validationErrors.mapped();
-            console.log(mappedErrors, `mapped errors`);
-
-            return res.status(422).json({ errors: mappedErrors });
+    
+            return res.status(422).json({ validationErrors: mappedErrors });
 
     }
 
@@ -434,8 +433,6 @@ router.post('/settings/delete-account',[
             res.json({success: false});
             console.log(err);
         });
-
-
 });
 
 

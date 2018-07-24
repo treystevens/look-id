@@ -10,9 +10,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // Models
-// const { Users, Feed } = require('../models/schemas');
 const models = require('../models/schemas');
-
 
 
 // When the app loads check if user is authenticated
@@ -46,7 +44,7 @@ router.get('/', (req, res) => {
     }    
 });
 
-
+// User logging in
 router.post('/login', passport.authenticate('local'), (req, res, next) => {
 
     const query = { username: req.user.username };
@@ -56,9 +54,7 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
 
     // Query to get the user's avatar
     models.Users.findOne(query)
-    .then((data) => {
-
-        currentUser.avatar = data.profile.avatar;
+    .then(() => {
         res.json({actionSuccess: true, user: currentUser}); 
     })
     .catch((err) => {
@@ -67,14 +63,14 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
     
 });
 
-
+// User sign up 
 router.post('/signup', [
     body('username') // Username validation
     .isLength({ min: 3 })
     .withMessage('Username must be at least 3 characters long.')
     .trim()
     .isAlphanumeric()
-    .withMessage('Username must have only letters or numbers.')
+    .withMessage('Username must have only letters or numbers and no spaces.')
     .custom( (value, {req} ) => {
     
         const username = new RegExp(`^${value}$`);
@@ -115,8 +111,7 @@ router.post('/signup', [
     if(!validationErrors.isEmpty()){  
 
         let mappedErrors = validationErrors.mapped();
-
-        return res.status(422).json({ errors: mappedErrors });
+        return res.status(422).json({ validationErrors: mappedErrors });
     }
 
     // Place the new user into the database
@@ -127,38 +122,39 @@ router.post('/signup', [
             username: req.body.username,
             password: req.body.password
         };
+        let createdUser;
         
         // Hash password and store into database
-        bcrypt.hash(user.password, saltRounds).then( (hash) => {
+        bcrypt.hash(user.password, saltRounds)
+        .then( (hash) => {
+            
             user.password = hash;
 
-            // Place new user with hashed password into Users Collection
-            models.Users.create(user).then((newUser) => {
-                const initiateUser = {
-                    username: newUser.username 
-                };
+            // Create new user with hashed password into Users Collection
+            return models.Users.create(user);
+        })
+        .then((newUser) => {
+        
+            createdUser = newUser;
 
-                models.Feed.create(initiateUser);
+            // Create a 'feed' for the user - people that follow user's post will go here
+            return models.Feed.create({username: createdUser.username});
+        })
+        .then(() => {
 
- 
-                // Authenticate new user
-                req.login(newUser, (err) => {
-                    if (err) { 
-                        return next(err); 
-                    }
-                    
-                     // Make sure avatar link is getting passed back so that we can have as a redux store state
-                    const currentUser = {
-                        username: newUser.username,
-                        avatar: newUser.profile.avatar    
-                    };
-                   
-                    res.json({user: currentUser});
-                    
-                });                
-            });
-        }) // end of bcrypt
+            // Authenticate new user
+            req.login(createdUser, (err) => {
+                if (err) { 
+                    // return next(err); 
+                    Promise.reject(new Error('Had trouble logging you in. Please log in to verify that your account was created.'));
+                }
+               
+                res.json({user: createdUser});
+                
+            });                
+        })
         .catch((err) => {
+            res.status(500).json({ error: err });
             console.log(err);
         });
           

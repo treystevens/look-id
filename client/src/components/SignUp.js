@@ -73,7 +73,7 @@ class SignUp extends Component{
                     statusMessage: 'There were incorrect and/or missing fields.'
                 });
             }
-            else if(signUpStatus.error) Promise.reject(new Error(signUpStatus.error))
+            else if(signUpStatus.error) return Promise.reject(new Error(signUpStatus.error))
             else{
                 this.props.dispatch(addAuth(signUpStatus.user));
             }

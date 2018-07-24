@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { addAuth } from '../actions/actions';
 import { Redirect } from 'react-router';
 import { sendUserData } from '../util/serverFetch';
-
+import ConfirmAction from './ConfirmAction';
 
 
 class Login extends Component{
@@ -16,16 +16,19 @@ class Login extends Component{
         this.state = {
             username: '',
             password: '',
-            errorStatus: false
+            errorStatus: false,
+            showConfirmation: false,
+            actionSuccess: false,
+            statusMessage: ''
         };
         
         this.submitHandler = this.submitHandler.bind(this);
         this.usernameChange = this.usernameChange.bind(this);
         this.passwordChange = this.passwordChange.bind(this);
         this.clearFields = this.clearFields.bind(this);
-
     }
 
+    // Clear input fields
     clearFields(){
         let fields = document.querySelectorAll('.userfield');
         for(let input of fields){
@@ -41,6 +44,7 @@ class Login extends Component{
         this.setState({password: evt.target.value});
     }
 
+    // Login submit
     submitHandler(evt){
         evt.preventDefault();
         this.clearFields();
@@ -52,46 +56,42 @@ class Login extends Component{
         };
 
         const serverResponse = sendUserData('/auth/login', data);
-        serverResponse.then((res) => {
-            // console.log(res);
+        serverResponse.then((response) => {
 
-            if(res.status === 401){
-                this.setState({
-                    errorStatus: true
-                });
-                return 1;
+            // Incorrect information or user might not exist
+            if(response.status === 401){
+                return Promise.reject(new Error('Username or password is incorrect'));
             }
-
-            return res.json();
+            return response.json();
         })
-        .then((logged) => {
-            
-            if(logged.actionSuccess){
-                
-                this.props.dispatch(addAuth(logged.user));                
-                
-            }
-
+        .then((authorizedUser) => {
+            // Authorize user
+            this.props.dispatch(addAuth(authorizedUser.user));
         })
         .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
             console.log(err);
         });
     }
 
     render(){
 
+        // Once authorized redirect to homepage
         if(this.props.isAuth){
             return <Redirect to='/'/>
         }
-
 
         return(
             <div className="container  img-spread1" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
                 <div className="flex-container" style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
                     <form className="test-form" autoComplete="off" onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
 
-                    {this.state.errorStatus &&
-                    <span>Username or password is incorrect</span>}
+                    {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
                         <label>Username:
                             <input type="text" placeholder="Username" name="username" onChange={this.usernameChange}required  className="userfield"/>
                         </label>
@@ -114,11 +114,8 @@ class Login extends Component{
 function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
-      username: state.username,
-      userID: state.userID
+      username: state.username
     };
 }
 
-
-// export default Login;
 export default connect(mapStateToProps)(Login)

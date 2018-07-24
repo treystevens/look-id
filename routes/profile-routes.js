@@ -421,18 +421,117 @@ router.post('/settings/delete-account',[
 
     }
 
+    const username = req.user.username;
+    const usernameQuery = {
+        username: username
+    };
+    let userID;
 
-    // Only removes from Users Collection as of now
-    models.Users.remove({username: {$in: req.user.username}})
-        .then((response) => {
-            console.log(response, `finding all the ins`);
-            req.logout()
-            res.json({success: true});
-        })
-        .catch((err) => {
-            res.json({success: false});
-            console.log(err);
+
+    // First get the user's _id
+    models.Users.findOne(usernameQuery)
+    .then((user) => {
+
+        userID = user._id;
+        const usersIFollow = user.following.map(user => user);
+
+        // Remove my username from another user's followers list
+        const followersRemove = models.Users.update(
+            { username: { $in: usersIFollow } },
+            { $pull: { followers: username } },
+            { multi: true }
+        );
+
+        // Remove my username from another user's following list
+        const followingRemove = models.Users.update(
+            { following: username },
+            { $pull: { following: username } },
+            { multi: true }
+        );
+
+        // Remove my username from the posts that I have liked
+        const likesRemove = models.Posts.update(
+            { likes: username },
+            { $pull: { likes: username } },
+            { multi: true }
+        );
+
+        return Promise.all([ followersRemove, followingRemove, likesRemove]);
+
+
+    })
+    .then(() => {
+
+        // Get all the posts that the user has commented on
+        return models.Posts.aggregate([{ $match: { 'comments._user': userID } }]).unwind('comments');
+    })
+    .then((posts) => {
+
+        // Store comment id's of the posts that I commented on
+        const commentIDs = posts.map( (post) => {
+            return post.comments._id;
         });
+
+        // Pull _id from comments
+        return models.Posts.updateMany(
+            { 'comments._user': userID },
+            { $pull: { 'comments': { "_id": { $in: commentIDs } } }  },
+            { multi: true }
+        );
+    })
+    .then(() => {
+
+        // Get the post _id's associated with this user
+        return models.Posts.find({username: username});
+    })
+    .then((data) => {
+
+        // Remove posts from boards, explore and feed along with the post's items
+
+        const posts = data.map(post => post.id);
+
+        const exploreRemove = models.Explore.remove({ post: { $in: posts }});
+        const feedPostRemove = models.Feed.update(
+            { feed_items: { $in: posts } },
+            { $pull: { feed_items: { $in: posts } }} ,
+            { multi: true }
+        );
+        const itemRemove = models.Items.remove( { post: { $in: posts } });
+
+        // Remove post from boards
+        const boardPostRemove = models.Users.update(
+            { 'boards.posts': { $in: posts } } ,
+            { $pull: { 'boards.$.posts': { $in: posts } } },
+            { multi: true }
+        );
+
+        return Promise.all([ exploreRemove, feedPostRemove, itemRemove, boardPostRemove ]);
+
+    })
+    .then(() => {
+
+        // Removing User document from User collection
+        const userRemove = models.Users.remove(usernameQuery);
+
+        // Remove all user from Feed collection
+        const feedRemove = models.Feed.remove(usernameQuery);
+
+        // Remove all user's posts from Posts collection
+        const postsRemove = models.Posts.remove(usernameQuery);
+        
+
+        return Promise.all([ userRemove, feedRemove, postsRemove ]);
+    })
+    .then(() => {
+
+        // Successfully deleted 
+        req.logout();
+        res.json({success: true});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.json({error: err});
+    });
 });
 
 

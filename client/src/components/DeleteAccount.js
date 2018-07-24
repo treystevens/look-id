@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PageHead from './PageHead';
 import { sendUserData } from '../util/serverFetch';
+import ConfirmAction from './ConfirmAction';
+import { connect } from 'react-redux';
+
 
 
 class DeleteAccount extends Component{
@@ -12,7 +15,9 @@ class DeleteAccount extends Component{
             password: '',
             confirmation: '',
             errors: {},
-            errorStatus: false,
+            actionSuccess: false,
+            statusMessage: '',
+            showConfirmation: false
         };
         
         this.submitHandler = this.submitHandler.bind(this);
@@ -22,6 +27,8 @@ class DeleteAccount extends Component{
         this.clearFields = this.clearFields.bind(this);
     }
 
+
+    // Clear input fields on submit
     clearFields(){
         let fields = document.querySelectorAll('.userfield');
         for(let input of fields){
@@ -29,7 +36,7 @@ class DeleteAccount extends Component{
         }
     }
 
-
+    // Field onChange handling functions ~
     usernameChange(evt){
         this.setState({username: evt.target.value});
     }
@@ -54,40 +61,45 @@ class DeleteAccount extends Component{
         };
 
         const serverResponse = sendUserData('/profile/settings/delete-account', data);
-        serverResponse.then((res) => {
-    
-            if(res.status === 422){
-                this.setState({
-                    errorStatus: true
-                });
-            }
-            return res.json();
-        })
-        .then((status) => {
+        serverResponse.then(response => response.json())
+        .then((data) => {
 
-            if(this.state.errorStatus){
-                let errorMessages = Object.assign({}, status.errors);
-
+            // Validation errors from fields
+            if(data.validationErrors){
                 this.setState({
-                    errors: errorMessages 
+                    errors: data.validationErrors,
+                    showConfirmation: true,
+                    statusMessage: 'There were incorrect and/or missing fields.'
                 });
             }
 
+            // Error with user in database
+            else if(data.error) return Promise.reject(new Error(data.error));
+
+            // Account successfully deleted and redirected to homepage
             else{
-                // Pop up modal for user to confirm action
+                this.props.dispatch({type: 'LOGOUT'});
             }
-
         })
         .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err
+            });
             console.log(err);
         });
     }
 
     render(){
-        let errors = this.state.errors;
+
+        const { errors } = this.state;
+
         return(
             <section>
                 <PageHead pageHead='Delete Account' />
+                {this.state.showConfirmation &&
+                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                }
                 <div>
                     <form onSubmit={this.submitHandler}>
                         <label>
@@ -110,9 +122,14 @@ class DeleteAccount extends Component{
                     </form>
                 </div>
             </section>
-
         )
     }
 }
 
-export default DeleteAccount;
+function mapStateToProps(state) {
+    return {
+      isAuth: state.isAuth,
+    };
+}
+
+export default connect(mapStateToProps)(DeleteAccount);

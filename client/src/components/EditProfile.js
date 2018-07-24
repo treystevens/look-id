@@ -19,6 +19,29 @@ class EditProfile extends Component{
         this.submitEdit = this.submitEdit.bind(this);
     }
 
+    // Load User's Avatar - Website - Bio
+    componentDidMount(){
+        const serverResponse = getData('/profile/edit');
+
+        serverResponse.then( response => response.json())
+        .then( (data) => {
+
+    
+            const bio = document.querySelector('.edit__bio');
+            const website = document.querySelector('.edit__website');
+
+            // Form gets submited as form data instead of using state information to submit
+            bio.value = data.user.bio || '';
+            website.value = data.user.website || '';
+
+            this.setState({
+                avatar: data.user.avatar
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
 
     submitEdit(evt){
         evt.preventDefault();
@@ -46,7 +69,8 @@ class EditProfile extends Component{
 
         serverResponse
         .then( response => response.json() )
-        .then(() => {
+        .then((data) => {
+            if(data.error) return Promise.reject(new Error(data.error));
 
             this.setState({
                 showConfirmation: true,
@@ -55,36 +79,11 @@ class EditProfile extends Component{
             });
         }) 
         .catch((err) => {
+            
             this.setState({
                 showConfirmation: true,
-                statusMessage: 'Could not update at the moment, try again later.'
+                statusMessage: err
             });
-            console.log(err);
-        });
-
-    }
-
-
-    componentDidMount(){
-        const serverResponse = getData('/profile/edit');
-
-        serverResponse.then( response => response.json())
-        .then( (data) => {
-
-    
-            const bio = document.querySelector('.edit__bio');
-            const website = document.querySelector('.edit__website');
-
-            // Form gets submited as form data instead of using state information to submit
-            bio.value = data.user.bio || '';
-            website.value = data.user.website || '';
-
-            this.setState({
-                avatar: data.user.avatar
-            });
-        })
-        .catch((err) => {
-            console.log(err);
         });
     }
 
@@ -97,7 +96,7 @@ class EditProfile extends Component{
 
                 {this.state.showConfirmation &&
                     <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
-                    }
+                }
 
                 <form onSubmit={this.submitEdit} className='edit__form'>
                     <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container'/>

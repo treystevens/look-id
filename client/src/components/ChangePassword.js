@@ -73,7 +73,7 @@ class ChangePassword extends Component{
                 this.setState({
                     errors: data.validationErrors,
                     showConfirmation: true,
-                    statusMessage: 'Try again.'
+                    statusMessage: 'There were incorrect and/or missing fields.'
                 });
             }
 

@@ -26,6 +26,7 @@ class Boards extends Component{
         this.handleClickBoard = this.handleClickBoard.bind(this);
         this.disableConfirmAction = this.disableConfirmAction.bind(this);
         this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
+        this.state.showErrorStatus = this.state.showErrorStatus.bind(this);
         
 
         // Add key listener on window to close modal with 'esc' key
@@ -45,15 +46,30 @@ class Boards extends Component{
 
         serverResponse.then(response => response.json())
         .then((data) => {
+
+            if(data.error) return Promise.reject(new Error(data.error));
+
             this.setState({
                 boards: data.boards
             });
         })
         .catch((err) => {
+            this.showErrorStatus(err);
             console.log(err);
         });
     }
 
+    // Remove event listener
+    componentWillUnmount(){
+        // Remove window listener
+        window.removeEventListener('keydown', (evt) => {
+            if(this.state.showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
+    }
     
     // Close modal on click
     closeModal(evt){
@@ -87,21 +103,30 @@ class Boards extends Component{
 
         serverResponse.then( response => response.json())
         .then((data) => {
-            console.log(data, `data for boards`)
             
+            if(data.error) return Promise.reject(data.error);
+
             // Add the newly created board to state after server response
             this.setState({
                 boards: this.state.boards.concat(data.boards)
             });
         })
         .catch((err) => {
+
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+
             console.log(err);
         });
     }
 
-    disableConfirmAction(){
+    // show ConfirmAction if error occurred 
+    showErrorStatus(err){
         this.setState({
-            confirmAction: false
+            showConfirmation: true,
+            statusMessage: err.errors
         });
     }
 
@@ -124,7 +149,6 @@ class Boards extends Component{
             
             serverResponse.then(response => response.json())
             .then((data) => {
-                console.log(data)
 
                 if(data.errors) return Promise.reject(data);
                 // Make confirmation that it was added
@@ -137,11 +161,7 @@ class Boards extends Component{
                 }
             })
             .catch((err) => {
-                
-                this.setState({
-                    showConfirmation: true,
-                    statusMessage: err.errors
-                });
+                this.showErrorStatus(err);
             });
         }
     }
@@ -156,10 +176,10 @@ class Boards extends Component{
         serverResponse
         .then(response => response.json())
         .then((data) => {
-            console.log(data);
+            if(data.error) return Promise.reject(new Error(data.error));
         })
         .catch((err) => {
-            console.log(err);
+            this.showErrorStatus(err);
         });
     }
 
@@ -173,7 +193,6 @@ class Boards extends Component{
                 <div>
                     <ul>
                         <li>Edit Board</li>
-                        {/* <li onClick={this.handleDeleteBoard}>Delete Board</li> */}
                         <li onClick={this.handleDeleteBoard.bind(this, {board})}>Delete Board</li>
                         
                     </ul>

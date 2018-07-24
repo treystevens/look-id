@@ -70,7 +70,7 @@ class UserProfileHead extends Component{
             <section>
                 <section style={{margin: '0 auto', width: '40%'}}>
                     
-                    <Avatar avatar={this.props.data.avatarUrl}/>
+                    <Avatar avatar={this.props.data.avatar}/>
                     <span>{this.props.urlParamUser}</span>
                     <div>
                         <a onClick={this.handleClick}>

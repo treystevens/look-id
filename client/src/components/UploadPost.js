@@ -5,7 +5,7 @@ import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import Item from './Item';
 import { sendUserData, sendPhoto } from '../util/serverFetch';
-
+import ConfirmAction from './ConfirmAction';
 
 
 class UploadPost extends Component{
@@ -20,26 +20,28 @@ class UploadPost extends Component{
             successfulUpload: false,
             postID: '',
             items: {},
-            errorMessage: ''
+            errorMessage: '',
+            statusMessage: '',
+            showConfirmation: false
 
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.captionChange = this.captionChange.bind(this);
-        
+        this.handleAddItemToState = this.handleAddItemToState.bind(this);
     }
 
     // Lifting state from Item.js
-    handleAddItemToState = (itemState) => {
-        this.setState({ items: itemState}, () => {
-            console.log(this.state.items)
-        })
+    handleAddItemToState(itemState){
+        this.setState({ items: itemState});
     }
 
+    // User input change for photo caption
     captionChange(evt){
         this.setState({captionChange: evt.target.value});
     }
 
+    // Submiting new post
     handleSubmit(evt){
         evt.preventDefault();
 
@@ -56,62 +58,63 @@ class UploadPost extends Component{
         //     console.log(pair[0]+ ', ' + pair[1]); 
         // }
 
+        let returnedPostID;
+
         const photoResponse = sendPhoto('/profile/uploadphoto', formData);
-        photoResponse.then( (response) => {
-            
-            if(response.status === 422){
-                this.setState({
-                    errorStatus: true
-                });
-            }
-            return response.json();
-        })
+        photoResponse.then( response => response.json())
         .then((data) => {
 
-            if(this.state.errorStatus){
-                this.setState({
-                    errorMessage: data.error
-                }, () => {
-                    return 1;
-                });
-            }
+            if(data.error) return Promise.reject(new Error(data.error));
 
-            else if(this.state.items.length > 0){
+            returnedPostID = data.postID;
+
+            // If items are present in state upload them as well
+            if(this.state.items.length > 0){
                 
                 const items = {
                     items: this.state.items,
-                    postID: data.postID // Takes the postID so we know which post to update
+                    postID: returnedPostID // Takes the postID so we know which post to update
                 };
 
-                
-                // Request to server
+                // Save items to the database
                 const serverResponse = sendUserData('/profile/uploaditems', items);
 
-                serverResponse.then( response => response.json())
-                .then((res) => {
-                    this.setState({
-                        postID: data.postID,
-                        successfulUpload: true
-                    });
-                });
+                // <--- Response from adding items
+                return serverResponse; 
             }
 
             // If user does not add an item
             else{
                 this.setState({
                     successfulUpload: true,
-                    postID: data.postID
+                    postID: returnedPostID
                 });
             }
             
         })
+        .then( response => response.json())
+        .then((data) => {
+            if(data.error) return Promise.reject(new Error(data.error));
+
+            this.setState({
+                postID: returnedPostID,
+                successfulUpload: true
+            });
+        })
         .catch((err) => {
+
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err
+            });
             console.log(err);
         });
     }
 
     render(){
 
+
+        // Redirect to the post after a user succesfully uploads a new post
         if(this.state.successfulUpload){
             let redirectLink = `/user/${this.props.username}/${this.state.postID}`;
             return <Redirect to={redirectLink}/>
@@ -122,8 +125,10 @@ class UploadPost extends Component{
                 <PageHead pageHead='Post an Outfit'/>
                 <form onSubmit={this.handleSubmit} className="user-post">
                     <UploadPhoto isNewPost={'new-post'} />
-                    {this.state.errorStatus && 
-                    <span>{this.state.errorMessage}</span>}
+
+                    {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
                     <textarea placeholder='Write a caption...' name="usercaption" className="userCap">
                     </textarea>
                     <section style={{display: 'flex', flexFlow: 'row wrap'}}>
@@ -142,7 +147,6 @@ function mapStateToProps(state){
         username: state.username
     }
 }
-
 
 export default connect(mapStateToProps)(UploadPost);
 

@@ -5,6 +5,7 @@ import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import { addAuth } from '../actions/actions';
 import { sendUserData } from '../util/serverFetch';
+import ConfirmAction from './ConfirmAction';
 
 class SignUp extends Component{
     constructor(props){
@@ -15,7 +16,9 @@ class SignUp extends Component{
             password: '',
             confirmation: '',
             errors: {},
-            errorStatus: false,
+            showConfirmation: false,
+            actionSuccess: false,
+            statusMessage: ''
         };
         
         this.submitHandler = this.submitHandler.bind(this);
@@ -48,11 +51,6 @@ class SignUp extends Component{
     submitHandler(evt){
         evt.preventDefault();
         this.clearFields();
-
-        // Reset error state
-        this.setState({
-            errorStatus: false
-        });
         
         const data = {
             username: this.state.username,
@@ -61,39 +59,38 @@ class SignUp extends Component{
         };
 
         const serverResponse = sendUserData('/auth/signup', data);
-        serverResponse.then((res) => {
-            
-            if(res.status === 422){
-                this.setState({
-                    errorStatus: true
-                });
-            }
-            return res.json();
-        })
+
+        serverResponse.then( repsonse => repsonse.json())
         .then((signUpStatus) => {
 
-        
-            if(this.state.errorStatus){
-                let errorMessages = Object.assign({}, signUpStatus.errors);
+
+            // If validation errors were found
+            if(signUpStatus.validationErrors){
 
                 this.setState({
-                    errors: errorMessages 
+                    errors: signUpStatus.validationErrors,
+                    showConfirmation: true,
+                    statusMessage: 'There were incorrect and/or missing fields.'
                 });
             }
-
+            else if(signUpStatus.error) Promise.reject(new Error(signUpStatus.error))
             else{
                 this.props.dispatch(addAuth(signUpStatus.user));
             }
 
         })
         .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
             console.log(err);
         });
     }
    
     render(){
 
-
+        // Redirect once user successfully signs up
         if(this.props.isAuth){
             return <Redirect to='/'/>
         }
@@ -103,7 +100,14 @@ class SignUp extends Component{
             
             <div className="container  img-spread2" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
                 <div className="flex-container" style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+
+
+                    
                     <form className="test-form" autoComplete="off" onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+
+                    {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
             
                     <label>Username:
                         <input type="text" placeholder="Account Name" name="username" onChange={this.usernameChange}required className="userfield"/>
@@ -142,7 +146,6 @@ function mapStateToProps(state) {
     return {
       isAuth: state.isAuth,
       username: state.username,
-      userID: state.userID
     };
 }
 

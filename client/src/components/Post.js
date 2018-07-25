@@ -3,10 +3,11 @@ import PageHead from './PageHead';
 import Comments from './Comments';
 import OtherPosts from './OtherPosts';
 import ItemDescription from './ItemDescription';
-import { getData, sendUserData } from '../util/serverFetch';
+import { getData, sendUserData, goDelete } from '../util/serverFetch';
 import PostImage from './PostImage';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import NotFound from './NotFound';
 
 
 class Post extends Component{
@@ -24,7 +25,8 @@ class Post extends Component{
             dataLoaded: false,
             showOtherPosts: false,
             showPostOptions: false,
-            redirect: false
+            redirect: false,
+            notFound: false
             
         };
 
@@ -61,22 +63,17 @@ class Post extends Component{
         });
     }
 
-    handleDeletePost(evt){
-        
+    handleDeletePost(evt){ 
         evt.preventDefault();
 
         const { username } = this.props;
         const urlPostID = this.props.urlParams.match.params.postid;
         
-        // const serverResponse = sendUserData(`/user/${username}/${postID}/delete`);
+        // Request to delete post
+        const serverResponse = goDelete(`/user/${username}/${urlPostID}`);
 
-        fetch(`/user/${username}/${urlPostID}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then((data) => {
-            console.log(data)
+        serverResponse.then(response => response.json())
+        .then(() => {
             this.setState({
                 redirect: true
             });
@@ -98,6 +95,8 @@ class Post extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
+
+            if(data.error) return Promise.reject(new Error(data.error));
 
             const otherPostLength = data.otherPosts.length;
             
@@ -128,6 +127,9 @@ class Post extends Component{
             }); 
         })
         .catch((err) => {
+            this.setState({
+                notFound: true
+            })
             console.log(err);
         });
     
@@ -146,7 +148,7 @@ class Post extends Component{
         };
 
         const authorized = this.props.username === urlUser && this.props.isAuth;
-        const {redirect} = this.state;
+        const {redirect, notFound} = this.state;
 
         if(this.state.dataLoaded && this.state.items) {
             clothingItems = this.state.items.map((item, index) => {
@@ -160,7 +162,11 @@ class Post extends Component{
             })
         }
 
+        // Redirect when deleting a post to user's profile
         if(redirect) return <Redirect to={`/user/${urlUser}`} />
+
+        // 404 Not Found
+        if(notFound) return <NotFound />
 
         return(
             <div>

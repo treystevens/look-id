@@ -16,11 +16,20 @@ class CommentBox extends Component{
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleComment = this.handleComment.bind(this);
         this.closeModal = this.closeModal.bind(this);
+
+        // Add key listener on window to close modal with 'esc' key
+        window.addEventListener('keydown', (evt) => {
+            if(this.state.showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
     }
 
     // Close Modal (Login/Sign Up)
     closeModal(evt){
-        if(evt.target.className === 'modal'){
+        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
             this.setState({
                 showModal: false
             });

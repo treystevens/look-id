@@ -14,7 +14,18 @@ class BoardModal extends Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleBoardNameChange = this.handleBoardNameChange.bind(this);
+        
+
+        // Add key listener on window to close modal with 'esc' key
+        window.addEventListener('keydown', (evt) => {
+            if(this.state.showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
     }
+
 
 
     // Handles the input change on creating a new baord
@@ -35,12 +46,14 @@ class BoardModal extends Component {
         });
     }
 
+
     render(){
         return(
             <div>
                 <div className="modal" onClick={this.props.closeModal}>
                     <div className="modal-content">
                         <form className="create-board" onSubmit={this.handleSubmit}>
+                        <button type="button" className='modal__close-btn' onClick={this.props.closeModal}>Close ×</button>
                             <label>Board Name:
                                 <input type="text" name="new-board" onChange={this.handleBoardNameChange} value={this.state.value} />
                             </label>
@@ -49,8 +62,6 @@ class BoardModal extends Component {
                         </form>
                     </div>
                 </div>
-                {!this.props.isAuth && 
-                    <Modal source='accountVerify' />}
             </div>
         )
 

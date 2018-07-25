@@ -54,6 +54,8 @@ const upload = multer({
       } 
 });
 
+
+
 // User uploading a post
 router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 
@@ -172,7 +174,7 @@ router.post('/uploaditems', (req, res) => {
     models.Items.create(itemDocument)
     .then( (item) => {
         
-        if(!item) return Promise.reject(new Error('Problem with creating items'));
+        if(!item) return Promise.reject(new Error('Problem with creating items.'));
 
         itemID = item.id;
 
@@ -254,7 +256,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         // Update user's website and bio
         models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
         .then((data) => {
-            if(!data) return Promise.reject(new Error('User not found'));
+            if(!data) return Promise.reject(new Error('User not found.'));
 
             res.status(200);
         })
@@ -271,7 +273,7 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
         }, 
         (error, result) => {
             if(error){
-                return Promise.reject(new Error('File could not be uploaded'));
+                return Promise.reject(new Error('File could not be uploaded.'));
             }
 
             // Set avatar to the link provided from Cloudinary

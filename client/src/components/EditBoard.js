@@ -18,38 +18,84 @@ class EditBoard extends Component{
             actionSuccess: false,
             statusMessage: '',
             showConfirmation: false,
-            notFound: false
+            notFound: false,
+            isLoading: false,
+            isSearching: false,
+            hasMore: true,
+            scrollCount: 0,
+            error: false,
         };
 
         this.handlePostDelete = this.handlePostDelete.bind(this);
         this.handleFilterPost = this.handleFilterPost.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleNameChange =  this.handleNameChange.bind(this);
+        this.loadData = this.loadData.bind(this);
+
+        window.onscroll = () => {
+    
+            
+            const { error, isLoading, hasMore } = this.state;
+
+            // Return if there's an error, already loading or there's no more data from the database
+            if (error || isLoading || !hasMore) return;
+    
+            // Check if user has scrolled to the bottom of the page
+            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+
+                const { scrollCount } = this.state;
+                const newCount = scrollCount + 1;
+            
+                this.setState({
+                    scrollCount: newCount
+
+                }, () => {
+                    this.loadData();
+                }); 
+            }
+        };
+
     }
 
 
     // Get Board data
     componentDidMount(){
+        this.loadData();  
+    }
 
+    loadData(){
+        const { scrollCount, streamData } = this.state;
         const boardID = this.props.urlParams.match.params.boardid;
-        const serverResponse = getData(`/board/${boardID}`);
+        const serverResponse = getData(`/board/${boardID}/page/${scrollCount}`);
 
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
 
+            
+            // 404 Not Found
             if(data.error) return Promise.reject(new Error(data.error));
 
             this.setState({
-                streamData: data.stream,
-                boardName: data.boardName
+                streamData: streamData.concat(data.stream),
+                boardName: data.boardName,
+                hasMore: data.hasMore
             });
         })
         .catch((err) => {
             this.setState({
                 notFound: true
             });
+            
             console.log(err);
+        });
+    }
+
+
+    // onChange for changing board name
+    handleNameChange(evt){
+        this.setState({
+            boardName: evt.target.value
         });
     }
 
@@ -114,13 +160,6 @@ class EditBoard extends Component{
         });
     }
 
-    // onChange for changing board name
-    handleNameChange(evt){
-        this.setState({
-            boardName: evt.target.value
-        });
-    }
-
     render(){
         
         const { notFound } = this.state; 
@@ -142,16 +181,17 @@ class EditBoard extends Component{
                 <PageHead pageHead={`Edit ${this.state.boardName}`} />
 
                     {this.state.showConfirmation &&
-                        <ConfirmAction statusMessage={this.state.statusMessage}/>}
+                    <ConfirmAction statusMessage={this.state.statusMessage}/>}
 
-                        <h1>Click on the images that you would like to delete</h1>
-                <form onSubmit={this.handleSubmit}>
-                    <label>Change board name:
-                        <input type="text" name="board-name" className='edit__name' onChange={this.handleNameChange} value={this.state.boardName}/>
-                    </label>
-                    <span>{deleteMessage}</span>
-                    <button>Update Board</button>
-                </form>
+                    <h1>Click on the images that you would like to delete</h1>
+                    
+                    <form onSubmit={this.handleSubmit}>
+                        <label>Change board name:
+                            <input type="text" name="board-name" className='edit__name' onChange={this.handleNameChange} value={this.state.boardName}/>
+                        </label>
+                        <span>{deleteMessage}</span>
+                        <button>Update Board</button>
+                    </form>
                 <Stream sourceFetch='stream' stream={this.state.streamData} edit={true} handlePostDelete={this.handlePostDelete}/>
                 
             </section>

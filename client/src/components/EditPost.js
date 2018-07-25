@@ -4,6 +4,7 @@ import { getData, sendUserData } from '../util/serverFetch';
 import { Redirect, Link } from 'react-router-dom'; 
 import ConfirmAction from './ConfirmAction';
 import { connect } from 'react-redux';
+import NotFound from './NotFound';
 
 class EditPost extends Component{
     constructor(props){
@@ -33,6 +34,7 @@ class EditPost extends Component{
 
         serverResponse.then(response => response.json())
         .then((data) => {
+            if(data.errors) return Promise.reject(new Error(data.error))
 
             this.setState({
                 image: data.post.image,
@@ -45,8 +47,7 @@ class EditPost extends Component{
         })
         .catch((err) => {
             this.setState({
-                showConfirmation: true,
-                statusMessage: 'Could not load up post. Try again later'
+                notFound: true
             });
             console.log(err);
         });
@@ -102,6 +103,10 @@ class EditPost extends Component{
         const urlUser = this.props.urlParams.match.params.user;
         const {isAuth, username} = this.props;
         const urlPostID = this.props.urlParams.match.params.postid;
+        const { notFound } = this.state;
+
+        // 404 Not Found
+        if(notFound) return <NotFound />
         
         // Make sure only authorized user can visit this page
         if(urlUser !== username && !isAuth){

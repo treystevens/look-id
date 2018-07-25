@@ -5,18 +5,18 @@ const models = require('../models/schemas');
 // Get Boards from user
 router.get('/', (req, res) => {
 
-    console.log(req.user);
     const query = {
         username: req.user.username
     };
 
     models.Users.findOne(query)
     .then((user) => {
+        if(!user) return Promise.reject(new Error('Could not retrieve boards.'));
         res.json({boards: user.boards});  
     })
     .catch((err) => {
         console.log(err);
-        res.status(500).json({errors: 'Could not retrieve boards.'});
+        res.status(500).json({ error: err });
     });
 });
 
@@ -33,7 +33,6 @@ router.post('/createboard', (req, res) => {
         username: req.user.username
     };
 
-
     const newBoard = {
         board_id: boardID,
         name: req.body.boardName,
@@ -44,7 +43,9 @@ router.post('/createboard', (req, res) => {
     
     models.Users.findOneAndUpdate(query, {$push: {boards: newBoard}}, {'new': true})
     .then((user) => {
+        if(!user) return Promise.reject(new Error('Could not create board.'));
 
+        // Get the newly created board
         const boardsLength = user.boards.length;
         const newUserBoard = user.boards[boardsLength - 1];
 
@@ -52,7 +53,7 @@ router.post('/createboard', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
-        res.status(503).json({errors: 'Could not create board at the moment.'});
+        res.status(503).json({error: err});
     });
 
 });
@@ -72,33 +73,25 @@ router.post('/addpost', (req, res) => {
     // Query the post to get the _id to save into Board's 'posts' property
     models.Posts.findOne(postToAdd) 
     .then((post) => {
-        console.log(post, `actual post`)
+        
         const referenceToPost = post._id;
         // Check if the post exists in the board already
-        // const checkPost = models.Users.findOne({'boards.posts': referenceToPost});
+        
         const checkPost = models.Users.findOne(
             { boards: { $elemMatch: { board_id: req.body.boardID, posts: referenceToPost } }});
-
-        // { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
-        // return referenceToPost;
-        // console.log(referenceToPost, `reference to post`)
 
         return Promise.all([referenceToPost, checkPost]);
     })
     .then((results) => {
-
-
         
         // Does not exist inside board
-        // Reference post was not already found inside the board - clear to add post to board
+        // Reference post was not found inside the board - clear to add post to board
         if(results[1] === null){
             return models.Users.findOneAndUpdate(query, {$push: {'boards.$.posts': results[0]}});   
         }
 
         // The particular image is already inside the board the user would like to add to
-        return Promise.reject('Post already exists inside board');
-       
-    
+        return Promise.reject(new Error('Post already exists inside board.'));
     })
     .then(() => {
 
@@ -110,7 +103,7 @@ router.post('/addpost', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
-        res.json({errors: err});
+        res.json({error: err});
     });
 });
 
@@ -121,10 +114,17 @@ router.get('/:boardid/page/:page', (req, res) => {
         'boards.board_id': req.params.boardid
     };
 
-
-    models.Users.findOne(query, {'boards.$.posts': 1}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec()
+    models.Users.findOne(query)
+    .then((user) => {
+        if(user.username !== req.user.username) return Promise.reject(new Error('Sorry, this page isn\'t available.'));
+    })
+    .then(() => {
+        return models.Users.findOne(query, {'boards.$.posts': 1}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec();
+    })
     .then((response) => {
-
+        
+        if(!response) return Promise.reject(new Error('Sorry, this page isn\'t available.'));
+        
         const skipNum = req.params.page * 10;
         const boardName = response.boards[0].name;
         const posts = response.boards[0].posts.splice(skipNum, 10);
@@ -138,31 +138,7 @@ router.get('/:boardid/page/:page', (req, res) => {
         res.json({stream: posts, boardName: boardName, hasMore: hasMore});
     })
     .catch((err) => {
-        console.log(err);
-        res.status(500).json({errors: 'Failed to retrieve board.'});
-    });
-});
-
-// Get individual board (Infinite Scroll)
-router.get('/:boardid', (req, res) => {
-    
-    const query = {
-        'boards.board_id': req.params.boardid
-    };
-
-
-    models.Users.findOne(query, {'boards.$.posts': 1}).populate({ path: 'boards.posts', populate: {path: 'posts', model: 'post'}, select: 'username image post_id' }).exec()
-    .then((response) => {
-
-        const boardName = response.boards[0].name;
-        const posts = response.boards[0].posts;
-
-
-        res.json({stream: posts, boardName: boardName});
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).json({errors: 'Failed to retrieve board.'});
+        res.status(404).json({error: err});
     });
 });
 
@@ -245,7 +221,7 @@ router.post('/:boardid/edit', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
-        res.status(500).json({errors: 'Failed delete posts from boards.'});
+        res.status(500).json({error: 'Failed delete posts from boards.'});
     });
 });
 
@@ -267,7 +243,7 @@ router.delete('/:boardid/delete', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
-        res.status(500).json({errors: 'Failed to delete board.'});
+        res.status(500).json({error: 'Failed to delete board.'});
     });
 });
 

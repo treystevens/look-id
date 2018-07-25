@@ -4,6 +4,7 @@ import PageHead from './PageHead';
 import { getData } from '../util/serverFetch';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import NotFound from './NotFound';
 
 
 class Board extends Component{
@@ -17,6 +18,11 @@ class Board extends Component{
             isSearching: false,
             hasMore: true,
             scrollCount: 0,
+            error: false,
+            showConfirmation: false,
+            statusMessage: '',
+            actionSuccess: false,
+            notFound: false
         };
 
         this.loadData = this.loadData.bind(this);
@@ -29,7 +35,7 @@ class Board extends Component{
             // Return if there's an error, already loading or there's no more data from the database
             if (error || isLoading || !hasMore) return;
     
-            // Checks that the page has scrolled to the bottom
+            // Check if user has scrolled to the bottom of the page
             if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
 
 
@@ -61,6 +67,9 @@ class Board extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
 
+            // 404 Not Found
+            if(data.error) return Promise.reject(new Error(data.error));
+
             this.setState({
                 streamData: streamData.concat(data.stream),
                 boardName: data.boardName,
@@ -68,25 +77,29 @@ class Board extends Component{
             });
         })
         .catch((err) => {
+            this.setState({
+                notFound: true
+            });
+            
             console.log(err);
         });
     }
 
     render(){
 
-        const urlUser = this.props.urlParams.match.params.user;
         const urlBoardID = this.props.urlParams.match.params.boardid;
-       
-        const authorized = this.props.username === urlUser && this.props.isAuth;
-        
+        const { notFound } = this.state;
+
+        if(notFound) return <NotFound />
+
         return(
             <section>
-            {authorized &&
+            
                     <div>
-                        <Link to={`/user/${urlUser}/boards/${urlBoardID}/edit`}>Edit Board</Link>
+                        <Link to={`/boards/${urlBoardID}/edit`}>Edit Board</Link>
                         {/* <button type='button' onClick={}>Delete Board</button> */}
                     </div>
-                }
+                
                 <PageHead pageHead={this.state.boardName} />
                 <Stream sourceFetch='stream' stream={this.state.streamData} />
             </section>

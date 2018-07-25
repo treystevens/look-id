@@ -3,8 +3,6 @@ import Item from './Item';
 import AddItem from './AddItem';
 
 
-
-
 class ItemList extends Component{
     constructor(props){
         super(props);
@@ -18,25 +16,23 @@ class ItemList extends Component{
         this.handleDeleteItem = this.handleDeleteItem.bind(this);
     }
 
+    // Add items
     handleAddItem(){
 
+        // No more than 5 items
         if(this.state.addItemCount === 6){
             return 1;
         }
-
         this.setState({
             addItemCount: this.state.addItemCount + 1
         });
     }
 
+    // Delete items
     handleDeleteItem(item){
-
-        let check = this.state.deleteItem
-
         this.setState({
             addItemCount: this.state.addItemCount - 1,
             deleteItem: Object.assign(this.state.deleteItem, item)
-            
         });
     }
 
@@ -44,13 +40,12 @@ class ItemList extends Component{
     render(){
 
         const items = [];
-        console.log(this.state.deleteItem);
 
+        // When updating addItemCount on state add another item
         for (let i = 0; i < this.state.addItemCount; i += 1) {
             items.push(<Item key={i} itemNumber={i} deleteItem={this.handleDeleteItem}/>);
         };
         
-        console.log(items)
         return(
             <section>
                     {items}

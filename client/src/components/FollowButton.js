@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { sendUserData } from '../util/serverFetch';
+import { connect } from 'react-redux';
+import Modal from './Modal';
 
 
 class FollowButton extends Component{
@@ -8,15 +10,38 @@ class FollowButton extends Component{
 
         this.state = {
             followText: 'Follow',
+            showModal: false
         };
 
         this.handleClick = this.handleClick.bind(this);
         this.changeFollowText = this.changeFollowText.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+
+        // Close Modal with Escape Key
+        window.addEventListener('keydown', (evt) => {
+
+            const { showModal } = this.state;
+
+            if( showModal && evt.keyCode === 27){
+                this.setState({
+                    showModal: false
+                });
+            }
+        });
     }
 
     // Change followText on mount
     componentDidMount(){
         this.changeFollowText(this.props.iFollow);
+    }
+
+    // Close Boards Modal
+    closeModal(evt){
+        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
+            this.setState({
+                showModal: false
+            });
+        }   
     }
 
     // Update followText when component recieves new props
@@ -46,6 +71,14 @@ class FollowButton extends Component{
             iFollow: iFollow,
         };
 
+        // If user is not authorize prompt login Modal
+        if(!this.props.isAuth){
+            this.setState({
+                showModal: true
+            });
+            return -1;
+        }
+
         // Follow or unfollow user
         const serverResponse = sendUserData(`/user/${user}/followers`, data);
 
@@ -74,15 +107,29 @@ class FollowButton extends Component{
     }
 
     render(){
+        const { showModal } = this.state;
+
+
         return(
+            <div>
                 <button type='button'  onClick={this.handleClick}>{this.state.followText}</button>
-            
+
+                {showModal && 
+                    <Modal source='accountVerify' closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
+            </div>
         )
     }
 
 }
 
 
+function mapStateToProps(state){
+    return{
+        isAuth: state.isAuth,
+        username: state.username
+    }
+}
 
 
-export default FollowButton
+
+export default connect(mapStateToProps)(FollowButton);

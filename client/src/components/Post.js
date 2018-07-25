@@ -3,11 +3,12 @@ import PageHead from './PageHead';
 import Comments from './Comments';
 import OtherPosts from './OtherPosts';
 import ItemDescription from './ItemDescription';
-import { getData, sendUserData, goDelete } from '../util/serverFetch';
+import { getData, goDelete } from '../util/serverFetch';
 import PostImage from './PostImage';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import NotFound from './NotFound';
+import ConfirmAction from './ConfirmAction';
 
 
 class Post extends Component{
@@ -26,62 +27,16 @@ class Post extends Component{
             showOtherPosts: false,
             showPostOptions: false,
             redirect: false,
-            notFound: false
+            notFound: false,
+            showConfirmation: false,
+            actionSuccess: false,
+            statusMessage: ''
             
         };
 
         this.shuffle = this.shuffle.bind(this);
         this.showPostOptions = this.showPostOptions.bind(this);
         this.handleDeletePost = this.handleDeletePost.bind(this);
-    }
-
-    // Fisher-Yates Shuffle
-    shuffle(array) {
-        let currentIndex = array.length, temporaryValue, randomIndex;
-      
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-      
-          // Pick a remaining element...
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex -= 1;
-      
-          // And swap it with the current element.
-          temporaryValue = array[currentIndex];
-          array[currentIndex] = array[randomIndex];
-          array[randomIndex] = temporaryValue;
-        }
-        return array;
-    }
-        
-    // Click event for post options
-    showPostOptions(evt){
-        evt.preventDefault();
-
-        this.setState({
-            showPostOptions: true
-        });
-    }
-
-    handleDeletePost(evt){ 
-        evt.preventDefault();
-
-        const { username } = this.props;
-        const urlPostID = this.props.urlParams.match.params.postid;
-        
-        // Request to delete post
-        const serverResponse = goDelete(`/user/${username}/${urlPostID}`);
-
-        serverResponse.then(response => response.json())
-        .then(() => {
-            this.setState({
-                redirect: true
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-        }) ;
-
     }
 
     // Retrieve Posts, Comments, Other Posts and Items
@@ -129,10 +84,67 @@ class Post extends Component{
         .catch((err) => {
             this.setState({
                 notFound: true
-            })
+            });
             console.log(err);
         });
     
+    }
+
+    // Fisher-Yates Shuffle
+    shuffle(array) {
+        let currentIndex = array.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+        return array;
+    }
+        
+    // Click event for post options
+    showPostOptions(evt){
+        evt.preventDefault();
+
+        this.setState({
+            showPostOptions: true
+        });
+    }
+
+    // Delete a post
+    handleDeletePost(evt){ 
+        evt.preventDefault();
+
+        const { username } = this.props;
+        const urlPostID = this.props.urlParams.match.params.postid;
+        
+        // Request to delete post
+        const serverResponse = goDelete(`/user/${username}/${urlPostID}`);
+
+        serverResponse.then(response => response.json())
+        .then((data) => {
+
+            if(data.error) return Promise.reject(new Error(data.error));
+
+            this.setState({
+                redirect: true
+            });
+        })
+        .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err);
+        }) ;
+
     }
 
     render(){
@@ -177,6 +189,11 @@ class Post extends Component{
                     <h5 onClick={this.handleDeletePost}>Delete Post!</h5>
                     </div>
                 }
+
+                {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
+
                 <div style={{display: 'flex', width: '100%'}}>
                     <PostImage image={this.state.image} urlParams={urlParams} />
                     <div>

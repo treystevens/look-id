@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
-import { Redirect } from 'react-router-dom';
 import ConfirmAction from './ConfirmAction';
 import NotFound from './NotFound';
 
@@ -181,7 +180,8 @@ class EditBoard extends Component{
                 <PageHead pageHead={`Edit ${this.state.boardName}`} />
 
                     {this.state.showConfirmation &&
-                    <ConfirmAction statusMessage={this.state.statusMessage}/>}
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
 
                     <h1>Click on the images that you would like to delete</h1>
                     

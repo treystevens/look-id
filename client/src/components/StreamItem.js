@@ -40,10 +40,16 @@ function handleEdit(props, evt){
 
     const target = evt.target;
     const postID = props.post._id
+    const postImg = props.post.image
+
+    const post = {
+        postID: postID,
+        postImg: postImg
+    }
     
     target.classList.toggle('post__image--edit')
 
-    props.handlePostDelete(postID, target)
+    props.handlePostDelete(post, target)
     
 }
 

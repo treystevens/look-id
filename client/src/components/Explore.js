@@ -3,6 +3,7 @@ import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
 import Search from './Search';
+import ConfirmAction from './ConfirmAction';
 
 class Explore extends Component{
     constructor(props){
@@ -15,7 +16,10 @@ class Explore extends Component{
             hasMore: true,
             scrollCount: 0,
             searchQuery: {},
-            submitLoad: false
+            submitLoad: false,
+            errorMessage: '',
+            statusMessage: '',
+            showConfirmation: false
         };
 
         this.handleSearch = this.handleSearch.bind(this);
@@ -73,7 +77,6 @@ class Explore extends Component{
 
             // If we're fetching data from scrolling
             if(this.state.isLoading){
-                const {streamData} = this.state;
                 const currentData = this.state.streamData.map((post) => post);
                 
 
@@ -91,7 +94,11 @@ class Explore extends Component{
             }
         })
         .catch((err) => {
-            console.log(err);
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err.message);
         });
     }
 
@@ -127,7 +134,6 @@ class Explore extends Component{
             if(this.state.isLoading){
 
                 const { streamData } = this.state;
-                const currentData = this.state.streamData.map((post) => post);
 
                 this.setState({
                     streamData: streamData.concat(data.stream),
@@ -147,7 +153,11 @@ class Explore extends Component{
             }
         })
         .catch((err) => {
-            console.log(err);
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err.message);
         });
     }
 
@@ -201,6 +211,9 @@ class Explore extends Component{
                     <Search handleSearch={this.handleSearch}/>
                 }
                 <PageHead pageHead={pageName} />
+                {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                }
                 <Stream sourceFetch='stream' stream={this.state.streamData}/>
             </section>
         )

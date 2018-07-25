@@ -18,7 +18,7 @@ router.get('/:user/page/:page', (req, res) => {
    models.Users.findOne(query)
    .then( (user) => {
 
-        if(!user) res.status(404).send('Page does not exist');
+        if(!user) return Promise.reject(new Error('Sorry, this profile isnt available.'));
 
         // For the FollowButton component to see if I follow the user
         iFollow = false;
@@ -54,7 +54,7 @@ router.get('/:user/page/:page', (req, res) => {
         res.json({success: true, user: userData, stream: posts, iFollow: iFollow, hasMore: hasMore });
     })
    .catch( (err) => {
-       res.json({success: false});
+       res.status(404).json({error: err});
        console.log(err);
    });
 
@@ -65,16 +65,34 @@ router.get('/:user/:postid', (req, res) => {
 
 
     const postID = req.params.postid;
+    const paramUser = req.params.user;
 
     const postQuery = {
         post_id: postID
     };
     let requestedPost;
 
+    // Check if the user is requesting a valid url
+    const postExists = models.Posts.findOne(postQuery);
+    const userExists = models.Users.findOne({username: paramUser});
 
-    // Get post and create 'Other Posts' section
-    models.Posts.findOne(postQuery).populate('items')
+    Promise.all([ postExists, userExists ])
+    .then( (results) => {
+
+        if(
+            !results[0] ||  
+            !results[1] ||
+            (paramUser !== results[0].username)
+
+            ) return Promise.reject(new Error('Sorry, this page isn\'t available.'));
+
+        // Get post along with its items
+        return models.Posts.findOne(postQuery).populate('items');
+   })
     .then((post) => {
+        
+        if(!post) return Promise.reject(new Error('Post not found.'));
+
         requestedPost = post;
 
         // Make 'Other Posts' Section, filter out the post that is requested
@@ -88,9 +106,45 @@ router.get('/:user/:postid', (req, res) => {
     })
    .catch( (err) => {
         console.log(err);
-        res.status(500).json({success: false});
+        res.status(404).json({error: err});
    });
 
+});
+
+// User's Post Edit Page
+router.get('/:user/:postid/edit', (req, res) => {
+
+
+    const postID = req.params.postid;
+    const paramUsername = req.params.user;
+    const username = req.user.username;
+
+    const postQuery = {
+        post_id: postID
+    };
+
+
+    if(username !== paramUsername) res.status(401).json({error: 'Sorry, this page isn\'t available.'});
+    
+
+    models.Posts.findOne(postQuery)
+    .then( (post) => {
+
+        if(!post) return Promise.reject(new Error('Sorry, this page isn\'t available.'));
+
+        // Get post along with its items
+        return models.Posts.findOne(postQuery).populate('items');
+   })
+    .then((post) => {
+        
+        if(!post) return Promise.reject(new Error('Post not found.'));
+
+        res.json({post: post});
+   })
+   .catch( (err) => {
+        console.log(err);
+        res.status(404).json({error: err});
+   });
 });
 
 // Edit User's Post
@@ -103,12 +157,20 @@ router.post('/:user/:postid/edit', (req, res) => {
     };
     const caption = req.body.caption;
     const items = req.body.items;
-    
-    // Get post and create 'Other Posts' section
-    models.Posts.findOneAndUpdate(
-        postQuery, 
-        { $set: { caption: caption } } 
-    )
+
+    const username = req.user.username;
+    const paramUsername = req.params.user;
+
+    if(username !== paramUsername) res.status(401).json({error: 'You\'re not authorized to perform action.'});
+
+    models.Posts.findOne(postQuery)
+   .then( (post) => {
+
+        if(!post || (username !== post.username)) return Promise.reject(new Error('Make sure that the link is not broken. Can\'t seem to update this post.'));
+
+        // Get post and create 'Other Posts' section
+        return  models.Posts.findOneAndUpdate(postQuery, { $set: { caption: caption } } );
+   })
     .then((post) => {
 
         const itemID = post.items;
@@ -123,7 +185,7 @@ router.post('/:user/:postid/edit', (req, res) => {
     })
    .catch( (err) => {
         console.log(err);
-        res.status(500).json({success: false});
+        res.status(500).json({error: err});
    });
 
 });
@@ -137,13 +199,19 @@ router.delete('/:user/:postid', (req, res) => {
     };
     const username = req.user.username;
 
-    if(username !== req.params.user){
-        res.status(401);
-    } 
+    
 
-    // Remove a user's post from 
-    // Posts - Feed - Boards - Explore - Items
-    models.Posts.findOneAndRemove(postQuery)
+    models.Posts.findOne(postQuery)
+    .then((post) => {
+        
+        if(username !== post.username){
+            return Promise.reject(new Error('You\'re not authorized to delete post.'));
+        } 
+
+        // Remove a user's post from 
+        // Posts - Feed - Boards - Explore - Items
+        return models.Posts.findOneAndRemove(postQuery);
+    })
     .then((post) => {
 
         const postID = post._id;
@@ -164,12 +232,12 @@ router.delete('/:user/:postid', (req, res) => {
 
         return Promise.all([itemRemove, feedRemove, boardRemove, exploreRemove]);
     })
-    .then((results) => {
+    .then(() => {
     res.status(200).json({success: true});
     })
    .catch( (err) => {
         console.log(err);
-        res.status(500).json({success: false});
+        res.status(401).json({error: err});
    });
 
 });
@@ -198,7 +266,7 @@ router.get('/:user/:postid/likes', (req, res) => {
    })
    .catch( (err) => {
         console.log(err);
-        res.status(500).json({success: false});
+        res.status(500).json({error: err});
    });
 
 });
@@ -218,14 +286,14 @@ router.post('/:user/:postid/likes', (req, res) => {
             : 
             performUpdateAction = { $push: {'likes': req.user.username} }
 
-    
+    if(!req.isAuthenticated()) res.status(401).json({error: 'You\'re not authorized to perform action.'});
 
     models.Posts.findOneAndUpdate(query, performUpdateAction)
     .then(() => {
         res.json({success: true});
     })
     .catch((err) => {
-        res.status(500).json({success: false});
+        res.status(500).json({error: err});
         console.log(err);
     });
 
@@ -249,6 +317,7 @@ router.post('/:user/followers', (req, res) => {
     
     prevFollowingData ? nowFollowing = false : nowFollowing = true;
 
+    if(!req.isAuthenticated()) res.status(401).json({error: 'You\'re not authorized to perform action.'});
 
     // If I follow them already pull their name from their follower list and my following list
     if(req.body.iFollow){
@@ -294,8 +363,8 @@ router.post('/:user/followers', (req, res) => {
         res.json({actionSuccess: true, iFollow: nowFollowing});
     })
     .catch((err) => {
-
         console.log(err);
+        res.status(500).json({error: err});
     });
 });
 
@@ -339,6 +408,7 @@ router.get('/:user/ff/followers', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
+        res.status(500).json({error: err});
     });
 
 
@@ -392,6 +462,7 @@ router.get('/:user/ff/following', (req, res) => {
     })
    .catch((err) => {
        console.log(err);
+       res.status(500).json({error: err});
    });
 
 

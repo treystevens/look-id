@@ -35,7 +35,7 @@ class UserProfileHead extends Component{
 
     // Close Modal on click
     closeModal(evt){
-        if(evt.target.className === 'modal'){
+        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
             this.setState({
                 showModal: false,
             });

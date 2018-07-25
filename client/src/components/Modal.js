@@ -6,6 +6,7 @@ import FF from './FF';
 
 
 const Modal = (props) => {
+
     let shownContent;
 
     if(props.source === 'createBoard'){
@@ -25,8 +26,9 @@ const Modal = (props) => {
     }
 
     return(
-        <div className="modal" onClick={props.closeModal} onKeyDown={props.escCloseModal}>
-            <div className="modal-content">
+        <div className='modal' onClick={props.closeModal}>
+            <div className='modal-content'>
+            <button type="button" className='modal__close-btn' onClick={props.closeModal}>Close ×</button>
                 {shownContent}
             </div>
         </div>

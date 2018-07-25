@@ -11,6 +11,7 @@ router.get('/explore/:page', (req, res) => {
     models.Explore.find({}).populate('post').sort({_id:-1}).skip(skipNum).limit(10).exec()
     .then((data) => {
 
+        if(!data) return Promise.reject(new Error('Seems like we couldn\'t find any posts.'));
         
         // Sending back only necessary post information
         const posts = data.map((post) => {
@@ -33,6 +34,7 @@ router.get('/explore/:page', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
+        res.status(204).json({error: err});
     });
 });
 
@@ -48,7 +50,9 @@ router.get('/feed/:page', (req, res) => {
 
     // Get user's feed items
     models.Feed.findOne(query).populate('feed_items').exec()
-    .then((data) => {        
+    .then((data) => {  
+            
+        if(!data) return Promise.reject(new Error('Seems like we couldn\'t find any posts.'));  
 
         // Sending back only necessary post information
         const posts = data.feed_items.splice(skipNum, 10).map((post) => {
@@ -72,6 +76,7 @@ router.get('/feed/:page', (req, res) => {
     })
     .catch((err) => {
         console.log(err);
+        res.status(204).json({error: err});
     });
 });
 

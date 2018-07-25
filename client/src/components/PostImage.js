@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostEngage from './PostEngage';
 import Modal from './Modal';
 import { getData, sendUserData } from '../util/serverFetch';
+import { connect } from 'react-redux';
 
 
 class PostImage extends Component{
@@ -11,7 +12,9 @@ class PostImage extends Component{
     this.state = {
         showModal: false,
         iLiked: false,
-        likeCount: ''
+        likeCount: '',
+        showVerify: false,
+        showAddToBoard: false
     };
 
     this.openBoards = this.openBoards.bind(this);
@@ -20,9 +23,13 @@ class PostImage extends Component{
 
     // Close Modal with Escape Key
     window.addEventListener('keydown', (evt) => {
-        if(this.state.showModal && evt.keyCode === 27){
+
+        const { showAddToBoard, showVerify } = this.state;
+
+        if((showAddToBoard || showVerify) && evt.keyCode === 27){
             this.setState({
-                showModal: false
+                showAddToBoard: false,
+                showVerify: false
             });
         }
     });
@@ -55,21 +62,30 @@ class PostImage extends Component{
     // Show boards to add the post to
     openBoards(){
         this.setState({
-            showModal: true
+            showAddToBoard: true
         });
     }
 
     // Close Boards Modal
     closeModal(evt){
-        if(evt.target.className === 'modal'){
+        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
             this.setState({
-                showModal: false
+                showAddToBoard: false,
+                showVerify: false
             });
         }   
     }
 
     // Mutate like count on click
     handleLikeCount(){
+
+        // If user is not authorize prompt login Modal
+        if(!this.props.isAuth){
+            this.setState({
+                showVerify: true
+            });
+            return -1;
+        }
 
         const urlUsernameParam = this.props.urlParams.username;
         const count = this.state.likeCount;
@@ -105,17 +121,28 @@ class PostImage extends Component{
 
     render(){
 
+        const { showVerify, showAddToBoard } = this.state;
+         
         return(
             <article style={ {"width": "40%"}}>
                 <img  className='post__image' src={this.props.image} style={ {"width": "100%"}}/>
 
                 <PostEngage openBoards={this.openBoards} commentCount={this.props.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount} iLiked={this.state.iLiked}/>
 
-                {this.state.showModal && 
+                {showAddToBoard && 
                     <Modal source="addToBoard" closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
+
+                {showVerify && 
+                    <Modal source='accountVerify' closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
             </article>
         )
     }
 }
 
-export default PostImage
+function mapStateToProps(state){
+    return{
+        isAuth: state.isAuth
+    }
+}
+
+export default connect(mapStateToProps)(PostImage);

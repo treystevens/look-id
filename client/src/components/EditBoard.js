@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
+import { Redirect } from 'react-router-dom';
 import ConfirmAction from './ConfirmAction';
+import NotFound from './NotFound';
 
 
 class EditBoard extends Component{
@@ -15,7 +17,8 @@ class EditBoard extends Component{
             boardName: '',
             actionSuccess: false,
             statusMessage: '',
-            showConfirmation: false
+            showConfirmation: false,
+            notFound: false
         };
 
         this.handlePostDelete = this.handlePostDelete.bind(this);
@@ -35,12 +38,17 @@ class EditBoard extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
 
+            if(data.error) return Promise.reject(new Error(data.error));
+
             this.setState({
                 streamData: data.stream,
                 boardName: data.boardName
             });
         })
         .catch((err) => {
+            this.setState({
+                notFound: true
+            });
             console.log(err);
         });
     }
@@ -115,8 +123,11 @@ class EditBoard extends Component{
 
     render(){
         
-
+        const { notFound } = this.state; 
         let deleteMessage;
+
+        if(notFound) return <NotFound />
+        
 
         if(this.state.postsToDelete.length === 1){
             deleteMessage = `Delete (${this.state.postsToDelete.length}) item`;

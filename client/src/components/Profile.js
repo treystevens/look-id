@@ -3,6 +3,7 @@ import Stream from './Stream';
 import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
 import { getData } from '../util/serverFetch';
+import NotFound from './NotFound';
 
 
 class Profile extends Component{
@@ -17,7 +18,8 @@ class Profile extends Component{
             isSearching: false,
             hasMore: true,
             scrollCount: 0,
-            initialLoad: false
+            initialLoad: false,
+            notFound: false
         };
 
         this.handleFollowerCount = this.handleFollowerCount.bind(this);
@@ -63,6 +65,8 @@ class Profile extends Component{
         // Fetch Data
         serverResponse.then(response => response.json())
         .then((data) => {
+
+            if(data.error) return Promise.reject(new Error(data.error))
             
 
             if(initialLoad){
@@ -84,6 +88,9 @@ class Profile extends Component{
             
         })
         .catch((err) => {
+            this.setState({
+                notFound: true
+            });
             console.log(err);
         });
     }
@@ -137,6 +144,9 @@ class Profile extends Component{
         // Reference the requested user
         const user = this.props.urlParams.match.params.user;
         
+        const { notFound } = this.state;
+
+        if(notFound) return <NotFound />
         return(
             <section>
                 <PageHead pageHead='Profile' />

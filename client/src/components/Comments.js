@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import CommentBox from './CommentBox';
 import CommentRow from './CommentRow';
+import ConfirmAction from './ConfirmAction';
 import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
 
@@ -10,7 +11,10 @@ class Comments extends Component{
         super(props);
         this.state = {
             comments: [],
-            commentsViewAll: false
+            commentsViewAll: false,
+            showConfirmation: false,
+            actionSuccess: false,
+            statusMessage: ''
         };
 
         this.handleAddComment = this.handleAddComment.bind(this);
@@ -18,6 +22,34 @@ class Comments extends Component{
         this.handleClickViewAll = this.handleClickViewAll.bind(this);
     }
 
+
+    // Fetch comments
+    componentDidMount(){
+
+
+        const urlPageUsername = this.props.urlParams.username;
+        const urlPagePostID = this.props.urlParams.postID;
+
+        // Fetch to Server
+        const serverResponse = getData(`/comment/${urlPageUsername}/${urlPagePostID}`);
+        
+        serverResponse.then( response => response.json())
+        .then((data) => {
+            
+            if(data.error) return Promise.reject(new Error(data.error));
+
+            this.setState({
+                comments: data.comments
+            });
+        })
+        .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err);
+        });     
+    }
 
     // View all comments
     handleClickViewAll(evt) {
@@ -43,34 +75,24 @@ class Comments extends Component{
     // Deleting comment
     handleDeleteComment(commentIndex, componentKeyID){
 
-        console.log(componentKeyID);
-
-
-        let currentState = this.state.comments;
-        let updatedStateComment = currentState.filter((item, index) => {
+        const currentState = this.state.comments;
+        const updatedStateComment = currentState.filter((item, index) => {
             if(index != commentIndex){
-
-                console.log(index)
-                
                 return item;
-            }
-            else{
-                console.log('huhushauishdasjd')
             }
         });
 
         const data = {
             id: componentKeyID,
             pagePostID: this.props.urlParams.postID
-        }
-
-        console.log(this.props)
+        };
 
         const serverResponse = sendUserData('/comment/delete', data);
 
         serverResponse.then( response  => response.json())
         .then((data) => {
-            console.log(data);
+            
+            if(data.error) return Promise.reject(new Error(data.error));
 
             if(data.success){
                 this.setState({
@@ -79,61 +101,45 @@ class Comments extends Component{
             }
         })
         .catch((err) => {
-            console.log(err)
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err);
         });
         
     }
-
-    // Fetch comments
-    componentDidMount(){
-
-
-        const urlPageUsername = this.props.urlParams.username;
-        const urlPagePostID = this.props.urlParams.postID;
-
-        // Fetch to Server
-        const serverResponse = getData(`/comment/${urlPageUsername}/${urlPagePostID}`);
-        
-        serverResponse.then( response => response.json())
-        .then((data) => {
-    
-            this.setState({
-                comments: data.comments
-            });
-        })
-        .catch((err) => {
-            console.log(err);
-        });     
-    }
-
 
     render(){
 
 
         const viewingUser = this.props.username || false;
-
+        const { commentsViewAll, comments } = this.state;
         let userComments;
         let commentViewAction;
 
         // Handle view all
-        if(this.state.comments.length > 0){
-            if(this.state.commentsViewAll){
-                userComments = this.state.comments.map((comment, index) => {
+        if(comments.length > 0){
+            if(commentsViewAll){
+                userComments = comments.map((comment, index) => {
                     return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} index={index}/>
                 })
             }
             else{
-                userComments = this.state.comments.slice(0,5).map((comment, index) => {
+                userComments = comments.slice(0,5).map((comment, index) => {
                     return <CommentRow comment={comment} handleDeleteComment={this.handleDeleteComment} urlParams={this.props.urlParams} viewingUser={viewingUser} key={comment._id} index={index}/>
                 })
             }
             
         }
-        this.state.commentsViewAll ? commentViewAction = 'Collapse comments' : commentViewAction = 'View all comments'
+        commentsViewAll ? commentViewAction = 'Collapse comments' : commentViewAction = 'View all comments'
 
         return(
             <section>
                 <CommentBox handleAddComment={this.handleAddComment} urlParams={this.props.urlParams}/>
+                {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
                 <div>
                     <div style={{height: '400px', 'overflow': 'auto'}}>
                         {userComments}

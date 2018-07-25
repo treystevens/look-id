@@ -6,6 +6,7 @@ import PageHead from './PageHead';
 import { getData, sendUserData, goDelete } from '../util/serverFetch';
 import { connect } from 'react-redux';
 import ConfirmAction from './ConfirmAction';
+import Modal from './Modal';
 
 
 class Boards extends Component{
@@ -17,23 +18,26 @@ class Boards extends Component{
             showModal: false,
             actionSuccess: false,
             statusMessage: '',
-            showConfirmation: false
+            showConfirmation: false,
+            showAccountVerify: false,
+            showCreateBoard: false
         };
 
         this.handleClickCreateBoard = this.handleClickCreateBoard.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.handleNewBoardSubmit = this.handleNewBoardSubmit.bind(this);
         this.handleClickBoard = this.handleClickBoard.bind(this);
-        this.disableConfirmAction = this.disableConfirmAction.bind(this);
         this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
-        this.state.showErrorStatus = this.state.showErrorStatus.bind(this);
+        this.showErrorStatus = this.showErrorStatus.bind(this);
         
 
         // Add key listener on window to close modal with 'esc' key
         window.addEventListener('keydown', (evt) => {
             if(this.state.showModal && evt.keyCode === 27){
                 this.setState({
-                    showModal: false
+                    showModal: false,
+                    showAccountVerify: false,
+                    showCreateBoard: false
                 });
             }
         });
@@ -74,18 +78,34 @@ class Boards extends Component{
     // Close modal on click
     closeModal(evt){
 
-        if(evt.target.className === 'modal'){
+        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
             this.setState({
-                showModal: false
+                showModal: false,
+                showAccountVerify: false,
+                showCreateBoard: false
             });
         }   
     }
 
     // Open modal to create a new board
     handleClickCreateBoard(){
-        this.setState({
-            showModal: true
-        });
+        
+        // Show Login / Sign Up modal if not Authorized - Create Board if authorized
+        if(!this.props.isAuth){
+            
+            this.setState({
+                showAccountVerify: true,
+                showModal: true,
+                showCreateBoard: false
+            });
+        }
+        else{
+            this.setState({
+                showModal: true,
+                showCreateBoard: true
+            });
+        }
+        
     }
 
     // Creating a new board
@@ -104,25 +124,21 @@ class Boards extends Component{
         serverResponse.then( response => response.json())
         .then((data) => {
             
-            if(data.error) return Promise.reject(data.error);
+            if(data.error) return Promise.reject(new Error(data.error));
 
-            // Add the newly created board to state after server response
+            // Add newly created board to state
             this.setState({
                 boards: this.state.boards.concat(data.boards)
             });
         })
         .catch((err) => {
 
-            this.setState({
-                showConfirmation: true,
-                statusMessage: err.message
-            });
-
+            this.showErrorStatus(err);
             console.log(err);
         });
     }
 
-    // show ConfirmAction if error occurred 
+    // Show ConfirmAction if error occurred 
     showErrorStatus(err){
         this.setState({
             showConfirmation: true,
@@ -150,7 +166,8 @@ class Boards extends Component{
             serverResponse.then(response => response.json())
             .then((data) => {
 
-                if(data.errors) return Promise.reject(data);
+                if(data.errors) return Promise.reject(new Error(data));
+
                 // Make confirmation that it was added
                 if(data.success){
                     this.setState({
@@ -185,8 +202,9 @@ class Boards extends Component{
 
 
     render(){
+        const { showAccountVerify, showConfirmation, showCreateBoard } = this.state;
 
-        let userBoards = this.state.boards.map((board) => {
+        const userBoards = this.state.boards.map((board) => {
             return (
             <article key={board.board_id}>
                 <span>...</span>
@@ -205,15 +223,20 @@ class Boards extends Component{
             <section>
                 <PageHead pageHead={this.props.pageName} />
 
-                {this.state.showConfirmation &&
+                {showConfirmation &&
                 <ConfirmAction statusMessage={this.state.statusMessage}/>}
 
                 <div className="boardContainer">
                     <CreateBoard handleClickCreateBoard={this.handleClickCreateBoard} />
                     {userBoards}
 
-                    {this.state.showModal && 
-                    <BoardModal source="createBoard" closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit}/>}
+
+                {showAccountVerify &&
+                    <Modal source='accountVerify' closeModal={this.closeModal}/>}
+
+                {showCreateBoard &&
+                    <BoardModal source="createBoard" closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit} />}
+                
                 </div>
             </section>
         )

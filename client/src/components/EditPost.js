@@ -30,11 +30,11 @@ class EditPost extends Component{
         const urlPostID = this.props.urlParams.match.params.postid;
         const urlUser = this.props.username;
 
-        const serverResponse = getData(`/user/${urlUser}/${urlPostID}`);
+        const serverResponse = getData(`/user/${urlUser}/${urlPostID}/edit`);
 
         serverResponse.then(response => response.json())
         .then((data) => {
-            if(data.errors) return Promise.reject(new Error(data.error))
+            if(data.error) return Promise.reject(new Error(data.error));
 
             this.setState({
                 image: data.post.image,
@@ -92,7 +92,7 @@ class EditPost extends Component{
             
             this.setState({
                 showConfirmation: true,
-                statusMessage: 'Could not update your post at the moment. Try again later.'
+                statusMessage: err.message
             });
             console.log(err);
         });
@@ -117,7 +117,8 @@ class EditPost extends Component{
             <section>
                 <Link to={`/user/${urlUser}/${urlPostID}`}>Back to Post</Link>
                 {this.state.showConfirmation &&
-                <ConfirmAction statusMessage={this.state.statusMessage}/>}
+                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    }
                 <img src={this.state.image} />
                 <form onSubmit={this.handleSubmit}>
                     <textarea placeholder='Write a caption...' name="usercaption" className="post__caption" onChange={this.captionChange}>

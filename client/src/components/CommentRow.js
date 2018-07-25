@@ -16,7 +16,7 @@ const CommentRow = (props) => {
     }
 
     // User visiting a post where that they commented on
-    if(props.viewingUser === props.comment.username){
+    if(props.viewingUser === props.comment._user.username){
         viewingUserAuth = true;
     }
 
@@ -42,7 +42,7 @@ const CommentRow = (props) => {
             <div>
                 <div className="user-data">
                     <Link to={`/user/${username}`}>
-                        <span>{username} </span>
+                        <span>{username}</span>
                     </Link>
                     <span style={{color: "gray", fontSize: ".5rem"}}>{props.comment.date_posted}</span>
                 </div>

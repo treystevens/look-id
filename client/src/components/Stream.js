@@ -16,7 +16,7 @@ const Stream = (props) => {
 
     if(postData !== undefined){
         listPosts = props.stream.map( (post) => {
-            return <StreamItem post={post} usernameHeader={sourceFetch} key={post._id}/>
+            return <StreamItem post={post} usernameHeader={sourceFetch} key={post._id} edit={props.edit} handlePostDelete={props.handlePostDelete}/>
         })
     }
 

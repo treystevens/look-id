@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 const BoardItem = (props) => {
     console.log(props)
 
-    let boardLink = `/user/${props.username}/boards/${props.board.board_id}`;
+    let boardLink = `/boards/${props.board.board_id}`;
     let backgroundImg = props.board.display_image;
 
 

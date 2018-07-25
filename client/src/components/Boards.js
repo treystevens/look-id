@@ -112,7 +112,7 @@ class Boards extends Component{
     handleNewBoardSubmit(boardName){
 
         this.setState({
-            showModal: false
+            showCreateBoard: false
         });
         
         const data = {
@@ -128,7 +128,10 @@ class Boards extends Component{
 
             // Add newly created board to state
             this.setState({
-                boards: this.state.boards.concat(data.boards)
+                boards: this.state.boards.concat(data.boards),
+                showConfirmation: true,
+                statusMessage: 'Created new board!'
+
             });
         })
         .catch((err) => {

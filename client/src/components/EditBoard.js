@@ -141,7 +141,7 @@ class EditBoard extends Component{
             this.setState({
                 showConfirmation: true,
                 actionSuccess: true,
-                statusMessage: `Deleted ${postsToDeleteLength} items`,
+                statusMessage: `Updated!`,
                 postsToDelete: [],
                 streamData: data.stream,
                 boardName: data.boardName

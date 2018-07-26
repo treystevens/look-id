@@ -26,36 +26,18 @@ class Board extends Component{
         };
 
         this.loadData = this.loadData.bind(this);
-
-        window.onscroll = () => {
-    
-            
-            const { error, isLoading, hasMore } = this.state;
-
-            // Return if there's an error, already loading or there's no more data from the database
-            if (error || isLoading || !hasMore) return;
-    
-            // Check if user has scrolled to the bottom of the page
-            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-
-
-                const { scrollCount } = this.state;
-                const newCount = scrollCount + 1;
-            
-                this.setState({
-                    scrollCount: newCount
-
-                }, () => {
-
-                    this.loadData();
-                }); 
-            }
-        };
+        this.onScroll = this.onScroll.bind(this);
     }
 
     // Get Board data
     componentDidMount(){
+        window.addEventListener('scroll', this.onScroll);
         this.loadData();  
+    }
+
+    // Remove event listener
+    componentWillUnmount(){
+        window.removeEventListener('scroll', this.onScroll);
     }
 
     loadData(){
@@ -83,6 +65,31 @@ class Board extends Component{
             
             console.log(err);
         });
+    }
+
+    onScroll(){
+    
+            
+        const { error, isLoading, hasMore } = this.state;
+
+        // Return if there's an error, already loading or there's no more data from the database
+        if (error || isLoading || !hasMore) return;
+
+        // Check if user has scrolled to the bottom of the page
+        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+
+
+            const { scrollCount } = this.state;
+            const newCount = scrollCount + 1;
+        
+            this.setState({
+                scrollCount: newCount
+
+            }, () => {
+
+                this.loadData();
+            }); 
+        }
     }
 
     render(){

@@ -22,44 +22,82 @@ router.get('/:user/:postid', (req, res) => {
 // User comments on post 
 router.post('/', (req, res) => {
 
+
     // If user submits empty comment
     if(req.body.newComment.comment === ''){
-        res.status(411).json({success: false});
+        return res.status(411).json({error: 'Please enter a message.'});
     }
 
     const query = {
         "post_id": req.body.userPage.postID
     }; 
 
-    // Find my document in database and get ID
-    models.Users.findOne({username: req.user.username})
-    .then((user) => {
-        
-        return user.id;
-    })
-    .then((userID) => {
+    const recipient = req.body.userPage.username;
+    
 
-        // Store my ID into new comment for reference (populate)
-        const newComment = {
-            _user: userID,
-            date_posted: req.body.newComment.date_posted,
-            comment: req.body.newComment.comment
-        };
+    // Store my ID into new comment for reference (populate)
+    const newComment = {
+        _user: req.user.id,
+        date_posted: req.body.newComment.date_posted,
+        comment: req.body.newComment.comment
+    };
 
-        // Push new comment into post that was commented on
-        return models.Posts.findOneAndUpdate(query, {$push: {comments: newComment}});
-        
-    })
-    .then(() => {
+
+    // Push new comment into post that was commented on and push notification to user
+    models.Posts.findOneAndUpdate(
+        query, 
+        { $push: { comments: newComment } },
+        { new: true } )
+
+    .then((post) => {
 
         // Query for the new comment on that post
-        return models.Posts.findOne(query).populate({path: 'comments._user', model:'user', select:'profile.avatar username' }).exec();
-    })
-    .then((data) => {
+        const newCommentQuery = models.Posts.findOne(query).populate({path: 'comments._user', model:'user', select:'profile.avatar username' }).exec();
+
+        // If we make a comment on our own post avoid sending notification
+        if(req.user.username === recipient) return newCommentQuery;
         
+        const comments = post.comments;
+        const index = comments.length - 1;
+        const lastCommentID = comments[index].id;
+
+    
+        // Create a new notification
+        const notification = {
+            action: 'COMMENT',
+            viewed: false,
+            _user: req.user.id,
+            _post: post.id,
+            _comment: lastCommentID
+
+        };
+        const pushNotification = models.Users.update(
+            { username: recipient }, 
+            { $push: 
+                { 
+                    notifications: {
+                        $each: [notification],
+                        $position: 0
+                    } 
+                } 
+            });
+        
+
+        return Promise.all([
+            pushNotification,
+            newCommentQuery
+        ]);
+    })
+    .then((results) => {
+
+        let commentData = results;
+        // If we return Promise.all from previous then
+        if(results.length) commentData = results[1];
+        
+
         // Get the comment from the query
-        const databaseComments = data.comments;
-        const length = data.comments.length;
+        const databaseComments = commentData.comments;
+        const length = commentData.comments.length;
         const newComment = databaseComments[length-1];
         
         res.json({success: true, comment: newComment});
@@ -72,8 +110,7 @@ router.post('/', (req, res) => {
 
 // User deletes a comment
 router.post('/delete', (req, res) => {
-
-
+    
     const query = { 'comments._id': req.body.id}; 
 
     // See if the user wanted to delete is authorized to delete comment
@@ -88,25 +125,46 @@ router.post('/delete', (req, res) => {
 
         // Pull comment out of post
         if(masterUser || visitingUser){
-            return models.Posts.update(query, { $pull: { 'comments': { "_id":req.body.id }}});
+            const pullComment = models.Posts.update(query, 
+                { $pull: { 'comments': { "_id": req.body.id } } });
+
+            const getNotificationID = models.Users.findOne(
+                { 'notifications._comment': req.body.id  }, {'notifications.$': 1});
+
+            
+            if(masterUser === visitingUser) return pullComment; 
+            else{
+                return Promise.all([
+                    pullComment,
+                    getNotificationID
+                ]); 
+            }
         }
         else{
             return Promise.reject(new Error('You\'re not authorized to delete that comment.'));
         }
         
     })
-    .then( () => {
+    .then((results) => {
+        
+        if(results.length){
+            const notificationID = results[1].notifications[0].id;
+
+            return models.Users.findOneAndUpdate(
+                { 'notifications._id': notificationID },
+                { $pull: { 'notifications': { id: notificationID} } }
+            );
+        } 
+        return Promise.resolve(results);
+        
+    })
+    .then(() => {
         res.status(200).json({success: true});
     })
     .catch((err) => {
         res.status(401).json({error: err.message});
         console.log(err);
     });
-
-
-    // have a username is isauth sent
-    // if the username = req.user.username we good to delete comment
-    // if is isatuh its good to delete any comment as long as the page they were on is rqual to req.user.usernam
 });
 
 

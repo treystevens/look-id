@@ -51,8 +51,7 @@ router.get('/feed/:page', (req, res) => {
     // Get user's feed items
     models.Feed.findOne(query).populate('feed_items').exec()
     .then((data) => {  
-            
-        if(!data) return Promise.reject(new Error('Seems like we couldn\'t find any posts.'));  
+
 
         // Sending back only necessary post information
         const posts = data.feed_items.splice(skipNum, 10).map((post) => {

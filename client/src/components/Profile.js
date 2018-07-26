@@ -25,35 +25,21 @@ class Profile extends Component{
         this.handleFollowerCount = this.handleFollowerCount.bind(this);
         this.handleFollowingCount = this.handleFollowingCount.bind(this);
         this.loadData = this.loadData.bind(this);
+        this.onScroll = this.onScroll.bind(this);
+    }
 
-
-
-        window.onscroll = () => {
-
-
-            const { error, isLoading, hasMore } = this.state;
-
-            // Return if there's an error, already loading or there's no more data from the database
-            if (error || isLoading || !hasMore) return;
     
-            // Checks that the page has scrolled to the bottom
-            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-                
-                
-                const { scrollCount } = this.state;
-                const newCount = scrollCount + 1;
 
-                this.setState({
-                    scrollCount: newCount
 
-                }, () => {
+    // Get the requested user's profile data
+    componentDidMount(){
+        window.addEventListener('scroll', this.onScroll);
+        this.loadData();
+    }
 
-                    this.loadData();
-                });
-
-                
-            }
-        };
+    // Remove event listener
+    componentWillUnmount(){
+        window.removeEventListener('scroll', this.onScroll);
     }
 
     loadData(){
@@ -61,7 +47,7 @@ class Profile extends Component{
         const { scrollCount, streamData, initialLoad } = this.state;
         const serverResponse = getData(`/user/${urlParamUser}/page/${scrollCount}`);
 
-        console.log('making a request')
+
         // Fetch Data
         serverResponse.then(response => response.json())
         .then((data) => {
@@ -95,10 +81,29 @@ class Profile extends Component{
         });
     }
 
+    onScroll(){
 
-    // Get the requested user's profile data
-    componentDidMount(){
-       this.loadData();
+
+        const { error, isLoading, hasMore } = this.state;
+
+        // Return if there's an error, already loading or there's no more data from the database
+        if (error || isLoading || !hasMore) return;
+
+        // Checks that the page has scrolled to the bottom
+        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+            
+            
+            const { scrollCount } = this.state;
+            const newCount = scrollCount + 1;
+
+            this.setState({
+                scrollCount: newCount
+
+            }, () => {
+
+                this.loadData();
+            });
+        }
     }
    
 

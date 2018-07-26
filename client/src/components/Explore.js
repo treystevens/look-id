@@ -25,41 +25,41 @@ class Explore extends Component{
         this.handleSearch = this.handleSearch.bind(this);
         this.loadData = this.loadData.bind(this);
         this.loadSearchData = this.loadSearchData.bind(this);
-
-        // Binds our scroll event handler
-        window.onscroll = () => {
-
-            const  { error, isLoading, hasMore } = this.state;
-            
-
-            // Return if there's an error, already loading or there's no more data from the database
-            if (error || isLoading || !hasMore) return;
-    
-            // Check if user has scrolled to the bottom of the page
-            if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-                
-                // Using scrollCount to mimic pages
-                const{ endPoint, isSearching } = this.props;
-                const { scrollCount } = this.state;
-                const newCount = scrollCount + 1;
-
-                
-                this.setState({
-                    scrollCount: newCount
-                }, () => {
-                    
-                    // Get the new updated scrollCount
-                    const { scrollCount } = this.state;
-
-                    // Search routes or Explore/Feed routes
-                    if(endPoint) this.loadData(`/stream/${endPoint}/${scrollCount}`);
-                    if(isSearching) this.loadSearchData();
-                });  
-            }
-        };
+        this.getParameterByName = this.getParameterByName.bind(this);
+        this.onScroll = this.onScroll.bind(this);
         
     }
 
+    // Skip loading data if user is searching, load data on Explore and Feed pages
+    componentDidMount(){
+
+        window.addEventListener('scroll', this.onScroll);
+
+        const{ endPoint, isSearching } = this.props;
+        const { scrollCount } = this.state;
+
+        // No data needed on mount if user is searching for item
+        if(isSearching) this.loadSearchData();
+                
+        // Only load data if end points are 'Explore' or 'Feed'
+        if(endPoint){
+            this.loadData(`/stream/${endPoint}/${scrollCount}`);
+        }
+    }
+
+    // Remove event listener
+    componentWillUnmount(){
+        window.removeEventListener('scroll', this.onScroll);
+    }
+
+    getParameterByName(name, url) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
 
     // Loading data for stream routes (Express & Feed)
     loadData(url){
@@ -106,7 +106,13 @@ class Explore extends Component{
     loadSearchData(){
      
 
-        const { scrollCount, submitLoad, searchQuery: { query, price, color } } = this.state;
+        // const { scrollCount, submitLoad, searchQuery: { query, price, color } } = this.state;
+        const { scrollCount, submitLoad } = this.state;
+        let search;
+
+        if(this.props.urlParams){
+            search = this.props.urlParams.location.search;
+        }
         
         
         // If fetching data after a user submitted another query
@@ -115,6 +121,10 @@ class Explore extends Component{
                 isLoading: true
             });
         }
+
+        const query = this.getParameterByName('query', search)
+        const price = this.getParameterByName('price', search)
+        const color = this.getParameterByName('color', search)
 
         const data = {
             query: query,
@@ -129,6 +139,8 @@ class Explore extends Component{
         // Get query items
         serverResponse.then(response => response.json())
         .then((data) => {
+            
+            if(data.stream.length === 0) return Promise.reject(new Error('Seems like we couldn\'t find any items matching your search.'));
 
             // Load data from scroll event
             if(this.state.isLoading){
@@ -174,25 +186,40 @@ class Explore extends Component{
 
     }
 
-    // Skip loading data if user is searching, load data on Explore and Feed pages
-    componentDidMount(){
+    // Binds our scroll event handler
+    onScroll(){
 
+        const  { error, isLoading, hasMore } = this.state;
+        
 
-        const{ endPoint, isSearching } = this.props;
-        const { scrollCount } = this.state;
+        // Return if there's an error, already loading or there's no more data from the database
+        if (error || isLoading || !hasMore) return;
 
-        // No data needed on mount if user is searching for item
-        if(isSearching) return;
+        // Check if user has scrolled to the bottom of the page
+        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+            
+            // Using scrollCount to mimic pages
+            const{ endPoint, isSearching } = this.props;
+            const { scrollCount } = this.state;
+            const newCount = scrollCount + 1;
+
+            
+            this.setState({
+                scrollCount: newCount
+            }, () => {
                 
-        // Only load data if end points are 'Explore' or 'Feed'
-        if(endPoint){
-            this.loadData(`/stream/${endPoint}/${scrollCount}`);
+                // Get the new updated scrollCount
+                const { scrollCount } = this.state;
+
+                // Search routes or Explore/Feed routes
+                if(endPoint) this.loadData(`/stream/${endPoint}/${scrollCount}`);
+                if(isSearching) this.loadSearchData();
+            });  
         }
     }
 
-
     render(){
-
+        
         const {endPoint, isSearching} = this.props;
         let pageName;
         

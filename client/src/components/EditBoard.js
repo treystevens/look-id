@@ -110,6 +110,7 @@ class EditBoard extends Component{
     // Filter out post
     handleFilterPost(postID){
         this.setState({
+            // eslint-disable-next-line
             postsToDelete: this.state.postsToDelete.filter((post) => {
                 if(post.postID !== postID) return post;
             })
@@ -139,7 +140,7 @@ class EditBoard extends Component{
             posts: this.state.postsToDelete,
             boardName: this.state.boardName
         };
-        const postsToDeleteLength = this.state.postsToDelete.length;
+
         const boardID = this.props.urlParams.match.params.boardid;
         const serverResponse = sendUserData(`/board/${boardID}/edit`, data);
 
@@ -196,7 +197,7 @@ class EditBoard extends Component{
                     
                     <form onSubmit={this.handleSubmit}>
                         <label>Change board name:
-                            <input type="text" name="board-name" className='edit__name' onChange={this.handleNameChange} value={this.state.boardName}/>
+                            <input type='text' name='board-name' className='edit__name' onChange={this.handleNameChange} value={this.state.boardName}/>
                         </label>
                         <span>{deleteMessage}</span>
                         <button>Update Board</button>

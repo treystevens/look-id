@@ -286,10 +286,75 @@ router.post('/:user/:postid/likes', (req, res) => {
             : 
             performUpdateAction = { $push: {'likes': req.user.username} }
 
-    if(!req.isAuthenticated()) res.status(401).json({error: 'You\'re not authorized to perform action.'});
 
-    models.Posts.findOneAndUpdate(query, performUpdateAction)
+    if(!req.isAuthenticated()) return res.status(401).json({error: 'You\'re not authorized to perform action.'});
+
+    models.Posts.findOneAndUpdate(query, performUpdateAction, {new: true})
+    .then((post) => {
+
+
+        const notification = {
+            action: 'LIKE',
+            viewed: false,
+            _user: req.user._id,
+            _post: post.id
+        };
+
+
+        // If previously liked, find notification _id to pull notification
+        if(liked) {
+
+            // Make sure we're not pulling any notification when we like our own post
+            if(req.user.username === post.username) return Promise.resolve(liked);
+
+            return Promise.all([
+                liked, 
+                models.Users.findOne(
+                    { 'notifications._user': req.user.id, 'notifications._post': post.id, 'notifications.action': 'LIKE' }, {'notifications.$': 1})
+            ]);
+        }
+        // If previously did not like, send new notification
+        else{
+
+            // Make sure we're not sending notification when we like our own post
+            if(req.user.username === post.username) return Promise.resolve(liked);
+
+            return Promise.all([
+                liked, 
+                models.Users.update(
+                    { username: req.params.user }, 
+                    { $push: 
+                        { 
+                            notifications: {
+                                $each: [notification],
+                                $position: 0
+                            } 
+                        } 
+                    })
+            ]);
+        }
+
+    })
+    .then((results) => {
+        
+  
+        if(results.length && results[0]){
+            // Remove notification
+ 
+            const notificationID = results[1].notifications[0]._id;
+
+            return models.Users.findOneAndUpdate(
+                { 'notifications._id': notificationID },
+                { $pull: { notifications: { '_id': notificationID } } },
+                { new: true }
+            );
+        }
+
+        return Promise.resolve(results);
+
+    })
     .then(() => {
+        
         res.json({success: true});
     })
     .catch((err) => {
@@ -317,7 +382,7 @@ router.post('/:user/followers', (req, res) => {
     
     prevFollowingData ? nowFollowing = false : nowFollowing = true;
 
-    if(!req.isAuthenticated()) res.status(401).json({error: 'You\'re not authorized to perform action.'});
+    if(!req.isAuthenticated()) return res.status(401).json({error: 'You\'re not authorized to perform action.'});
 
     // If I follow them already pull their name from their follower list and my following list
     if(req.body.iFollow){
@@ -338,26 +403,70 @@ router.post('/:user/followers', (req, res) => {
        return models.Users.findOneAndUpdate({username: req.user.username}, myFollowingAction);
     })
     .then(() => {
+        
+   
         // Search for the user's post to get ids to add to my feed_items
-        return models.Posts.find(query, {_id: 1});        
-    })
-    .then((postIDs) => {
+        // Get notificaton ID just in case we need to pull the notification from the user's notification list
+        const findPosts = models.Posts.find(query, {_id: 1});
+        const getNotificationID = models.Users.findOne({ username: req.params.user ,'notifications._user': req.user.id, 'notifications.action': 'FOLLOW' }, {'notifications.$': 1});
 
+        return Promise.all([
+            findPosts,
+            getNotificationID
+        ]);
+    })
+    .then((results) => {
+
+        const postIDs = results[0];
+       
         // Pull ids if we no longer follow
-        if(req.body.iFollow){
-            // $pull out the post ids
-            return models.Feed.findOneAndUpdate(
-                { username: req.user.username},
-                { $pull: { feed_items: { $in: postIDs } } }
-            );
+        if(req.body.iFollow && results[1]){
+            
+            const notificationID = results[1].notifications[0].id;
+
+            // Pull out the post ids and notification
+            return Promise.all([
+                models.Feed.findOneAndUpdate(
+                    { username: req.user.username},
+                    { $pull: { feed_items: { $in: postIDs } } }
+                ),
+                models.Users.findOneAndUpdate(
+                    { 'notifications._id': notificationID },
+                    { $pull: { notifications: { '_id': notificationID } } },
+                    { new: true }
+                )
+            ]);
         }
-        // Push in new ids if we now follow and sort the array
         else{
-            return models.Feed.findOneAndUpdate(
+
+            // Create a new notification
+            const notification = {
+                action: 'FOLLOW',
+                viewed: false,
+                _user: req.user._id
+            };
+
+            // Push in new ids if we now follow and sort the array
+            // Push in new notification
+            return Promise.all([
+                models.Feed.findOneAndUpdate(
                 { username: req.user.username},
-                { $push: { feed_items: { $each: postIDs, $sort: -1 } } }
-            );
+                { $push: { feed_items: { $each: postIDs, $sort: -1 } } }),
+
+                models.Users.update(
+                    { username: req.params.user }, 
+                    { $push: 
+                        { 
+                            notifications: {
+                                $each: [notification],
+                                $position: 0
+                            } 
+                        } 
+                    })
+            ]);
         }
+    
+
     })
     .then(() => {
         res.json({actionSuccess: true, iFollow: nowFollowing});
@@ -455,6 +564,7 @@ router.get('/:user/ff/following', (req, res) => {
    })
    .then((data) => {
 
+        if(!data) return Promise.reject(new Error('Currently not following anybody.'))
         const myFollowing = data.following;
         const iFollowData = seeIfIFollow(usersFollowing, myFollowing);
 
@@ -465,6 +575,88 @@ router.get('/:user/ff/following', (req, res) => {
        res.status(500).json({error: err});
    });
 
+
+});
+
+// Get intial notifications
+router.put('/notifications', (req, res) => {
+
+
+    const username = req.user.username;
+    const query = {
+        username: username
+    };
+
+    // Set the notifications to viewed
+    models.Users.update(
+        query, 
+        { $set: { 'notifications.$[elem].viewed': true } },
+        {
+            arrayFilters: [ { "elem.viewed": false } ]
+        }
+    )
+    .then(() => {
+        res.status(200).json({success: true});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).json({error: err});
+    });
+
+});
+
+// Infinite scroll for notifications
+router.get('/notifications/v/:page', (req, res) => {
+
+    const username = req.user.username;
+    const query = {
+        username: username
+    };
+
+    const skipNum = req.params.page * 10;
+
+   
+    models.Users.findOne(query, {notifications: 1}).populate({path: 'notifications._user', select:'profile.avatar username'}).populate({path: 'notifications._post', select: 'image post_id'}).populate({path: 'notifications._comment', model:'post'}).exec()
+    .then((user) => {
+        
+        if(!user) return Promise.reject(new Error('No notifications.'));
+
+        const notifications = user.notifications.splice(skipNum, 10).map(notification => notification);
+        let hasMore = true;
+        if(notifications.length < 10) hasMore = false;
+        
+        res.status(200).json({notifications: notifications, hasMore: hasMore});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(204).json({error: err});
+    });
+
+});
+
+// Check to see if there are new notifications (NotificationIcon)
+router.get('/notifications-check', (req, res) => {
+
+    const username = req.user.username;
+    const query = {
+        username: username
+    };
+
+    models.Users.findOne(query, {notifications: 1})
+    .then((data) => {
+        if(!data) return Promise.reject(new Error('No notifications.'));
+
+        let newNotifications;
+
+        for(let check of data.notifications){
+            if(!check.viewed) newNotifications = true;
+        }
+        res.json({newNotifications: newNotifications});
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(204).json({error: err});
+    });
 
 });
 

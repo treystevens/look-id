@@ -1,18 +1,17 @@
 const router = require('express').Router();
 const models = require('../models/schemas');
 
-// express-validator
-const { validationResult } = require('express-validator/check');
-const { body } = require('express-validator/check');
-
 
 router.post('/:page', (req, res) => {
 
+    
+    if(req.body.query === '') return res.status(200).json({error: 'Please enter what you\'d like to search.'});
+    
 
     const skipNum = req.body.page * 10;
-    let priceValue = req.body.price;  
-    let itemQuery = req.body.query;
-    let colorValue = req.body.color;
+    const priceValue = req.body.price;  
+    const itemQuery = req.body.query;
+    const colorValue = req.body.color;
 
     const query = {
         '$text': { '$search': itemQuery }

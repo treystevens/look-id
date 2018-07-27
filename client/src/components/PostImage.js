@@ -39,11 +39,11 @@ class PostImage extends Component{
     componentDidMount(){
 
 
-        const urlUsernameParam = this.props.urlParams.username;
+        const urlUser = this.props.urlParams.username;
         const urlPostID = this.props.urlParams.postID;
 
         // Fetch to server to see if user liked post and like count
-        const serverResponse = getData(`/user/${urlUsernameParam}/${urlPostID}/likes`);
+        const serverResponse = getData(`/user/${urlUser}/${urlPostID}/likes`);
         
         serverResponse.then(response => response.json())
         .then((data) => {
@@ -87,13 +87,13 @@ class PostImage extends Component{
             return -1;
         }
 
-        const urlUsernameParam = this.props.urlParams.username;
+        const urlUser = this.props.urlParams.username;
         const count = this.state.likeCount;
         const urlPostID = this.props.urlParams.postID;
         const data = {
             iLiked: this.state.iLiked
         };
-        const serverResponse = sendUserData(`/user/${urlUsernameParam}/${urlPostID}/likes`, data);
+        const serverResponse = sendUserData(`/user/${urlUser}/${urlPostID}/likes`, data);
 
         serverResponse.then( response => response.json())
         .then((data) => {
@@ -122,15 +122,16 @@ class PostImage extends Component{
     render(){
 
         const { showVerify, showAddToBoard } = this.state;
+        const urlUser = this.props.urlParams.username;
          
         return(
-            <article style={ {"width": "40%"}}>
-                <img  className='post__image' src={this.props.image} style={ {"width": "100%"}}/>
+            <article style={ {'width': '40%'}}>
+                <img  className='post__image' src={this.props.image} alt={`${urlUser}'s outfit'`}style={ {'width': '100%'}}/>
 
                 <PostEngage openBoards={this.openBoards} commentCount={this.props.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount} iLiked={this.state.iLiked}/>
 
                 {showAddToBoard && 
-                    <Modal source="addToBoard" closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
+                    <Modal source='addToBoard' closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}
 
                 {showVerify && 
                     <Modal source='accountVerify' closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}

@@ -62,7 +62,6 @@ class Search extends Component{
                 showConfirmation: true,
                 statusMessage: 'Enter a number for the price'
             });
-            // Please enter a price number or omit a price
             return 1;
         }
 
@@ -73,7 +72,6 @@ class Search extends Component{
         
         return(
             <article>
-                {/* <form onSubmit={this.submitHandler}> */}
                 <form action='/search'>
                     <input type='text' name='query' onChange={this.handleQueryChange}/>
                     <input type='text' name='color' placeholder='red, navy' onChange={this.handleColorChange}/>

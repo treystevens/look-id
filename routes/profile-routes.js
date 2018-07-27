@@ -250,17 +250,20 @@ router.post('/edit', upload.single('user-avatar'), (req, res) => {
     
     // User decides not to change their avatar, so the req.file will be undefined. Taking the src of the image that was previously uploaded to cloudinary to set back into database
     if(req.file === undefined){
-
+        
         userUpdate.avatar = imgFromAvatarSrc;
         
         // Update user's website and bio
         models.Users.findOneAndUpdate(query, {$set: {profile: userUpdate}}, {'new': true})
         .then((data) => {
-            if(!data) return Promise.reject(new Error('User not found.'));
+            
+            // Having troubles with Promise.reject(new Error())
+            if(!data) return Promise.reject('Had trouble updating your profile.');
 
-            res.status(200);
+            res.status(200).json({success: true});
         })
         .catch( (err) => {
+            console.log(err);
             res.status(500).json({error: err});
         });
     }

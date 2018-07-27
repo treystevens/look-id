@@ -18,6 +18,8 @@ import PrivateRoute from './components/PrivateRoute';
 import Explore from './components/Explore';
 import EditBoard from './components/EditBoard';
 import NotFound from './components/NotFound';
+import Search from './components/Search';
+import Notifications from './components/Notifications';
 
 // React Redux
 import { connect } from 'react-redux';
@@ -30,8 +32,8 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { getData } from './util/serverFetch';
 
 
-class App extends Component{
 
+class App extends Component{
   constructor(props){
     super(props);
 
@@ -46,7 +48,6 @@ class App extends Component{
     .then((user) => {
 
       if(user.isAuth){
-
         this.props.dispatch(addAuth(user.user));
       }        
     })
@@ -58,16 +59,14 @@ class App extends Component{
 
   render(){
 
-    console.log(this.props);
     return(
       <Router basename='/'>
           <div className='container'>
             <Header />
             <Switch>
-              <Route exact path='/' render={ (match) => <Explore key={match.match.path} isSearching={true} />} />
+              <Route exact path='/' render={ (match) => <Search key={match.match.path} />} />
               <Route exact path='/explore' render={ (match) => <Explore endPoint='Explore' key={match.match.path}/>} />
-              <Route exact path='/search' render={ (match) => <Explore endPoint='earch' key={match.match.path}/>} />
-              <Route exact path='/search/:query' render={ (match) => <Explore endPoint='earch' key={match.match.path}/>} />
+              <Route path='/search' render={ (match) => <Explore key={match.match.path} urlParams={match} isSearching={true}/>} />
               <Route exact path='/feed' render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>} />
               <Route exact path='/user/:user' render={ (match) => <Profile urlParams={match} key={match.match.params.user} />} />
               <Route exact path='/user/:user/:postid' render={ (match) => <Post urlParams={match}/>} />
@@ -76,13 +75,14 @@ class App extends Component{
               <Route exact path='/boards/:boardid/edit' render={ (match) => <EditBoard urlParams={match}/>} />
               <Route path='/boards' render={ () => <Boards pageName={'Boards'} />}/>
               <Route path='/signup' component={SignUp} />
-              <Route path='/login' render={ () => <Login checkAuth={this.checkAuth} />}/>
+              <Route path='/login' component={Login} />
               <Route path='/404' component={NotFound} />
               <PrivateRoute path='/profile/settings/change-password' component={ChangePassword} />
               <PrivateRoute path='/profile/settings/delete' component={DeleteAccount} />
               <PrivateRoute path='/profile/settings' component={Settings} />
               <PrivateRoute path='/profile/edit' component={EditProfile}/>
               <PrivateRoute path='/profile/upload' component={UploadPost} />
+              <PrivateRoute path='/profile/notifications' component={Notifications} />
               <Route component={NotFound} />
             </Switch>
           </div>

@@ -4,6 +4,7 @@ import PageHead from './PageHead';
 import UserProfileHead from './UserProfileHead';
 import { getData } from '../util/serverFetch';
 import NotFound from './NotFound';
+import { connect } from 'react-redux';
 
 
 class Profile extends Component{
@@ -33,7 +34,12 @@ class Profile extends Component{
 
     // Get the requested user's profile data
     componentDidMount(){
+
         window.addEventListener('scroll', this.onScroll);
+
+        // Have NotificationIcon in AccountHead see if there's new notifications
+        this.props.dispatch({ type: 'CHECK_NOTIFICATION'});
+
         this.loadData();
     }
 
@@ -162,6 +168,10 @@ class Profile extends Component{
     }
 }
 
+function mapStateToProps(state){
+    return{
+        notifications: state.notifications
+    }
+}
 
-
-export default Profile
+export default connect(mapStateToProps)(Profile);

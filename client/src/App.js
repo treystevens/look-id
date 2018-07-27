@@ -34,10 +34,6 @@ import { getData } from './util/serverFetch';
 
 
 class App extends Component{
-  constructor(props){
-    super(props);
-
-  }
 
   componentDidMount(){
 

@@ -13,7 +13,7 @@ const StreamItem = (props) => {
     const imgSrc = `${postImage}`;
     let post;
 
-    // Create edit options for an individual post "EditBoard" functionality to delete post
+    // Create edit options for an individual post 'EditBoard' functionality to delete post
     if(props.edit){
         post = (
         <img className='post__image' onClick={handleEdit.bind(this, {...props})} src={imgSrc} alt={`${username}'s outfit.'`}/>)
@@ -25,7 +25,7 @@ const StreamItem = (props) => {
     }
 
     return(
-        <div className="testMore">
+        <div className='testMore'>
             {props.usernameHeader && 
             <h4><Link to={profileSrc}>{username}</Link></h4>
             }
@@ -35,7 +35,7 @@ const StreamItem = (props) => {
     )
 }
 
-// Toggle class to handle edit when inside "EditBoard" Component
+// Toggle class to handle edit when inside 'EditBoard' Component
 function handleEdit(props, evt){
 
     const target = evt.target;

@@ -12,8 +12,9 @@ const userSchema = new Schema({
     },
     notifications: [{
         action: String, 
-        username: String,
-        post_id: String,
+        _user: { type: Schema.Types.ObjectId, ref: 'user' }, 
+        _post: { type: Schema.Types.ObjectId, ref: 'post' },
+        _comment: { type: Schema.Types.ObjectId, ref: 'post' },
         viewed: Boolean
     }],
     following: [String],

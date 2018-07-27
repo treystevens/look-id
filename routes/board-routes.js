@@ -236,10 +236,12 @@ router.delete('/:boardid/delete', (req, res) => {
 
     models.Users.findOneAndUpdate(
         query,
-        { $pull: { 'boards': {'_id': req.params.boardid } } }
+        { $pull: { 'boards': {'_id': req.params.boardid } } },
+        { new: true }
     )
-    .then(() => {
-        res.json({success: true});
+    .then((data) => {
+        
+        res.json({boards: data.boards});  
     })
     .catch((err) => {
         console.log(err);

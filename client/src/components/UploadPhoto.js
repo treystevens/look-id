@@ -6,7 +6,7 @@ function handleFiles(evt) {
     let preview = document.querySelector('.preview');
     let files = evt.target.files;
     
-    preview.classList.add("previewPicture");
+    preview.classList.add('previewPicture');
 
     if(files && files[0]){
         let reader = new FileReader();
@@ -63,9 +63,9 @@ const UploadPhoto = (props) => {
     return(
         <div>
             <div className={containerClass} >
-                <img src={imgSrc} className='preview' />
+                <img src={imgSrc} className='preview' alt='post to be uploaded'/>
             </div>
-            <input type="file" className='photo-upload' name={inputName} onChange={handleFiles} accept=".jpg, .jpeg, .png"/>
+            <input type='file' className='photo-upload' name={inputName} onChange={handleFiles} accept='.jpg, .jpeg, .png'/>
             {showRemoveButton && 
             <button type='button' onClick={removeAvatar}>Remove Profile Picture</button>} 
         </div>

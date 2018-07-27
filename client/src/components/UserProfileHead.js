@@ -4,6 +4,7 @@ import Avatar from './Avatar';
 import Modal from './Modal';
 import { connect } from 'react-redux';
 import FollowButton from './FollowButton';
+import { prefixURL } from '../util/general';
 
 
 
@@ -55,9 +56,10 @@ class UserProfileHead extends Component{
     }
 
     render(){
-        
+            console.log(this.props)
         let uploadPost = false;
         let showFollowButton = true;
+        const url = prefixURL(this.props.data.website);
 
         // Checking to see if requested user is the same user logged in viewing their own profile
         // If so, include upload post feature and remove follow button
@@ -70,7 +72,7 @@ class UserProfileHead extends Component{
             <section>
                 <section style={{margin: '0 auto', width: '40%'}}>
                     
-                    <Avatar avatar={this.props.data.avatar}/>
+                    <Avatar avatar={this.props.data.avatar} username={this.props.urlParamUser}/>
                     <span>{this.props.urlParamUser}</span>
                     <div>
                         <a onClick={this.handleClick}>
@@ -87,7 +89,7 @@ class UserProfileHead extends Component{
 
                         <span>{this.props.data.bio}</span>
                     
-                    <a href={this.props.data.website}>{this.props.data.website}</a>
+                    <a href={url} target='_blank'>{url}</a>
 
                     {showFollowButton &&
                         <FollowButton followText={this.props.followText} iFollow={this.props.iFollow} urlParamUser={this.props.urlParamUser} reqUserAvatar={this.props.data.avatarUrl} user={this.props.data.username}  handleFollowerCount={this.props.handleFollowerCount}/>
@@ -95,11 +97,11 @@ class UserProfileHead extends Component{
                 </section>
 
                 {uploadPost && 
-                    <Link to="/profile/upload">Post a new photo</Link>
+                    <Link to='/profile/upload'>Post a new photo</Link>
                 }
 
                 {this.state.showModal &&
-                    <Modal source="ff" closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} handleFollowingCount={this.props.handleFollowingCount}/>
+                    <Modal source='ff' closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} handleFollowingCount={this.props.handleFollowingCount}/>
                 }
                 
             </section>

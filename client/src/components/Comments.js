@@ -76,8 +76,9 @@ class Comments extends Component{
     handleDeleteComment(commentIndex, componentKeyID){
 
         const currentState = this.state.comments;
+        // eslint-disable-next-line
         const updatedStateComment = currentState.filter((item, index) => {
-            if(index != commentIndex){
+            if(index !== commentIndex){
                 return item;
             }
         });
@@ -145,7 +146,7 @@ class Comments extends Component{
                         {userComments}
                     </div>
                 </div> 
-                <a href="/viewallcomments" onClick={this.handleClickViewAll}>{commentViewAction}</a>
+                <a href='/viewallcomments' onClick={this.handleClickViewAll}>{commentViewAction}</a>
             </section>
             
         )

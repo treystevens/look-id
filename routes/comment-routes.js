@@ -112,13 +112,12 @@ router.post('/', (req, res) => {
 router.post('/delete', (req, res) => {
     
     const query = { 'comments._id': req.body.id}; 
+    let masterUser;
+    let visitingUser;
 
     // See if the user wanted to delete is authorized to delete comment
     models.Posts.findOne(query, { 'comments.$._id': 1, username: 1 })
     .then((post) => {
-
-        let masterUser;
-        let visitingUser;
         
         if(req.user.username === post.username) masterUser = true;
         if(req.user.id == post.comments[0]._user) visitingUser = true;
@@ -131,14 +130,11 @@ router.post('/delete', (req, res) => {
             const getNotificationID = models.Users.findOne(
                 { 'notifications._comment': req.body.id  }, {'notifications.$': 1});
 
-            
-            if(masterUser === visitingUser) return pullComment; 
-            else{
                 return Promise.all([
                     pullComment,
                     getNotificationID
                 ]); 
-            }
+
         }
         else{
             return Promise.reject(new Error('You\'re not authorized to delete that comment.'));
@@ -146,16 +142,17 @@ router.post('/delete', (req, res) => {
         
     })
     .then((results) => {
-        
-        if(results.length){
-            const notificationID = results[1].notifications[0].id;
 
-            return models.Users.findOneAndUpdate(
-                { 'notifications._id': notificationID },
-                { $pull: { 'notifications': { id: notificationID} } }
-            );
-        } 
-        return Promise.resolve(results);
+        // If we're deleting our own comment, skip pulling notification
+        if(masterUser === visitingUser) return Promise.resolve(results); 
+
+        // Pull notification from user's notification's list
+        const notificationID = results[1].notifications[0].id;
+        return models.Users.findOneAndUpdate(
+            { 'notifications._id': notificationID },
+            { $pull: { notifications: { '_id': notificationID } } }
+        );
+        
         
     })
     .then(() => {

@@ -3,18 +3,7 @@ import AccountHead from './AccountHead';
 import { NavLink, Link } from 'react-router-dom';
 
 
-
-/* jshint ignore:start */
-
-
 class Header extends Component{
-    constructor(props){
-        super(props)
-
-        
-    }
-    // Have a state of wether desktop and mobile to pass to Hamburger menu and sign in/ sign up
-
 
     render(){
         return(
@@ -37,6 +26,3 @@ class Header extends Component{
 }
 
 export default Header;
-
-// Code here will be ignored by JSHint.
-/* jshint ignore:end */

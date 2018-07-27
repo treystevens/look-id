@@ -24,7 +24,7 @@ class Item extends Component{
 
     componentDidMount(){
         if(this.props.editPost){
-            console.log(this.props)
+            
             const urlPostID = this.props.urlParams.match.params.postid;
             const urlUser = this.props.username;
 
@@ -38,7 +38,6 @@ class Item extends Component{
                         items: data.post.items.items,
                     });
                 }
-   
             })
             .catch((err) => {
                 console.log(err);
@@ -146,6 +145,7 @@ class Item extends Component{
     handleRemoveStore = (itemIndex, storeIndex) => {
         const updatedItem  = {...this.state.items[itemIndex]}
 
+        // eslint-disable-next-line
         const updatedStores = updatedItem.stores.filter((store, index) => {
             if(index !== storeIndex) return store
         })
@@ -174,7 +174,7 @@ class Item extends Component{
             <div style={{display: 'flex', flexFlow: 'row wrap', position: 'relative', width: '30%', marginTop: '40px'}} key={`item${index}`}>
                 <div>
                     <label>Name:
-                        <input type="text" placeholder={`Item #${index + 1} name`} value={item.name}
+                        <input type='text' placeholder={`Item #${index + 1} name`} value={item.name}
                         onChange={this.handleInputChange(index, `name`)} />
                     </label>
                 </div>
@@ -183,17 +183,17 @@ class Item extends Component{
                     <label>Category:
                     <select value={this.state.value} onChange={this.handleInputChange(index, `category`)}>
                     <option disabled defaultValue> -- select an option -- </option>
-                        <option value="accesory">Accesory</option>
-                        <option value="blazer">Blazer</option>
-                        <option value="jacket">Jacket</option>
-                        <option value="jeans">Jeans</option>
-                        <option value="pants">Pants</option>
-                        <option value="shirt">Shirt</option>
-                        <option value="shoes">Shoes</option>
-                        <option value="shorts">Shorts</option>
-                        <option value="socks">Socks</option>
-                        <option value="shoes">Suit</option>
-                        <option value="shoes">Sweater</option>
+                        <option value='accesory'>Accesory</option>
+                        <option value='blazer'>Blazer</option>
+                        <option value='jacket'>Jacket</option>
+                        <option value='jeans'>Jeans</option>
+                        <option value='pants'>Pants</option>
+                        <option value='shirt'>Shirt</option>
+                        <option value='shoes'>Shoes</option>
+                        <option value='shorts'>Shorts</option>
+                        <option value='socks'>Socks</option>
+                        <option value='shoes'>Suit</option>
+                        <option value='shoes'>Sweater</option>
                     </select>
                        
                     </label>
@@ -201,18 +201,18 @@ class Item extends Component{
 
                 <div>
                     <label>Color:
-                        <input type="text" placeholder={`Item #${index + 1} color`} 
+                        <input type='text' placeholder={`Item #${index + 1} color`} 
                         onChange={this.handleInputChange(index, `color`)}/>
                     </label>
                 </div>
 
                 <div>
                     <label>Price:
-                        <input type="text" placeholder={`Item #${index + 1} price`} 
+                        <input type='text' placeholder={`Item #${index + 1} price`} 
                         onChange={this.handleInputChange(index, `price`)} />
                     </label>
                     <label>Thrifted:
-                        <input type="checkbox" onClick={this.handleThriftedChange(index)} />
+                        <input type='checkbox' onClick={this.handleThriftedChange(index)} />
                     </label>
                 </div>
 
@@ -224,12 +224,12 @@ class Item extends Component{
 
                 <div>
                     <label>Online Link:
-                        <input type="text" placeholder={`Item #${index + 1} online link`} 
+                        <input type='text' placeholder={`Item #${index + 1} online link`} 
                         onChange={this.handleInputChange(index, `link`)}  />
                     </label>
                 </div>
 
-                <button type="button" onClick={this.handleRemoveItem(index)}>X</button>
+                <button type='button' onClick={this.handleRemoveItem(index)}>X</button>
             
                 
             </div>
@@ -240,7 +240,6 @@ class Item extends Component{
 
         return(
             <section>
-                
                 {fields}
                 <AddItem handleAddItem={this.handleAddItem} />
             </section>

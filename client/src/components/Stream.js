@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import StreamItem from './StreamItem';
 
 
@@ -22,7 +22,7 @@ const Stream = (props) => {
 
     return(
         <div>
-            <div className="testMore">
+            <div className='testMore'>
                 {listPosts}
             </div>
         </div>

@@ -71,7 +71,7 @@ class EditProfile extends Component{
         .then( response => response.json() )
         .then((data) => {
             if(data.error) return Promise.reject(new Error(data.error));
-
+            
             this.setState({
                 showConfirmation: true,
                 actionSuccess: true,
@@ -79,10 +79,10 @@ class EditProfile extends Component{
             });
         }) 
         .catch((err) => {
-            
+
             this.setState({
                 showConfirmation: true,
-                statusMessage: err
+                statusMessage: err.message
             });
         });
     }
@@ -102,11 +102,11 @@ class EditProfile extends Component{
                     <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container'/>
 
                         <label>Bio:
-                            <input type="text" onChange={this.bioChange} className='edit__bio' name='bio'/>
+                            <input type='text' onChange={this.bioChange} className='edit__bio' name='bio'/>
                         </label>
 
                         <label>Website:
-                            <input type="text" onChange={this.websiteChange} className='edit__website' name='website'/>
+                            <input type='text' onChange={this.websiteChange} className='edit__website' name='website'/>
                         </label>
 
                         <button>Save</button>

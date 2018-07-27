@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { NavLink, Redirect } from 'react-router-dom'; 
-import Notifications from './Notifications';    
+import { NavLink } from 'react-router-dom'; 
+import NotificationIcon from './NotificationIcon';
 import { connect } from 'react-redux';
+import { getData } from '../util/serverFetch';
 
-
-/* jshint ignore:start */
 
 function mapStateToProps(state) {
     return {
@@ -15,40 +14,33 @@ function mapStateToProps(state) {
 
 class AccountHead extends Component{
     constructor(props){
-        super(props)
+        super(props);
         this.state = {
             shownContent: '',
             redirect: false
-        }
+        };
 
         this.unauthorized = this.unauthorized.bind(this);
         this.authorized = this.authorized.bind(this);
-        this.logoutHandler = this.logoutHandler.bind(this)
+        this.logoutHandler = this.logoutHandler.bind(this);
     }
 
     logoutHandler(evt){
         evt.preventDefault();
 
-        fetch('/auth/logout', {
-            method: 'GET',
-            credentials: 'include' 
-
-        })
-        .then((response) => {
-            console.log(response)
-            
-            return response.json()
-        })
+        const serverResponse = getData('/auth/logout');
+        
+        serverResponse
+        .then( response => response.json() )
         .then((data) => {
 
             if(!data.isAuth){
-                this.props.dispatch({type: 'LOGOUT'})
+                this.props.dispatch({type: 'LOGOUT'});
             }
         })
         .catch((err) => {
-            console.log(err)
-        })
-        
+            console.log(err);
+        });
     }
 
 
@@ -59,7 +51,7 @@ class AccountHead extends Component{
                 <ul className="testList">
                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <li><NavLink to={userLink}>{this.props.username}</NavLink></li>
-                    <Notifications />
+                    <NotificationIcon />
                     </div>
                     <li><NavLink to='/profile/edit'>Edit Profile</NavLink></li>
                     <li><NavLink to='/profile/settings'>Settings</NavLink></li>
@@ -106,6 +98,3 @@ class AccountHead extends Component{
 }
 
 export default connect(mapStateToProps)(AccountHead)
-
-// Code here will be ignored by JSHint.
-/* jshint ignore:end */

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Modal from './Modal';
 import { connect } from 'react-redux';
 
 
@@ -50,14 +49,14 @@ class BoardModal extends Component {
     render(){
         return(
             <div>
-                <div className="modal" onClick={this.props.closeModal}>
-                    <div className="modal-content">
-                        <form className="create-board" onSubmit={this.handleSubmit}>
-                        <button type="button" className='modal__close-btn' onClick={this.props.closeModal}>Close ×</button>
+                <div className='modal' onClick={this.props.closeModal}>
+                    <div className='modal-content'>
+                        <form className='create-board' onSubmit={this.handleSubmit}>
+                        <button type='button' className='modal__close-btn' onClick={this.props.closeModal}>Close ×</button>
                             <label>Board Name:
-                                <input type="text" name="new-board" onChange={this.handleBoardNameChange} value={this.state.value} />
+                                <input type='text' name='new-board' onChange={this.handleBoardNameChange} value={this.state.value} />
                             </label>
-                            <input type="button" value="Cancel" />
+                            <input type='button' value='Cancel' />
                             <button>Create Board</button>
                         </form>
                     </div>

@@ -25,7 +25,7 @@ class Post extends Component{
             postID: '',
             dataLoaded: false,
             showOtherPosts: false,
-            showPostOptions: false,
+            showOptions: false,
             redirect: false,
             notFound: false,
             showConfirmation: false,
@@ -35,8 +35,9 @@ class Post extends Component{
         };
 
         this.shuffle = this.shuffle.bind(this);
-        this.showPostOptions = this.showPostOptions.bind(this);
+        
         this.handleDeletePost = this.handleDeletePost.bind(this);
+        this.showOptions = this.showOptions.bind(this);
     }
 
     // Retrieve Posts, Comments, Other Posts and Items
@@ -108,14 +109,22 @@ class Post extends Component{
         }
         return array;
     }
-        
-    // Click event for post options
-    showPostOptions(evt){
-        evt.preventDefault();
 
-        this.setState({
-            showPostOptions: true
-        });
+    // Show Edit options
+    showOptions(){
+
+        const { showOptions } = this.state;
+
+        if(showOptions){
+            this.setState({
+                showOptions: false
+            });
+        }
+        else{
+            this.setState({
+                showOptions: true
+            });
+        }
     }
 
     // Delete a post
@@ -148,7 +157,7 @@ class Post extends Component{
     }
 
     render(){
-
+        
         let clothingItems;
         let otherPosts;
         
@@ -158,9 +167,9 @@ class Post extends Component{
             username: urlUser,
             postID: urlPostID
         };
-
+        console.log(urlUser)
         const authorized = this.props.username === urlUser && this.props.isAuth;
-        const {redirect, notFound} = this.state;
+        const { redirect, notFound, showOptions } = this.state;
 
         if(this.state.dataLoaded && this.state.items) {
             clothingItems = this.state.items.map((item, index) => {
@@ -184,10 +193,19 @@ class Post extends Component{
             <div>
                 <PageHead pageHead={this.state.username} post={true}/>
                 {authorized &&
+                
                 <div>
-                    <Link to={`/user/${urlUser}/${urlPostID}/edit`}>Edit Post</Link>
-                    <h5 onClick={this.handleDeletePost}>Delete Post!</h5>
+                    <span onClick={this.showOptions}>Edit</span>
+                    <div>
+                        {showOptions &&
+                        <ul>
+                            <Link to={`/user/${urlUser}/${urlPostID}/edit`}>Edit Post</Link>
+                            <li onClick={this.handleDeletePost}>Delete Post</li>
+                            
+                        </ul>
+                        }
                     </div>
+                </div>
                 }
 
                 {this.state.showConfirmation &&

@@ -68,7 +68,8 @@ router.post('/', (req, res) => {
             viewed: false,
             _user: req.user.id,
             _post: post.id,
-            _comment: lastCommentID
+            _comment: lastCommentID,
+            comment: req.body.newComment.comment
 
         };
         const pushNotification = models.Users.update(

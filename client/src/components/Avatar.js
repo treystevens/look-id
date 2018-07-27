@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { getData } from '../util/serverFetch';
+import React from 'react';
 
 
 const Avatar = (props) => {

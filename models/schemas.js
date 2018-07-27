@@ -15,6 +15,7 @@ const userSchema = new Schema({
         _user: { type: Schema.Types.ObjectId, ref: 'user' }, 
         _post: { type: Schema.Types.ObjectId, ref: 'post' },
         _comment: { type: Schema.Types.ObjectId, ref: 'post' },
+        comment: String,
         viewed: Boolean
     }],
     following: [String],

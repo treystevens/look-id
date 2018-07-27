@@ -119,9 +119,9 @@ class EditPost extends Component{
                 {this.state.showConfirmation &&
                         <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
                     }
-                <img src={this.state.image} />
+                <img src={this.state.image} alt={`${urlUser}'s outfit post'`}/>
                 <form onSubmit={this.handleSubmit}>
-                    <textarea placeholder='Write a caption...' name="usercaption" className="post__caption" onChange={this.captionChange}>
+                    <textarea placeholder='Write a caption...' name='usercaption' className='post__caption' onChange={this.captionChange}>
                     </textarea>
                     <Item editPost={true} urlParams={this.props.urlParams} addItemToParentState={this.handleAddItemToState}/>
                     <button>Save</button>

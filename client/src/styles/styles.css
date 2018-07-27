@@ -199,3 +199,7 @@ li{
 .post__image--edit{
     transform: scale(.5);
 }
+
+.notifications__light{
+    background-color: green
+}

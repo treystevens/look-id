@@ -85,20 +85,20 @@ class Login extends Component{
         }
 
         return(
-            <div className="container  img-spread1" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                <div className="flex-container" style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                    <form className="test-form" autoComplete="off" onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+            <div className='container  img-spread1' style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                <div className='flex-container' style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                    <form className='test-form' autoComplete='off' onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
 
                     {this.state.showConfirmation &&
                         <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
                     }
                         <label>Username:
-                            <input type="text" placeholder="Username" name="username" onChange={this.usernameChange}required  className="userfield"/>
+                            <input type='text' placeholder='Username' name='username' onChange={this.usernameChange}required  className='userfield'/>
                         </label>
 
                     
                         <label>Password:
-                            <input type="password" placeholder="Password" name="password" onChange={this.passwordChange} required className="userfield"/>
+                            <input type='password' placeholder='Password' name='password' onChange={this.passwordChange} required className='userfield'/>
                         </label>
                         
                         <button>Login</button>

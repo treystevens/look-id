@@ -115,50 +115,70 @@ router.post('/signup', [
     }
 
     // Place the new user into the database
-    else{
+    
 
-        // Information user filled out form with
-        const user = {
-            username: req.body.username,
-            password: req.body.password
+    // Information user filled out form with
+    const user = {
+        username: req.body.username,
+        password: req.body.password
+    };
+    let createdUser;
+    
+    // Hash password and store into database
+    bcrypt.hash(user.password, saltRounds)
+    .then( (hash) => {
+        
+        user.password = hash;
+
+        // Create new user with hashed password into Users Collection
+        return models.Users.create(user);
+    })
+    .then((newUser) => {
+    
+        createdUser = newUser;
+
+        // Create a 'feed' for the user - people that follow user's post will go here
+        return models.Feed.create({username: createdUser.username});
+    })
+    .then(() => {
+
+        // Create a new notification
+        const notification = {
+            action: 'WELCOME',
+            viewed: false,
+            comment: `Welcome to LookID, ${user.username}!`
         };
-        let createdUser;
-        
-        // Hash password and store into database
-        bcrypt.hash(user.password, saltRounds)
-        .then( (hash) => {
+
+        return models.Users.update(
+            { username: user.username }, 
+            { $push: 
+                { 
+                    notifications: {
+                        $each: [notification],
+                        $position: 0
+                    } 
+                } 
+            });
+      
+    })
+    .then(() => {
+        // Authenticate new user
+        req.login(createdUser, (err) => {
+            if (err) { 
+                // return next(err); 
+                Promise.reject(new Error('Had trouble logging you in. Please log in to verify that your account was created.'));
+            }
             
-            user.password = hash;
-
-            // Create new user with hashed password into Users Collection
-            return models.Users.create(user);
-        })
-        .then((newUser) => {
-        
-            createdUser = newUser;
-
-            // Create a 'feed' for the user - people that follow user's post will go here
-            return models.Feed.create({username: createdUser.username});
-        })
-        .then(() => {
-
-            // Authenticate new user
-            req.login(createdUser, (err) => {
-                if (err) { 
-                    // return next(err); 
-                    Promise.reject(new Error('Had trouble logging you in. Please log in to verify that your account was created.'));
-                }
-               
-                res.json({user: createdUser});
-                
-            });                
-        })
-        .catch((err) => {
-            res.status(500).json({ error: err });
-            console.log(err);
-        });
+            res.json({user: createdUser});
+            
+        });          
+    })
+    .catch((err) => {
+        res.status(500).json({ error: err });
+        console.log(err);
+    });
           
-    }
+    
 });
 
 router.get('/logout', (req, res) => {

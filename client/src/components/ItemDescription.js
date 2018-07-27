@@ -1,18 +1,12 @@
 import React from 'react';
+import { prefixURL } from '../util/general';
+
+
+
 
 const ItemDescription = (props) => {
 
-    const prefix = 'https://';
-    let itemLink = props.item.link;
-
-
-    // prepend https to link if not present
-    if(itemLink){
-        if (!props.item.link.match(/^[a-zA-Z]+:\/\//))
-        {
-        itemLink = `${prefix}${props.item.link}`;
-        }
-    }
+    const itemLink = prefixURL(props.item.link);
 
     // Map out the stores ( they are passed as an array of stores )
     const stores = props.item.stores.map((store, index) => {

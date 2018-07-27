@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Avatar from './Avatar';
 
 const CommentRow = (props) => {
 
@@ -36,7 +37,7 @@ const CommentRow = (props) => {
         <div className="comment-row" style={{width: '100%'}}>
 
         <Link to={`/user/${props.comment.username}`}>
-            <img className="user-avatar" src={avatar}/>
+            <Avatar avatar={avatar} username={props.comment.username} />
         </Link>
 
             <div>

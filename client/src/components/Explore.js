@@ -4,6 +4,8 @@ import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
 import Search from './Search';
 import ConfirmAction from './ConfirmAction';
+import { connect } from 'react-redux';
+
 
 class Explore extends Component{
     constructor(props){
@@ -35,6 +37,9 @@ class Explore extends Component{
 
         window.addEventListener('scroll', this.onScroll);
 
+        // Have NotificationIcon in AccountHead see if there's new notifications
+        this.props.dispatch({ type: 'CHECK_NOTIFICATION'});
+
         const{ endPoint, isSearching } = this.props;
         const { scrollCount } = this.state;
 
@@ -53,6 +58,7 @@ class Explore extends Component{
     }
 
     getParameterByName(name, url) {
+        // eslint-disable-next-line
         name = name.replace(/[\[\]]/g, '\\$&');
         var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
             results = regex.exec(url);
@@ -186,7 +192,7 @@ class Explore extends Component{
 
     }
 
-    // Binds our scroll event handler
+    // for infinite scroll
     onScroll(){
 
         const  { error, isLoading, hasMore } = this.state;
@@ -248,4 +254,10 @@ class Explore extends Component{
 }
 
 
-export default Explore
+function mapStateToProps(state){
+    return{
+        notifications: state.notifications
+    }
+}
+
+export default connect(mapStateToProps)(Explore);

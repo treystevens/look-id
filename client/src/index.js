@@ -6,11 +6,9 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
 
-/* jshint ignore:start */
-
 const intialState = {
     isAuth: false,
-    notification: '',
+    notifications: 0,
     username: '',
 };
 
@@ -28,13 +26,10 @@ function reducer(state = intialState, action) {
         return {
             isAuth: false
         }
-        case 'COMMENT':
+        case 'CHECK_NOTIFICATION':
         return {
-            notification: action.text
-        };
-        case 'LIKED':
-        return {
-            notification: action.text
+            ...state,
+            notifications: state.notifications + 1
         };
         default:
             return state;
@@ -52,6 +47,3 @@ ReactDOM.render(
 
     document.getElementById('root')
     );
-
-
-/* jshint ignore:end */

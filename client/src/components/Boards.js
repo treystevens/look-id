@@ -20,7 +20,8 @@ class Boards extends Component{
             statusMessage: '',
             showConfirmation: false,
             showAccountVerify: false,
-            showCreateBoard: false
+            showCreateBoard: false,
+            showOptions: false
         };
 
         this.handleClickCreateBoard = this.handleClickCreateBoard.bind(this);
@@ -29,6 +30,7 @@ class Boards extends Component{
         this.handleClickBoard = this.handleClickBoard.bind(this);
         this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
         this.showErrorStatus = this.showErrorStatus.bind(this);
+        this.showOptions = this.showOptions.bind(this);
         
 
         // Add key listener on window to close modal with 'esc' key
@@ -149,6 +151,23 @@ class Boards extends Component{
         });
     }
 
+    // Show Edit options
+    showOptions(){
+
+        const { showOptions } = this.state;
+
+        if(showOptions){
+            this.setState({
+                showOptions: false
+            });
+        }
+        else{
+            this.setState({
+                showOptions: true
+            });
+        }
+    }
+
     // For adding an image to the board from a post
     handleClickBoard(evt){
         
@@ -196,7 +215,12 @@ class Boards extends Component{
         serverResponse
         .then(response => response.json())
         .then((data) => {
+            
             if(data.error) return Promise.reject(new Error(data.error));
+
+            this.setState({
+                boards: data.boards
+            });
         })
         .catch((err) => {
             this.showErrorStatus(err);
@@ -204,19 +228,22 @@ class Boards extends Component{
     }
 
 
+
     render(){
-        const { showAccountVerify, showConfirmation, showCreateBoard } = this.state;
+        const { showAccountVerify, showConfirmation, showCreateBoard, showOptions } = this.state;
 
         const userBoards = this.state.boards.map((board) => {
             return (
             <article key={board.board_id}>
-                <span>...</span>
+                <span onClick={this.showOptions}>...</span>
                 <div>
+                    {showOptions &&
                     <ul>
                         <li>Edit Board</li>
                         <li onClick={this.handleDeleteBoard.bind(this, {board})}>Delete Board</li>
                         
                     </ul>
+                    }
                 </div>
                 <BoardItem key={board.board_id} board={board} addToBoard={this.props.addToBoard}  urlParams={this.props.urlParams} handleClickBoard={this.handleClickBoard}/>
             </article>

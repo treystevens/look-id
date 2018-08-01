@@ -3,9 +3,12 @@ import Stream from './Stream';
 import PageHead from './PageHead';
 import { getData } from '../util/serverFetch';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import NotFound from './NotFound';
-
+import { goDelete } from '../util/serverFetch';
+import Button from './Button';
+import ConfirmAction from './ConfirmAction';
+import './Edit.css';
 
 class Board extends Component{
     constructor(props){
@@ -22,22 +25,39 @@ class Board extends Component{
             showConfirmation: false,
             statusMessage: '',
             actionSuccess: false,
-            notFound: false
+            notFound: false,
+            showOptions: false,
+            boardID: '', 
+            redirect: false
         };
 
         this.loadData = this.loadData.bind(this);
         this.onScroll = this.onScroll.bind(this);
+        this.handleDeleteBoard = this.handleDeleteBoard.bind(this);
+        this.showOptions = this.showOptions.bind(this);
+        this.escEditOptions = this.escEditOptions.bind(this);
     }
 
     // Get Board data
     componentDidMount(){
         window.addEventListener('scroll', this.onScroll);
+        window.addEventListener('click', this.escEditOptions);
         this.loadData();  
     }
 
     // Remove event listener
     componentWillUnmount(){
         window.removeEventListener('scroll', this.onScroll);
+        window.removeEventListener('click', this.escEditOptions);
+    }
+
+    // Close edit options with click 
+    escEditOptions(evt){
+        if(this.state.showOptions && !evt.target.classList.contains('edit-option')&& !evt.target.classList.contains('btn')){
+            this.setState({
+                showOptions: false
+            });
+        }
     }
 
     loadData(){
@@ -48,14 +68,15 @@ class Board extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
-
+            
             // 404 Not Found
             if(data.error) return Promise.reject(new Error(data.error));
 
             this.setState({
                 streamData: streamData.concat(data.stream),
                 boardName: data.boardName,
-                hasMore: data.hasMore
+                hasMore: data.hasMore,
+                boardID: data.underscoreID
             });
         })
         .catch((err) => {
@@ -92,22 +113,83 @@ class Board extends Component{
         }
     }
 
+    // Show Edit options
+    showOptions(){
+        
+
+        const { showOptions } = this.state;
+
+        if(showOptions){
+            this.setState({
+                showOptions: false,
+            });
+        }
+        else{
+            this.setState({
+                showOptions: true, 
+            });
+        }
+    }
+
+    // Delete board - Click event
+    handleDeleteBoard(boardID){
+
+
+        const serverResponse = goDelete(`/board/${boardID}/delete`);
+
+        serverResponse.then(response => response.json())
+        .then((data) => {
+
+            if(data.error) return Promise.reject(new Error(data.error));
+
+            this.setState({
+                redirect: true
+            });
+        })
+        .catch((err) => {
+            this.setState({
+                showConfirmation: true,
+                statusMessage: err.message
+            });
+            console.log(err);
+        }) ;
+    }
+
     render(){
 
         const urlBoardID = this.props.urlParams.match.params.boardid;
-        const { notFound } = this.state;
+        const { notFound, showOptions, boardID, redirect } = this.state;
+        
 
         if(notFound) return <NotFound />
 
+        // Redirect when deleting a board
+        if(redirect) return <Redirect to='/boards' />
+
         return(
-            <section>
+            <section className='container'>
             
-                    <div>
-                        <Link to={`/boards/${urlBoardID}/edit`}>Edit Board</Link>
-                        {/* <button type='button' onClick={}>Delete Board</button> */}
-                    </div>
                 
                 <PageHead pageHead={this.state.boardName} />
+
+                {this.state.showConfirmation &&
+                                <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
+                            }
+
+                    <div className='edit-container'>
+                        <Button text='Edit' dummy={true} onClick={this.showOptions}/>
+                            {showOptions &&
+                            <div className='edit-dropdown'>
+                                <ul className='edit-options'>
+                                    <Link to={`/boards/${urlBoardID}/edit`}>
+                                        <li className='edit-option'>Edit Board</li>
+                                    </Link>
+                                    <li onClick={this.handleDeleteBoard.bind(this, boardID)} className='edit-option  edit-option--caution'>Delete Board</li>
+                                </ul>
+                            </div>
+                            }
+                        
+                    </div>
                 <Stream sourceFetch='stream' stream={this.state.streamData} />
             </section>
         )

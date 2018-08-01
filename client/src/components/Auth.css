@@ -1,0 +1,36 @@
+
+
+
+.img-spread1{
+    background: url('../assets/spread2.jpg');
+    background-size: cover;
+    height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    
+}
+
+.img-spread2{
+    background: url('../assets/spread1.jpg');
+    background-size: cover;
+    height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.auth-verify{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+}
+
+.auth-btn{
+    width: 200px;
+    margin: 10px 0;
+}

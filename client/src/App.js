@@ -18,7 +18,6 @@ import PrivateRoute from './components/PrivateRoute';
 import Explore from './components/Explore';
 import EditBoard from './components/EditBoard';
 import NotFound from './components/NotFound';
-import Search from './components/Search';
 import Notifications from './components/Notifications';
 
 // React Redux
@@ -30,12 +29,33 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 // Util functions
 import { getData } from './util/serverFetch';
+import MBHeader from './components/MBHeader';
 
 
 
 class App extends Component{
+  constructor(props){
+    super(props);
+
+    this.state = {
+      isMobile: false
+    };
+
+  }
+
 
   componentDidMount(){
+
+
+    // Check if mobile
+    const isMobile = window.matchMedia("only screen and (max-width: 768px)");
+    
+    if (isMobile.matches) {
+      this.setState({
+        isMobile: true
+      });
+    }
+
 
     const serverResponse = getData('/auth');
     
@@ -54,14 +74,18 @@ class App extends Component{
 
 
   render(){
+    console.log(this.props)
+
+    const { isMobile } = this.state;
+
+    const header = isMobile ?  <MBHeader /> : <Header />
 
     return(
       <Router basename='/'>
-          <div className='container'>
-            <Header />
+          <div>
+            {header}
             <Switch>
-              <Route exact path='/' render={ (match) => <Search key={match.match.path} />} />
-              <Route exact path='/explore' render={ (match) => <Explore endPoint='Explore' key={match.match.path}/>} />
+              <Route exact path='/' render={ (match) => <Explore key={match.match.path} endPoint='Explore'/>} />
               <Route path='/search' render={ (match) => <Explore key={match.match.path} urlParams={match} isSearching={true}/>} />
               <Route exact path='/feed' render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>} />
               <Route exact path='/user/:user' render={ (match) => <Profile urlParams={match} key={match.match.params.user} />} />

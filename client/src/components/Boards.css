@@ -1,0 +1,105 @@
+.boards{
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row wrap;
+    margin-top: 20px;
+}
+
+
+.board__create{
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 5px #a1a1a1;
+}
+
+.board__create-header:hover{
+    text-decoration: underline;
+    color: #8d8d8d;
+}
+
+
+.board__create:hover{
+    background-color: rgb(218, 218, 218)
+}
+
+.board__create:hover .add-item{
+    fill: rgb(255, 255, 255);
+}
+
+.board__create:hover + .board__create-header{
+    text-decoration: underline;
+    color: #8d8d8d;
+}
+
+
+.add-item{
+    background-color: none;
+    width: 100px;
+    height: 100px;
+    fill: #8D8D8D;
+    
+}
+
+
+.board{
+
+    position: relative;
+    width: 30%;
+    height: 400px;
+    flex: 0 0 30%;
+
+}
+
+
+.board__edit{
+    position: absolute;
+    top: -30px;
+    right: 0;
+}
+
+.board__edit-options{
+    position: absolute;
+    background-color: white;
+    z-index: 1;
+    color: white;
+    right: 0;
+    border: 1px solid #8D8D8D;
+    border-radius: 5px;
+}
+
+/* Extract this */
+.board__edit-option--danger{
+    background-color: rgb(219, 33, 42);
+}
+
+
+
+.boardContainer{
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row wrap;
+    position: relative;
+}
+
+
+.board__display{
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    background-size: cover;
+    border-radius: 5px;
+    background-color: #dcdcdc;
+    box-shadow: 0 1px 5px #a1a1a1;
+}
+
+
+
+@media only screen and (max-width: 768px){
+    .board{
+        flex: 0 0 100%;
+        width: 100%;
+        margin-bottom: 40px;
+    }
+}

@@ -1,13 +1,18 @@
 import React from 'react';
+import Button from './Button';
 
 
-const AccountVerify = (props) => {
+const AccountVerify = () => {
 
 
     return(
-        <div>
-            <a href="/login">Login</a>
-            <a href="/register">Sign Up</a>
+        <div className='auth-verify'>
+            <a href="/login">
+                <Button dummy={true} text='Login' addClass='auth-btn'/>
+            </a>
+            <a href="/signup">
+                <Button dummy={true} text='Sign Up' addClass='auth-btn'/>
+            </a>
         </div>
     )
 }

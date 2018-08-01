@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import './Modal.css';
+import InputField from './InputField';
+import Button from './Button';
+import './Modal.css';
+import './Button.css';
 
 
 class BoardModal extends Component {
@@ -13,16 +18,7 @@ class BoardModal extends Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleBoardNameChange = this.handleBoardNameChange.bind(this);
-        
-
-        // Add key listener on window to close modal with 'esc' key
-        window.addEventListener('keydown', (evt) => {
-            if(this.state.showModal && evt.keyCode === 27){
-                this.setState({
-                    showModal: false
-                });
-            }
-        });
+    
     }
 
 
@@ -50,15 +46,23 @@ class BoardModal extends Component {
         return(
             <div>
                 <div className='modal' onClick={this.props.closeModal}>
-                    <div className='modal-content'>
-                        <form className='create-board' onSubmit={this.handleSubmit}>
-                        <button type='button' className='modal__close-btn' onClick={this.props.closeModal}>Close ×</button>
-                            <label>Board Name:
-                                <input type='text' name='new-board' onChange={this.handleBoardNameChange} value={this.state.value} />
-                            </label>
-                            <input type='button' value='Cancel' />
-                            <button>Create Board</button>
-                        </form>
+                    <div className='modal-content  modal-content--small'>
+                    <Button dummy='true' text='Close x' addClass='btn__close--modal' onClick={this.props.closeModal}/>
+                        <div className='modal-overflow-content  container'>
+                            <form className='modal__create-board  form' onSubmit={this.handleSubmit} autoComplete='off'>
+                    
+            
+
+                                <InputField label='Board Name:' type='text' name='new-board' onChange={this.handleBoardNameChange} value={this.state.value} size='med'/>
+
+                                <div className='btn-container'>
+                                    <Button dummy='true' text='Cancel' onClick={this.props.closeModal} addClass='btn__cancel--modal btn--med' />
+                                    <Button text='Create Board' addClass='btn--update btn--med' />
+                                </div>
+
+                                
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

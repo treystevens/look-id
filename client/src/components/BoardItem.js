@@ -16,15 +16,15 @@ const BoardItem = (props) => {
     return(
         
         
-         <div className="board">
+         <div >
              {props.addToBoard ? (
                  <div onClick={props.handleClickBoard}>
-                    <div className="boardImg" style={ { backgroundImage:`url(${backgroundImg}`, backgroundColor: 'gray'} } data-board-id={props.board.board_id}></div>
+                    <div className='board__display' style={ { backgroundImage:`url(${backgroundImg}`} } data-board-id={props.board.board_id}></div>
                     <h1>{props.board.name}</h1>
                 </div>
                 ) : (
                 <Link to={boardLink}>
-                    <div className="boardImg" style={ { backgroundImage:`url(${backgroundImg}`, backgroundColor: 'gray'} }data-board-id={props.board.board_id}></div>
+                    <div className='board__display' style={ { backgroundImage:`url(${backgroundImg}`} }data-board-id={props.board.board_id}></div>
                     <h1>{props.board.name}</h1>
                 </Link>
                 )}

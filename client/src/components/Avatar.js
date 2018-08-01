@@ -1,14 +1,16 @@
 import React from 'react';
+import './Avatar.css';
 
 
 const Avatar = (props) => {
 
     let imgAlt = `${props.username}'s profile picture'`;
-    
+    let avatarContainer = 'avatar-container  up-avatar';
+    if(props.addClass) avatarContainer += ` ${props.addClass}`;
 
     return(
-        <div style={{width: '80px', height: '80px', borderRadius: '50%', overflow:'hidden'}}>
-            <img src={props.avatar} alt={imgAlt} className='avatar' style={{width: '100%'}}/>
+        <div className={avatarContainer}>
+            <img src={props.avatar} alt={imgAlt} className='avatar'/>
         </div>
     )
 }

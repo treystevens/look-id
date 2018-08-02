@@ -37,7 +37,7 @@ class Profile extends Component{
 
         window.addEventListener('scroll', this.onScroll);
 
-        // Have NotificationIcon in AccountHead see if there's new notifications
+        // Have NotificationIcon in AccountNav see if there's new notifications
         this.props.dispatch({ type: 'CHECK_NOTIFICATION'});
 
         this.loadData();
@@ -159,7 +159,7 @@ class Profile extends Component{
 
         if(notFound) return <NotFound />
         return(
-            <section>
+            <section className='container'>
                 <PageHead pageHead='Profile' />
                 <UserProfileHead urlParamUser={user} data={this.state.userProfileHead} iFollow={this.state.iFollow} handleClickFollowText={this.handleClickFollowText} handleFollowerCount={this.handleFollowerCount} handleFollowingCount={this.handleFollowingCount}/>
                 <Stream sourceFetch='profile' stream={this.state.streamData}/>

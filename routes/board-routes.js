@@ -91,7 +91,7 @@ router.post('/addpost', (req, res) => {
         }
 
         // The particular image is already inside the board the user would like to add to
-        return Promise.reject(new Error('Post already exists inside board.'));
+        return Promise.reject(`This post already exists inside "${req.body.boardName}"`);
     })
     .then(() => {
 
@@ -128,6 +128,7 @@ router.get('/:boardid/page/:page', (req, res) => {
         const skipNum = req.params.page * 10;
         const boardName = response.boards[0].name;
         const posts = response.boards[0].posts.splice(skipNum, 10);
+        const underscoreID = response.boards[0]._id;
         let hasMore;
 
         if(posts.length < 10) hasMore = false;
@@ -135,7 +136,7 @@ router.get('/:boardid/page/:page', (req, res) => {
             hasMore = true;
         }
 
-        res.json({stream: posts, boardName: boardName, hasMore: hasMore});
+        res.json({stream: posts, boardName: boardName, hasMore: hasMore, underscoreID: underscoreID});
     })
     .catch((err) => {
         res.status(404).json({error: err});
@@ -231,7 +232,7 @@ router.delete('/:boardid/delete', (req, res) => {
     const query = {
         'boards._id': req.params.boardid
     };
-
+    
     if(!req.isAuthenticated()) res.status(402);
 
     models.Users.findOneAndUpdate(

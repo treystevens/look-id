@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { getData } from '../util/serverFetch';
 import Avatar from './Avatar';
-import { Link } from 'react-router-dom';
 import PageHead from './PageHead';
 import FollowButton from './FollowButton';
+import { getData } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import './FF.css';
  
 class FF extends Component{
 
@@ -53,24 +54,26 @@ class FF extends Component{
         
             users = this.state.users.map((user, index) => {
                 return(
-                        <section key={user._id}>
-                            <Link to= {`/user/${user.username}`}>
-                            <Avatar avatar={user.profile.avatar} username={user.username}/></Link>
-                            <span>{user.username}</span>
+                        <div className='ff-container' key={user._id}>
+                            <div className='ff-user'>
+                                <Link to= {`/user/${user.username}`}>
+                                <Avatar avatar={user.profile.avatar} username={user.username}  addClass='avatar-container--small'/></Link>
+                                <span className='ff-user__username'>{user.username}</span>
+                            </div>
 
                             {this.props.username !== user.username &&
                                 <FollowButton user={user.username} iFollow={user.iFollow} followAction={this.props.followAction} index={index} handleRemoveFollowing={this.handleRemoveFollowing} urlParamUser={this.props.urlParamUser} myUsername={this.props.username} handleFollowingCount={this.props.handleFollowingCount}/>
                             }
-                        </section>
+                        </div>
                 )
             })
         }    
 
         return(
-                <div>
+                <section className='container'>
                     <PageHead pageHead={this.props.followAction}/>
                     {users}
-                </div>
+                </section>
         )
     }
 }

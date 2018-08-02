@@ -5,6 +5,9 @@ import { Redirect, Link } from 'react-router-dom';
 import ConfirmAction from './ConfirmAction';
 import { connect } from 'react-redux';
 import NotFound from './NotFound';
+import Button from './Button';
+import PageHead from './PageHead';
+import './Edit.css';
 
 class EditPost extends Component{
     constructor(props){
@@ -41,7 +44,7 @@ class EditPost extends Component{
                 caption: data.post.caption,
             }, () => {
                 // Set caption input to value stored in database
-                const postCaption = document.querySelector('.post__caption');
+                const postCaption = document.querySelector('.user-caption');
                 postCaption.value = this.state.caption;
             }); 
         })
@@ -114,19 +117,38 @@ class EditPost extends Component{
         }
 
         return(
-            <section>
-                <Link to={`/user/${urlUser}/${urlPostID}`}>Back to Post</Link>
-                {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+            <section className='container'>
+                <PageHead pageHead='Update Post'/>
+                
+                    <Link to={`/user/${urlUser}/${urlPostID}`} className='edit__back'>
+                    <svg className='edit__caret' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512" height='30px' width='30px'><path d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"/></svg>
+                    Back to Post</Link>
+                
+                <form onSubmit={this.handleSubmit} className='user-post' autoComplete='off'>
+                    {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                     }
-                <img src={this.state.image} alt={`${urlUser}'s outfit post'`}/>
-                <form onSubmit={this.handleSubmit}>
-                    <textarea placeholder='Write a caption...' name='usercaption' className='post__caption' onChange={this.captionChange}>
-                    </textarea>
-                    <Item editPost={true} urlParams={this.props.urlParams} addItemToParentState={this.handleAddItemToState}/>
-                    <button>Save</button>
+                    <div className='edit-container'>
+                        <Button text='Update Post' addClass='btn--update'/>
+                    </div>
+                    <div className='upload-post__flex'>
+                        <div className='upload-photo-container'>
+                            <div className='photo-container' >
+                                <img src={this.state.image} alt={`${urlUser}'s outfit post'`}  className='preview'/>
+                            </div>           
+                        </div>
+                        <div className='upload-post__info'>
+                            <textarea placeholder='Write a caption...' name='usercaption' className='user-caption' onChange={this.captionChange}>
+                            </textarea>
+                            <Item editPost={true} urlParams={this.props.urlParams} addItemToParentState={this.handleAddItemToState}/>
+                        </div>
+                    </div>
+                    
                 </form>
             </section>
+
+
+            
         )
     }
 }

@@ -3,6 +3,8 @@ import { getData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
 import PageHead from './PageHead';
 import NotificationItem from './NotificationItem';
+import './FF.css';
+import './Notifications.css';
 
 
 class Notifications extends Component{
@@ -64,7 +66,7 @@ class Notifications extends Component{
         .then(response => response.json())
         .then((data) => {
             if(data.error) return Promise.reject(new Error(data.error));
-
+            
             this.setState({
                 notifications: notifications.concat(data.notifications),
                 hasMore: data.hasMore,
@@ -116,13 +118,15 @@ class Notifications extends Component{
         });
 
         return(
-            <section style={{display: 'flex', flexDirection:'column'}}>
+            <section className='container'>
                 <PageHead pageHead='Notifications' />
+                <section className='notifications'>
 
-                {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
-                    }
-                { showNotifications }
+                    {this.state.showConfirmation &&
+                            <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
+                        }
+                    { showNotifications }
+                </section>
             </section>
         )
     }

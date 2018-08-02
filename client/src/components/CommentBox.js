@@ -29,7 +29,7 @@ class CommentBox extends Component{
 
     // Close Modal (Login/Sign Up)
     closeModal(evt){
-        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
+        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showModal: false
             });
@@ -127,14 +127,14 @@ class CommentBox extends Component{
         const blankSubmitMessage = 'Please enter a message';
 
         return(
-                <div style={{width: '100%'}}>
+                <div className='comment-form-container'>
                     <form onSubmit={this.handleSubmit} style={{display: 'flex', 'flexDirection': 'column'}}>
 
                         {this.state.blankSubmit &&
                         <span>{blankSubmitMessage}</span>}
 
-                        <textarea className="comment__box" cols="50" rows="3" onChange={this.handleComment} name='comment'></textarea>
-                        <button>Submit Comment</button>
+                        <textarea className="comment__box" onChange={this.handleComment} name='comment'></textarea>
+                        <button className='comment__btn'>Add Comment</button>
                     </form>
                     {this.state.showModal && <Modal source='accountVerify' closeModal={this.closeModal}/>}
                 </div>

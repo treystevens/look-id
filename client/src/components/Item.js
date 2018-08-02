@@ -1,9 +1,11 @@
 import React, { Component } from 'react';   
 import Stores from './Stores';
-import AddItem from './AddItem';
+import CreateElem from './CreateElem';
 import { getData } from '../util/serverFetch';
+import InputField from './InputField';
+import { connect } from 'react-redux';
+import './Item.css';
 
-/* jshint ignore:start */
 
 class Item extends Component{
     constructor(props){
@@ -28,11 +30,11 @@ class Item extends Component{
             const urlPostID = this.props.urlParams.match.params.postid;
             const urlUser = this.props.username;
 
-            const serverResponse = getData(`/user/${urlUser}/${urlPostID}`);
+            const serverResponse = getData(`/user/${urlUser}/${urlPostID}/edit`);
 
             serverResponse.then(response => response.json())
             .then((data) => {
-
+                console.log(data, `the returned data`);
                 if(data.post.items){
                     this.setState({
                         items: data.post.items.items,
@@ -63,6 +65,7 @@ class Item extends Component{
 
     // Handle the Thrifted Checkbox state
     handleThriftedChange = (index) => (evt) => { 
+        console.log('heree thirfted')
         const newItems = this.state.items.map((item, itemIndex) => {
             if( index !== itemIndex) return item;
             return { ...item, thrifted: evt.target.checked };
@@ -76,7 +79,7 @@ class Item extends Component{
     // Adding new item
     handleAddItem = () => {
 
-        if(this.state.items.length > 5){
+        if(this.state.items.length > 4){
             return 1;
         }
 
@@ -127,6 +130,9 @@ class Item extends Component{
 
         const updatedItem = {...this.state.items[index]};
         
+        // Allow up to 3 stores
+        if(updatedItem.stores.length > 2) return 1;
+        
         const addingStore = updatedItem.stores.concat('')
         
         updatedItem.stores = addingStore;
@@ -167,91 +173,79 @@ class Item extends Component{
     }
 
     render(){
-
+         
         const fields = this.state.items.map((item, index) => {
 
         return(
-            <div style={{display: 'flex', flexFlow: 'row wrap', position: 'relative', width: '30%', marginTop: '40px'}} key={`item${index}`}>
-                <div>
-                    <label>Name:
-                        <input type='text' placeholder={`Item #${index + 1} name`} value={item.name}
-                        onChange={this.handleInputChange(index, `name`)} />
+            <div className='item' key={`item${index}`}>
+            
+                <InputField label='Name:' type='text' onChange={this.handleInputChange(index, `name`)} value={item.name} addClass='form__field--stack' spacing='stack'/>
+                
+                <div className='item-container__category'>
+                    <label className='form__label '>Category:
+                        <select value={this.state.value} onChange={this.handleInputChange(index, `category`)}  className='item__category-select form__field--stack'>
+                        <option disabled> -- select an option -- </option>
+                            <option value='accesory'>Accesory</option>
+                            <option value='blazer'>Blazer</option>
+                            <option value='dress'>Dress</option>
+                            <option value='jacket'>Jacket</option>
+                            <option value='jeans'>Jeans</option>
+                            <option value='pants'>Pants</option>
+                            <option value='shirt'>Shirt</option>
+                            <option value='shoes'>Shoes</option>
+                            <option value='shorts'>Shorts</option>
+                            <option value='socks'>Socks</option>
+                            <option value='shoes'>Suit</option>
+                            <option value='shoes'>Sweater</option>
+                        </select>
                     </label>
                 </div>
 
-                <div>
-                    <label>Category:
-                    <select value={this.state.value} onChange={this.handleInputChange(index, `category`)}>
-                    <option disabled defaultValue> -- select an option -- </option>
-                        <option value='accesory'>Accesory</option>
-                        <option value='blazer'>Blazer</option>
-                        <option value='jacket'>Jacket</option>
-                        <option value='jeans'>Jeans</option>
-                        <option value='pants'>Pants</option>
-                        <option value='shirt'>Shirt</option>
-                        <option value='shoes'>Shoes</option>
-                        <option value='shorts'>Shorts</option>
-                        <option value='socks'>Socks</option>
-                        <option value='shoes'>Suit</option>
-                        <option value='shoes'>Sweater</option>
-                    </select>
-                       
-                    </label>
-                </div>
-
-                <div>
-                    <label>Color:
-                        <input type='text' placeholder={`Item #${index + 1} color`} 
-                        onChange={this.handleInputChange(index, `color`)}/>
-                    </label>
-                </div>
-
-                <div>
-                    <label>Price:
-                        <input type='text' placeholder={`Item #${index + 1} price`} 
-                        onChange={this.handleInputChange(index, `price`)} />
-                    </label>
-                    <label>Thrifted:
-                        <input type='checkbox' onClick={this.handleThriftedChange(index)} />
-                    </label>
-                </div>
-
+                <InputField label='Color:' type='text' onChange={this.handleInputChange(index, `color`)} value={item.color} addClass='form__field--stack' spacing='stack' />
+                
+                
+                    <InputField label='Price:' type='text' onChange={this.handleInputChange(index, `price`)} value={item.price} addClass='form__field--stack' spacing='stack' />
+                    
+                    <InputField label='Thrifted?' type='checkbox' onClick={this.handleThriftedChange(index)} value={item.thrifted} spacing='stack' size='small'/>
+                
+                
                 <div>
                     <label>Store:
                         <Stores index={index} handleAddStore={this.handleAddStore} stores={item.stores} handleStoreInputChange={this.handleStoreInputChange}  handleRemoveStore={this.handleRemoveStore}/>
                     </label>
                 </div>
 
-                <div>
-                    <label>Online Link:
-                        <input type='text' placeholder={`Item #${index + 1} online link`} 
-                        onChange={this.handleInputChange(index, `link`)}  />
-                    </label>
-                </div>
+                <InputField label='Link:' type='text' onChange={this.handleInputChange(index, `link`)} value={item.link} addClass='form__field--stack' spacing='stack'/>  
+                
 
-                <button type='button' onClick={this.handleRemoveItem(index)}>X</button>
+                <button type='button' onClick={this.handleRemoveItem(index)} className='item__delete'>
+                    <svg className='item__delete-svg' enableBackground="new 0 0 96 96" viewBox="0 0 96 96" height='30px' width='30px' xmlns="http://www.w3.org/2000/svg" version="1.1"><path d="m96 14-14-14-34 34-34-34-14 14 34 34-34 34 14 14 34-34 34 34 14-14-34-34z"/></svg>
+
+                </button>
             
                 
             </div>
-                
         )
     })
 
 
         return(
-            <section>
+            <section className='items'>
                 {fields}
-                <AddItem handleAddItem={this.handleAddItem} />
+                <CreateElem handleCreate={this.handleAddItem} text='Add Item' size='med'/>
             </section>
         )
     }
 }
 
+function mapStateToProps(state){
+    return{
+        username: state.username
+    }
+}
 
+export default connect(mapStateToProps)(Item);
 
-export default Item;
-
-/* jshint ignore:end */
 
 
 

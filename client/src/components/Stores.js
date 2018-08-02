@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import InputField from './InputField';
+import Button from './Button';
 
 
 class Stores extends Component{
@@ -34,20 +36,21 @@ class Stores extends Component{
         if(this.props.stores){
             stores = this.props.stores.map((store, index) => {
                 return (
-                    <div key={`item${this.props.index}-store${index}`}>
-                        <input type='text' placeholder={`Item #${index + 1} store location`}
-                            onChange={this.handleInputChange(index)} value={store}/> 
-                            
-                        <button type='button' onClick={this.handleRemoveStore(index)}>x</button>
+                    <div className='store' key={`item${this.props.index}-store${index}`}> 
+                        <InputField type='text' onChange={this.handleInputChange(index)} value={store} spacing='stack' addClass='form__field--mb'/>    
+                        
+                        <svg onClick={this.handleRemoveStore(index)} className='store__delete' enableBackground="new 0 0 96 96" viewBox="0 0 96 96" height='20px' width='20px' xmlns="http://www.w3.org/2000/svg"><path d="m96 14-14-14-34 34-34-34-14 14 34 34-34 34 14 14 34-34 34 34 14-14-34-34z"/></svg>
                     </div>
                 )
             })
         }
     
         return(
-            <div>
-                {stores}
-                <button type='button' onClick={this.handleAddStore} className='small'>Add Store</button>
+            <div className='item-container__stores'>
+                <div className='item__stores'>
+                    {stores}
+                </div>
+                <Button dummy={true} onClick={this.handleAddStore} addClass='btn--initial btn--stack' size='small' text='Add Store'/>
             </div>
         )
     }

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import '../styles/styles.css';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { addAuth } from '../actions/actions';
 import { Redirect } from 'react-router';
 import { sendUserData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
+import InputField from './InputField';
+import Button from './Button';
+import './Auth.css';
 
 
 class Login extends Component{
@@ -30,7 +32,7 @@ class Login extends Component{
 
     // Clear input fields
     clearFields(){
-        let fields = document.querySelectorAll('.userfield');
+        let fields = document.querySelectorAll('.form__field');
         for(let input of fields){
             input.value = '';
         }
@@ -85,25 +87,27 @@ class Login extends Component{
         }
 
         return(
-            <div className='container  img-spread1' style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                <div className='flex-container' style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                    <form className='test-form' autoComplete='off' onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+            <div className='img-spread1' >
+                <div className='form-content-container'>
+                    <div className='form-container'>
+                            <form className='form' autoComplete='off' onSubmit={this.submitHandler}>
+                                <h1>Login</h1>
 
-                    {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
-                    }
-                        <label>Username:
-                            <input type='text' placeholder='Username' name='username' onChange={this.usernameChange}required  className='userfield'/>
-                        </label>
+                            {this.state.showConfirmation &&
+                                <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
+                            }
 
+                                <InputField label='Username:' type='text' name='username' required={true} onChange={this.usernameChange}/>
+
+                                <InputField label='Password:' type='password' name='password' required={true} onChange={this.passwordChange}/>
+                                
+                                <div className='form__actions'>
+                                    <Button text='Login' />
+                                    <Link to='/signup' className='form__action'>Don't have an account?</Link>
+                                </div>
+                        </form>
+                    </div>
                     
-                        <label>Password:
-                            <input type='password' placeholder='Password' name='password' onChange={this.passwordChange} required className='userfield'/>
-                        </label>
-                        
-                        <button>Login</button>
-                    </form>
-                    <Link to='/signup'>Don't have an account?</Link>
                 </div>
             </div>
         )

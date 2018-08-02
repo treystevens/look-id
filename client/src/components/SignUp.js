@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import '../styles/styles.css';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
 import { addAuth } from '../actions/actions';
 import { sendUserData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
+import InputField from './InputField';
+import Button from './Button';
+import './Auth.css';
 
 class SignUp extends Component{
     constructor(props){
@@ -29,7 +31,7 @@ class SignUp extends Component{
     }
 
     clearFields(){
-        let fields = document.querySelectorAll('.userfield');
+        let fields = document.querySelectorAll('.form__field');
         for(let i of fields){
             i.value = '';
         }
@@ -57,6 +59,8 @@ class SignUp extends Component{
             password: this.state.password,
             confirmPassword: this.state.confirmation
         };
+
+        console.log(data)
 
         const serverResponse = sendUserData('/auth/signup', data);
 
@@ -90,52 +94,48 @@ class SignUp extends Component{
    
     render(){
 
+        const { errors } = this.state;
         // Redirect once user successfully signs up
         if(this.props.isAuth){
             return <Redirect to='/'/>
         }
 
-
         return(
             
-            <div className="container  img-spread2" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                <div className="flex-container" style={{width: '60%', height: '70vh', backgroundColor: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-
+            <div className='img-spread2' >
+            <div className='form-content-container'>
+                    <div className='form-container'>
 
                     
-                    <form className="test-form" autoComplete="off" onSubmit={this.submitHandler} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                    <form className='form' autoComplete='off' onSubmit={this.submitHandler}>
+                        <h1>Sign Up</h1>
 
-                    {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
-                    }
-            
-                    <label>Username:
-                        <input type="text" placeholder="Account Name" name="username" onChange={this.usernameChange}required className="userfield"/>
-                    </label>
+                        {this.state.showConfirmation &&
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
+                        }
 
-                    {this.state.errors.username && 
-                    <span className="form-error">{this.state.errors.username.msg}</span>
-                    }
+                        <InputField label='Username:' type='text' name='username' required={true} onChange={this.usernameChange}/>
+                            {errors.username && 
+                                <div className='form__text--error'>{this.state.errors.username.msg}</div>
+                            }
 
-                    <label>Password:
-                        <input type="password" placeholder="Account Password" name="password" onChange={this.passwordChange} required className="userfield"/>
-                    </label>
+                        <InputField label='Password:' type='password' name='password' required={true} onChange={this.passwordChange}/>
+                            {errors.password && 
+                                <div className='form__text--error'>{this.state.errors.password.msg}</div>
+                            }
 
-                    {this.state.errors.password && 
-                        <span className="form-error">{this.state.errors.password.msg}</span>
-                    }
-
-                    <label>Re-Enter Password:
-                        <input type="password" placeholder="Re-Enter Password" name="confirm-password" onChange={this.passwordConfirmationChange} required className="userfield"/>
-                    </label>
-
-                    {this.state.errors.confirmPassword && 
-                        <span className="form-error">{this.state.errors.confirmPassword.msg}</span>
-                    } 
+                        <InputField label='Re-enter Password:' type='password' name='confirm-password' required={true} onChange={this.passwordConfirmationChange}/>
+                            {errors.confirmPassword && 
+                                <div className='form__text--error'>{this.state.errors.confirmPassword.msg}</div>
+                            } 
                         
-                    <button>Create Account</button>
+                    <div className='form__actions'>
+                        <Button text='Create Account'/>
+                        <Link to='/login' className='form__action'>Already have an account?</Link>
+                    </div>
                 </form>
-                <Link to='/login'>Already have an account?</Link>
+                </div>
+                
                 </div>
             </div>
         )

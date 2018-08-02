@@ -3,7 +3,9 @@ import PageHead from './PageHead';
 import UploadPhoto from './UploadPhoto';
 import { getData, sendPhoto } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
-
+import InputField from './InputField';
+import Button from './Button';
+import './EditProfile.css';
 
 class EditProfile extends Component{
     constructor(props){
@@ -46,8 +48,10 @@ class EditProfile extends Component{
     submitEdit(evt){
         evt.preventDefault();
 
+        const { avatar } = this.state;
+
         // Multi/Part form
-        const form = document.querySelector('.edit__form');
+        const form = document.querySelector('.form__profile');
         const formData = new FormData(form);
 
         // Get src of avatar upload just incase no file is uploaded or remove profile picture option was clicked
@@ -55,7 +59,7 @@ class EditProfile extends Component{
         const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
 
         // Only append avatar src if a user doesn't upload a file
-        if(imageFromAvatarSrc === '' || imageFromAvatarSrc === defaultAvatar){
+        if(imageFromAvatarSrc === '' || imageFromAvatarSrc === defaultAvatar || imageFromAvatarSrc === avatar){
             formData.append('imageFromAvatarSrc', imageFromAvatarSrc);
         }
     
@@ -91,25 +95,24 @@ class EditProfile extends Component{
     render(){
 
         return(
-            <section>
+            <section className='container'>
                 <PageHead pageHead='Edit Profile' />
 
                 {this.state.showConfirmation &&
-                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                 }
 
-                <form onSubmit={this.submitEdit} className='edit__form'>
-                    <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container'/>
+                <form onSubmit={this.submitEdit} className='form__profile' autoComplete='off'>
+                    <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container' addClass='avatar-container--med'/>
 
-                        <label>Bio:
-                            <input type='text' onChange={this.bioChange} className='edit__bio' name='bio'/>
-                        </label>
 
-                        <label>Website:
-                            <input type='text' onChange={this.websiteChange} className='edit__website' name='website'/>
-                        </label>
+                        <InputField label='Bio:' onChange={this.bioChange} name='bio' size='med' addClass='edit__bio'/>
 
-                        <button>Save</button>
+
+                        <InputField label='Website:' onChange={this.websiteChange} name='website' size='med' addClass='edit__website'/>
+                     
+
+                        <Button text='Save' addClass='btn--update  btn--small' />
                 </form>
             </section>
         )

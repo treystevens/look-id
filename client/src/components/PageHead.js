@@ -14,7 +14,7 @@ const PageHead = (props) => {
     
 
     return(
-        <section>
+        <section className='page-head'>
             {postPage ? (
                 <Link to={profileLink}><h1>{props.pageHead}</h1></Link>
                 ) : (

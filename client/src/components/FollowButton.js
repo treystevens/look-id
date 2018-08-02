@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
 import Modal from './Modal';
+import Button from './Button';
 
 
 class FollowButton extends Component{
@@ -16,32 +17,15 @@ class FollowButton extends Component{
         this.handleClick = this.handleClick.bind(this);
         this.changeFollowText = this.changeFollowText.bind(this);
         this.closeModal = this.closeModal.bind(this);
-
-        // Close Modal with Escape Key
-        window.addEventListener('keydown', (evt) => {
-
-            const { showModal } = this.state;
-
-            if( showModal && evt.keyCode === 27){
-                this.setState({
-                    showModal: false
-                });
-            }
-        });
+        this.escModal = this.escModal.bind(this);
     }
 
     // Change followText on mount
     componentDidMount(){
-        this.changeFollowText(this.props.iFollow);
-    }
+        // Add key listener on window to close modal with 'esc' key
+        window.addEventListener('keydown', this.escModal);
 
-    // Close Boards Modal
-    closeModal(evt){
-        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
-            this.setState({
-                showModal: false
-            });
-        }   
+        this.changeFollowText(this.props.iFollow);
     }
 
     // Update followText when component recieves new props
@@ -50,6 +34,32 @@ class FollowButton extends Component{
             this.changeFollowText(this.props.iFollow);
         }
     }
+
+
+    // Remove event listener
+    componentWillUnmount(){
+        window.removeEventListener('keydown', this.escModal);
+    }
+
+    // Close modal with esc key
+    escModal(evt){
+        if(this.state.showModal && evt.keyCode === 27){
+            this.setState({
+                showModal: false,
+            });
+        }
+    }
+
+    // Close Boards Modal
+    closeModal(evt){
+        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
+            this.setState({
+                showModal: false
+            });
+        }   
+    }
+
+    
 
 
     changeFollowText(iFollow){
@@ -112,7 +122,8 @@ class FollowButton extends Component{
 
         return(
             <div>
-                <button type='button'  onClick={this.handleClick}>{this.state.followText}</button>
+                
+                <Button dummy={true} text={this.state.followText} onClick={this.handleClick} addClass='btn--initial'/>
 
                 {showModal && 
                     <Modal source='accountVerify' closeModal={this.closeModal} image={this.props.image} urlParams={this.props.urlParams}/>}

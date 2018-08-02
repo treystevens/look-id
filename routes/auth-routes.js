@@ -96,7 +96,7 @@ router.post('/signup', [
     body('confirmPassword') // Password confirmation validation
     .custom( (value, { req } ) => {
         if (value !== req.body.password) {
-          throw new Error('Password confirmation does not match password');
+          throw new Error('Password confirmation does not match password.');
         }
         else{
             return Promise.resolve(value);

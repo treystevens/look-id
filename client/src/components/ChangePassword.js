@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PageHead from './PageHead';
 import { sendUserData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
-
+import InputField from './InputField';
+import Button from './Button';
 
 class ChangePassword extends Component{
     constructor(props){
@@ -22,13 +23,13 @@ class ChangePassword extends Component{
         this.submitNewPassword = this.submitNewPassword.bind(this);
         this.passwordChange = this.passwordChange.bind(this);
         this.newPasswordChange = this.newPasswordChange.bind(this);
-        this.confirmPasswordChange = this.confirmPasswordChange.bind(this);
+        this.passwordConfirmationChange = this.passwordConfirmationChange.bind(this);
         this.clearFields = this.clearFields.bind(this);
     }
 
     // Clear input fields on submit
     clearFields(){
-        let fields = document.querySelectorAll('.userfield');
+        let fields = document.querySelectorAll('.form__field');
         for(let input of fields){
             input.value = '';
         }
@@ -42,7 +43,7 @@ class ChangePassword extends Component{
         this.setState({newPassword: evt.target.value});
     }
 
-    confirmPasswordChange(evt){
+    passwordConfirmationChange(evt){
         this.setState({confirmPassword: evt.target.value});
     }
 
@@ -53,7 +54,8 @@ class ChangePassword extends Component{
 
         // Reset error state
         this.setState({
-            errorStatus: false
+            errorStatus: false,
+            errors: {}
         });
 
         const data = {
@@ -93,7 +95,7 @@ class ChangePassword extends Component{
             
             this.setState({
                 showConfirmation: true,
-                statusMessage: err
+                statusMessage: err.message
             });
             console.log(err);
         });
@@ -105,38 +107,31 @@ class ChangePassword extends Component{
         const errors = this.state.errors;
 
         return(
-            <section>
+            <section className='container'>
                 <PageHead pageHead='Change Password' />
                 {this.state.showConfirmation &&
-                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                 }
-                <div>
-                    <form action="" onSubmit={this.submitNewPassword}>
-                        <label>
-                            Current Password:
-                            <input type='password' name='password' required onChange={this.passwordChange} className='password-input'/>
-                        </label>
+                
+                    <form onSubmit={this.submitNewPassword} className='form__profile' autoComplete='off'>
+                        
+                        <InputField label='Current Password:' type='password' name='password' required={true} onChange={this.passwordChange} size='med'/>
                         {errors.password && 
-                        <span>{errors.password.msg}</span>}
+                        <span className='form__text--error'>{errors.password.msg}</span>}
 
-                        <label>
-                            New Password:
-                            <input type='password' name='new-password' required onChange={this.newPasswordChange} className='password-input'/>
-                        </label>
+                        <InputField label='New Password:' type='password' name='new-password' required={true} onChange={this.newPasswordChange} size='med'/>
                         
 
                         {errors.newPassword && 
-                        <span>{errors.newPassword.msg}</span>}
-                        <label>
-                            Re-enter New Password:
-                            <input type='password' name='confirm-password' required onChange={this.confirmPasswordChange} className='password-input'/>
-                        </label>
+                        <span className='form__text--error'>{errors.newPassword.msg}</span>}
+
+                        <InputField label='Re-enter New Password:' type='password' name='confirm-password' required={true} onChange={this.passwordConfirmationChange} size='med'/>
 
                         {errors.confirmPassword && 
-                        <span>{errors.confirmPassword.msg}</span>}
-                        <button>Change</button>
+                        <span className='form__text--error'>{errors.confirmPassword.msg}</span>}
+                        <Button text='Change Password' addClass='btn--update  btn--small' />
                     </form>
-                </div>
+                
             </section>
         )
     }

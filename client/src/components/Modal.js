@@ -3,17 +3,22 @@ import Boards from './Boards';
 import BoardModal from './BoardModal';
 import AccountVerify from './AccountVerify';
 import FF from './FF';
+import Button from './Button';
+import './Modal.css';
 
 
 const Modal = (props) => {
 
     let shownContent;
+    let modalContentClass = 'modal-content';
+    if(props.addClass) modalContentClass += ` ${props.addClass}`;
 
     if(props.source === 'createBoard'){
         shownContent = <BoardModal />
     }
 
     if(props.source === 'accountVerify'){
+        modalContentClass += ' modal-content--small';
         shownContent = <AccountVerify />
     }
 
@@ -27,9 +32,11 @@ const Modal = (props) => {
 
     return(
         <div className='modal' onClick={props.closeModal}>
-            <div className='modal-content'>
-            <button type="button" className='modal__close-btn' onClick={props.closeModal}>Close ×</button>
-                {shownContent}
+            <div className={modalContentClass}>
+                <Button dummy='true' text='Close x' addClass='btn__close--modal' onClick={props.closeModal}/>
+                <div className='modal-overflow-content'>
+                    {shownContent}
+                </div>
             </div>
         </div>
     )

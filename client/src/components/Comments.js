@@ -4,6 +4,7 @@ import CommentRow from './CommentRow';
 import ConfirmAction from './ConfirmAction';
 import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import './Comments.css';
 
 
 class Comments extends Component{
@@ -136,17 +137,18 @@ class Comments extends Component{
         commentsViewAll ? commentViewAction = 'Collapse comments' : commentViewAction = 'View all comments'
 
         return(
-            <section>
+            <section className='comments'>
                 <CommentBox handleAddComment={this.handleAddComment} urlParams={this.props.urlParams}/>
                 {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                     }
                 <div>
-                    <div style={{height: '400px', 'overflow': 'auto'}}>
+                    <div className='comments-container'>
                         {userComments}
+                        <a href='/viewallcomments' onClick={this.handleClickViewAll}>{commentViewAction}</a>
                     </div>
                 </div> 
-                <a href='/viewallcomments' onClick={this.handleClickViewAll}>{commentViewAction}</a>
+                
             </section>
             
         )

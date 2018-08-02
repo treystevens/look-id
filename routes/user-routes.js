@@ -127,17 +127,10 @@ router.get('/:user/:postid/edit', (req, res) => {
     if(username !== paramUsername) res.status(401).json({error: 'Sorry, this page isn\'t available.'});
     
 
-    models.Posts.findOne(postQuery)
-    .then( (post) => {
-
-        if(!post) return Promise.reject(new Error('Sorry, this page isn\'t available.'));
-
-        // Get post along with its items
-        return models.Posts.findOne(postQuery).populate('items');
-   })
+    models.Posts.findOne(postQuery).populate('items')
     .then((post) => {
         
-        if(!post) return Promise.reject(new Error('Post not found.'));
+        if(!post) return Promise.reject(new Error('Something went wrong trying to find your post.'));
 
         res.json({post: post});
    })

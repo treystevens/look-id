@@ -1,0 +1,60 @@
+.btn{
+    border: 1px solid #979797;
+    border-radius: 5px;
+    padding: 1em 1.2em;
+    margin-top: 10px;
+}
+
+.btn-container{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+}
+
+.btn--large{
+    width: 100%
+}
+
+.btn--med{
+    width: 40%
+}
+
+.btn--small{
+    width: 20%
+}
+
+.btn--update{
+    background-color: rgb(43, 119, 43);
+    color: white;
+    /* margin-top: 30px; */
+}
+
+.btn--caution{
+    background-color: rgb(219, 33, 42);
+    color: white;
+    margin-top: 30px;
+}
+
+.btn:hover{
+    background-color: #888;
+    color: white;
+}
+
+.btn__close--modal{
+    
+    position: absolute;
+    top: -80px;
+    right: 0;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer; 
+    background-color: white;
+}
+
+.btn--initial{
+    padding: 1px 7px 2px 7px;
+}
+
+.btn--stack{
+    margin: initial;
+}

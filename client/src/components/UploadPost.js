@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import Item from './Item';
 import { sendUserData, sendPhoto } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
+import './UploadPost.css';
+import Button from './Button';
 
 
 class UploadPost extends Component{
@@ -121,20 +123,26 @@ class UploadPost extends Component{
         }
 
         return(
-            <section>
+            <section className='container'>
                 <PageHead pageHead='Post an Outfit'/>
-                <form onSubmit={this.handleSubmit} className="user-post">
-                    <UploadPhoto isNewPost={'new-post'} />
-
+                
+                <form onSubmit={this.handleSubmit} className='user-post' autoComplete='off'>
                     {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                     }
-                    <textarea placeholder='Write a caption...' name="usercaption" className="userCap">
-                    </textarea>
-                    <section style={{display: 'flex', flexFlow: 'row wrap'}}>
-                    </section>
-                    <Item addItemToParentState={this.handleAddItemToState}/>
-                    <button>Post</button>
+                    <div className='edit-container'>
+                        <Button text='Upload Post' addClass='btn--update'/>
+                    </div>
+                    <div className='upload-post__flex'>
+                        <UploadPhoto isNewPost={'new-post'} />
+                        <div className='upload-post__info'>
+                            <textarea placeholder='Write a caption...' name='usercaption' className='user-caption'>
+                            </textarea>
+                        
+                            <Item addItemToParentState={this.handleAddItemToState}/>
+                        </div>
+                    </div>
+                    
                 </form>
                 
             </section>

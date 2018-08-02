@@ -1,0 +1,68 @@
+.edit-container{
+    position: relative;
+    margin: 10px 0;
+}
+
+
+.edit-options{
+    color: rgb(207, 207, 207);
+}
+
+.edit-option{
+    background-color: white;
+    padding: 1em .8em;
+}
+
+.edit-dropdown{
+    position: absolute;
+    border: 1px solid #8D8D8D;
+    right:0;
+    top: 70px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    padding: 10px 0;
+    z-index: 10;
+    width: 150px;
+}
+
+.edit-option:hover{
+    background-color: #8D8D8D;
+    color: white;
+}
+
+.edit-option--caution{
+    color: white;
+    background-color: rgb(219, 33, 42);
+}
+
+
+/* Edit Board */
+
+.edit__board-update-btn{
+    margin-left: auto;
+}
+
+.edit__board-del-message{
+    flex-basis: 100%;
+    margin-top: 10px;
+}
+
+.edit__board-info{
+    text-align: center;
+    margin: 4rem;
+    color: #8D8D8D;
+}
+
+
+
+.edit__back{
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    margin-bottom: 20px;
+    color: #8d8d8d;
+}
+
+.edit__caret{
+    fill: #8d8d8d
+}

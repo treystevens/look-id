@@ -20,25 +20,14 @@ class PostImage extends Component{
     this.openBoards = this.openBoards.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.handleLikeCount = this.handleLikeCount.bind(this);
-
-    // Close Modal with Escape Key
-    window.addEventListener('keydown', (evt) => {
-
-        const { showAddToBoard, showVerify } = this.state;
-
-        if((showAddToBoard || showVerify) && evt.keyCode === 27){
-            this.setState({
-                showAddToBoard: false,
-                showVerify: false
-            });
-        }
-    });
+    this.escKeyModal = this.escKeyModal.bind(this);
 }
 
     // Data to see if liked post and the amount of likes on a post
     componentDidMount(){
 
-
+        window.addEventListener('keydown', this.escModal);
+        
         const urlUser = this.props.urlParams.username;
         const urlPostID = this.props.urlParams.postID;
 
@@ -59,6 +48,10 @@ class PostImage extends Component{
         });
     }
 
+    componentWillUnmount(){
+        window.removeEventListener('keydown', this.escKeyModal);
+    }
+
     // Show boards to add the post to
     openBoards(){
         this.setState({
@@ -68,7 +61,7 @@ class PostImage extends Component{
 
     // Close Boards Modal
     closeModal(evt){
-        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
+        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showAddToBoard: false,
                 showVerify: false
@@ -119,14 +112,30 @@ class PostImage extends Component{
         });
     }
 
+    // Close Modal with Escape Key
+    escKeyModal(evt){
+        
+    const { showAddToBoard, showVerify } = this.state;
+
+        if((showAddToBoard || showVerify) && evt.keyCode === 27){
+            this.setState({
+                showAddToBoard: false,
+                showVerify: false
+            });
+        }
+    
+    }
+
+
     render(){
 
         const { showVerify, showAddToBoard } = this.state;
         const urlUser = this.props.urlParams.username;
          
         return(
-            <article style={ {'width': '40%'}}>
-                <img  className='post__image' src={this.props.image} alt={`${urlUser}'s outfit'`}style={ {'width': '100%'}}/>
+            <article className='post__image-container'>
+                
+                <img  className='post__image' src={this.props.image} alt={`${urlUser}'s outfit'`}/>
 
                 <PostEngage openBoards={this.openBoards} commentCount={this.props.commentCount} likeCount={this.state.likeCount} handleLikeCount={this.handleLikeCount} iLiked={this.state.iLiked}/>
 

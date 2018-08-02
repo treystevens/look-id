@@ -41,6 +41,9 @@ router.get('/explore/:page', (req, res) => {
 
 // Route for a user's feed
 router.get('/feed/:page', (req, res) => {
+  
+
+    if(!req.isAuthenticated()) return res.status(204).json({notAuth: 'Must be logged in to view Feed'});
 
     const query = {
         username: req.user.username
@@ -48,6 +51,8 @@ router.get('/feed/:page', (req, res) => {
     
     const skipNum = req.params.page * 10;
 
+
+    
     // Get user's feed items
     models.Feed.findOne(query).populate('feed_items').exec()
     .then((data) => {  

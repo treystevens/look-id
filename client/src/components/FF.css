@@ -1,0 +1,25 @@
+.ff-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #cecece;
+    padding-bottom: 10px;
+}
+
+.ff-user{
+    display: flex;
+    align-items: center;
+}
+
+.ff-user__username{
+    margin-left: 10px;
+}
+
+
+
+@media only screen and (max-width: 600px) {
+
+    .modal-content{
+        width: 90%;
+    }
+}

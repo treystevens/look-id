@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ConfirmAction from './ConfirmAction';
+import InputField from './InputField';
 
 class Search extends Component{
     constructor(props){
@@ -71,15 +72,26 @@ class Search extends Component{
     render(){
         
         return(
-            <article>
-                <form action='/search'>
-                    <input type='text' name='query' onChange={this.handleQueryChange}/>
-                    <input type='text' name='color' placeholder='red, navy' onChange={this.handleColorChange}/>
-                    <input type='text' name='price' placeholder='$0.00' onChange={this.handlePriceChange}/>
-                    <button>Search</button>
+            <article className='search-container'>
+                <form action='/search' className='form' autoComplete='off'>
+                    <div className='form__search-container'>
+                        <InputField type='text' name='query' placeholder='Search clothes, brands, etc.' onChange={this.handleQueryChange} search={true}/>
+                            <button className='form__search-btn'>
+                                <svg xmlns="http://www.w3.org/2000/svg" className='form__search-icon' width="33" height="33" viewBox="0 0 33 33">
+                                    <g fill="none" fillRule="evenodd" stroke="#979797" transform="translate(2 2)">
+                                    <path strokeLinecap="square" strokeWidth="3" d="M18.7541631,18.7373487 L28.5389438,28.5133567"/>
+                                    <ellipse cx="10.6" cy="10.591" strokeWidth="3" rx="10.6" ry="10.591"/>
+                                    </g>
+                                </svg>
+                            </button>
+                    </div>
+                    <div className='form__search-filters'>
+                        <InputField type='text' name='color' placeholder='color' onChange={this.handleColorChange} size='small'/>
+                        <InputField type='text' name='price' placeholder='$' onChange={this.handlePriceChange} size='small'/>
+                    </div>
 
                     {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                     }
                 </form>
             </article>

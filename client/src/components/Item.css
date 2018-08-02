@@ -1,0 +1,142 @@
+.items{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+
+.item{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 45%;
+    margin: 0 5% 40px 0;
+    border: 1px solid #8d8d8d;
+    border-radius: 5px;
+    padding: 1em 1.2em;
+    box-shadow: 0 1px 5px #a1a1a1;
+    /* height: 300px; */
+}
+
+.item:nth-child(odd) {
+    background: rgb(244, 244, 245);
+}
+
+.item-container__category{
+    margin-top: 5px;
+    /* display: flex;
+    flex-direction: column; */
+}
+
+.item__delete{
+    position: absolute;
+    right: -25px;
+    top: -25px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    border: 1px solid #8d8d8d;
+    background-color: white;
+    color: #8d8d8d;
+    padding-top: 5px
+}
+
+.item__delete-svg{
+    background: none;
+    border: none;
+    display: block;
+    fill: #575757;
+    text-align: center;
+    margin-left: auto;
+    margin-right:auto;
+}
+
+.item__delete:hover .item__delete-svg {
+    animation: removeItem .5s ease-out;
+}
+
+.item__price-container{
+    display: flex;
+}
+
+.item__category-select{
+ width: 100%;   
+}
+
+.item__thrifted{
+    width: 40%;
+}
+
+.store{
+    position: relative;
+}
+
+
+
+.store__delete{
+    position: absolute;
+    top: 5px;
+    right: -25px;
+    fill: #8d8d8d;
+    background: none; 
+}
+
+.store__delete:hover{
+    animation: removeItem .6s ease-out;
+}
+
+.store__delete-svg{
+    border: none;
+    background: none;
+}
+
+
+
+
+@keyframes removeItem {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25%{
+        transform: rotate(10deg);
+    }
+    50%{
+        transform: rotate(-10deg);
+    }
+    100%{
+        transform: rotate(0deg);
+    }
+}
+
+
+
+
+
+@media only screen and (max-width: 600px){
+    .item{
+        width: 100%;
+    }
+
+
+    .item__delete{
+        position: initial;
+        border-radius: initial;
+        border: none;
+        background-color: initial;
+        padding-top: initial
+    }
+    
+    .item__delete-svg{
+
+        position: absolute;
+        right: -25px;
+        top: -25px;
+        background: none;
+        border: none;
+        display: block;
+        fill: #575757;
+        text-align: center;
+        margin-left: auto;
+        margin-right:auto;
+    }
+}

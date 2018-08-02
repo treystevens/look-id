@@ -1,0 +1,47 @@
+.stream{
+    margin-top: 80px;
+    /* overflow: visible; */
+    width: 100%;
+}
+
+.stream__item{
+    width: 100%;
+}
+
+.stream__image{
+    width: 100%;
+    height: auto;
+    transition: all .2s ease-in;
+}
+
+
+/* .stream-item{
+
+} */
+/* 
+.stream{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+} */
+
+
+
+
+
+.stream__image--edit{
+    transform: scale(0.6);
+    transition: all .4s ease-in-out;
+}
+
+.stream__image-container--picked{
+    background-color: #dcdcdc;
+}
+
+
+@media only screen and (max-width: 600px) {
+    .stream{
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,151 @@
+
+.u-r{
+    padding-left: 45px;
+    /* width: 60%; */
+    width: 60%;
+}
+
+.post{
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.u-r__caption{
+    margin-top: 0;
+    margin-bottom: 50px;
+    line-height: 2rem;
+    font-weight: 600;
+}
+
+.post__u-h{
+    width: 100%;
+    display: flex;
+}
+
+.post__l-h{
+    width: 100%;
+    display: flex;
+}
+
+/* other posts */
+.other-post__image{
+    width: 100%;
+}
+
+.post__other-posts{
+    width: 60%;
+    padding-left: 45px;
+}
+
+.other-posts{
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.other-posts__header{
+    font-weight: 300;
+    color: #8D8D8D;
+}
+
+.other-post{
+    align-self: center;
+    display: inline-block;
+    width: 48%;
+    /* margin-right: 20px; */
+    margin-top: 30px;
+}
+
+.other-post__image{
+    width: 100%;
+}
+
+
+
+/* Edit  */
+
+
+.edit {
+    position: relative;    
+}
+
+.edit-container{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.edit__options{
+    position: absolute;
+    background-color: rgb(173, 173, 173);
+}
+
+
+/* Post Image */
+
+.post__image-container{
+    width: 40%
+}
+
+.post__image{
+    width: 100%;
+}
+
+.post__engage-icon{
+    margin-right: 10px;
+    width:50px;
+}
+
+.post__engage-icon:hover{
+    transform: scale(1.1);
+}
+
+.post__engage-heart-container{
+    display: inline-block;
+    margin-right: .8em;
+}
+
+.post__engage-heart--hover:hover{
+    fill: red;
+    opacity: 6;
+    transform: scale(1.1)
+}
+
+
+
+@media only screen and (max-width: 786px){
+
+    .post__u-h{
+        flex-direction: column
+    }
+
+    .u-r{
+        /* flex-direction: column; */
+        width: 100%;
+        padding-left: initial;
+    }
+
+    .u-r__caption{
+        margin-top: 40px;
+        font-size: 1.2rem;
+    }
+
+    .post__image-container{
+        width: 100%;
+    }
+
+    .post__l-h{
+        flex-direction: column
+    }
+
+    .post__other-posts{
+        width: 100%;
+        padding-left: initial;
+    }
+
+    .other-post{
+        order: 1;
+        width: 40%;
+    }
+
+}

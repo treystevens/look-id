@@ -365,7 +365,7 @@ router.post('/settings/change-password',[
         
     })
     .then(() => {
-        res.status(200);
+        res.status(200).json({success: true});
     })
     .catch((err) => {
         res.json({error: err});

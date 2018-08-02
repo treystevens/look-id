@@ -5,6 +5,8 @@ import { getData, sendUserData } from '../util/serverFetch';
 import Search from './Search';
 import ConfirmAction from './ConfirmAction';
 import { connect } from 'react-redux';
+import Modal from './Modal';
+
 
 
 class Explore extends Component{
@@ -21,7 +23,9 @@ class Explore extends Component{
             submitLoad: false,
             errorMessage: '',
             statusMessage: '',
-            showConfirmation: false
+            showConfirmation: false,
+            query: '',
+            showAccountVerify: false,
         };
 
         this.handleSearch = this.handleSearch.bind(this);
@@ -29,6 +33,8 @@ class Explore extends Component{
         this.loadSearchData = this.loadSearchData.bind(this);
         this.getParameterByName = this.getParameterByName.bind(this);
         this.onScroll = this.onScroll.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+        this.escModal = this.escModal.bind(this);
         
     }
 
@@ -36,25 +42,61 @@ class Explore extends Component{
     componentDidMount(){
 
         window.addEventListener('scroll', this.onScroll);
-
-        // Have NotificationIcon in AccountHead see if there's new notifications
-        this.props.dispatch({ type: 'CHECK_NOTIFICATION'});
+        window.addEventListener('keydown', this.escModal);
 
         const{ endPoint, isSearching } = this.props;
         const { scrollCount } = this.state;
+        const notAuthorized = !this.props.isAuth && endPoint === 'Feed';
 
-        // No data needed on mount if user is searching for item
-        if(isSearching) this.loadSearchData();
+        if(notAuthorized){
+            this.setState({
+                showAccountVerify: true,
+                showConfirmation: true,
+                actionSuccess: true,
+                statusMessage: 'Log in or sign up to see the latest posts from people you follow!'
+            });
+        }
+        else{
+            // Have NotificationIcon in AccountNav see if there's new notifications
+            this.props.dispatch({ type: 'CHECK_NOTIFICATION'});
+
+        
+
+            // No data needed on mount if user is searching for item
+            if(isSearching) this.loadSearchData();
                 
-        // Only load data if end points are 'Explore' or 'Feed'
-        if(endPoint){
-            this.loadData(`/stream/${endPoint}/${scrollCount}`);
+            // Only load data if end points are 'Explore' or 'Feed'
+            if(endPoint){
+                this.loadData(`/stream/${endPoint}/${scrollCount}`);
+            }
+        }
+
+        
+    }
+
+    componentDidUpdate(prevProps){
+        if(this.props.isAuth !== prevProps.isAuth){
+            this.setState({
+                showAccountVerify: false,
+                showConfirmation: false,
+                actionSuccess: false,
+            });
         }
     }
 
     // Remove event listener
     componentWillUnmount(){
         window.removeEventListener('scroll', this.onScroll);
+        window.addEventListener('keydown', this.escModal);
+    }
+
+    // Close modal with esc key
+    escModal(evt){
+        if(this.state.showAccountVerify && evt.keyCode === 27){
+            this.setState({
+                showAccountVerify: false,
+            });
+        }
     }
 
     getParameterByName(name, url) {
@@ -80,6 +122,10 @@ class Explore extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
 
+            // Show AccountVerify
+            if(data.noAuth){
+
+            }
 
             // If we're fetching data from scrolling
             if(this.state.isLoading){
@@ -121,16 +167,11 @@ class Explore extends Component{
         }
         
         
-        // If fetching data after a user submitted another query
-        if(!submitLoad){
-            this.setState({
-                isLoading: true
-            });
-        }
+        
 
-        const query = this.getParameterByName('query', search)
-        const price = this.getParameterByName('price', search)
-        const color = this.getParameterByName('color', search)
+        const query = this.getParameterByName('query', search);
+        const price = this.getParameterByName('price', search);
+        const color = this.getParameterByName('color', search);
 
         const data = {
             query: query,
@@ -138,6 +179,14 @@ class Explore extends Component{
             color: color,
             page: scrollCount
         };
+
+        // If fetching data after a user submitted another query
+        if(!submitLoad){
+            this.setState({
+                isLoading: true,
+                query: query 
+            });
+        }
 
 
         const serverResponse = sendUserData(`/search/${scrollCount}`, data);
@@ -224,14 +273,28 @@ class Explore extends Component{
         }
     }
 
-    render(){
+    // Close modal on click
+    closeModal(evt){
         
-        const {endPoint, isSearching} = this.props;
+        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
+            this.setState({
+                showAccountVerify: false
+            });
+        }   
+    }
+
+    render(){
+            
+        const { endPoint, isSearching } = this.props;
+        const { showAccountVerify } = this.state;
+        const showSearch = endPoint !== 'Feed';
+
         let pageName;
+        
         
         // Have the page name equal to the item query, 'Explore', or 'Feed'
         if(isSearching){
-            pageName = this.state.searchQuery.query;
+            pageName = this.state.query;
         }
         else{
             pageName = endPoint;
@@ -239,15 +302,20 @@ class Explore extends Component{
         
 
         return(
-            <section>
-                {isSearching &&
+            <section className='container content'>
+                {showSearch &&
                     <Search handleSearch={this.handleSearch}/>
                 }
+                    
+                
                 <PageHead pageHead={pageName} />
                 {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                 }
                 <Stream sourceFetch='stream' stream={this.state.streamData}/>
+
+                {showAccountVerify &&
+                    <Modal source='accountVerify' closeModal={this.closeModal}/>}
             </section>
         )
     }
@@ -256,7 +324,8 @@ class Explore extends Component{
 
 function mapStateToProps(state){
     return{
-        notifications: state.notifications
+        notifications: state.notifications,
+        isAuth: state.isAuth
     }
 }
 

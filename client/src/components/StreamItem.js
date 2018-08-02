@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/styles.css';
 
 
 const StreamItem = (props) => {
@@ -15,17 +14,18 @@ const StreamItem = (props) => {
 
     // Create edit options for an individual post 'EditBoard' functionality to delete post
     if(props.edit){
-        post = (
-        <img className='post__image' onClick={handleEdit.bind(this, {...props})} src={imgSrc} alt={`${username}'s outfit.'`}/>)
+        post = (<div className='stream__image-container'>
+        <img className='stream__image' onClick={handleEdit.bind(this, {...props})} src={imgSrc} alt={`${username}'s outfit.'`}/>
+        </div>)
     }
     else{
         post = (<Link to={postLink}>
-                    <img className='post__image' src={imgSrc} alt={`${username}'s outfit.'`}/>
+                    <img className='stream__image' src={imgSrc} alt={`${username}'s outfit.'`}/>
                 </Link>)
     }
 
     return(
-        <div className='testMore'>
+        <div className='stream__item'>
             {props.usernameHeader && 
             <h4><Link to={profileSrc}>{username}</Link></h4>
             }
@@ -47,7 +47,8 @@ function handleEdit(props, evt){
         postImg: postImg
     }
     
-    target.classList.toggle('post__image--edit')
+    target.parentElement.classList.toggle('stream__image-container--picked')
+    target.classList.toggle('stream__image--edit')
 
     props.handlePostDelete(post, target)
     

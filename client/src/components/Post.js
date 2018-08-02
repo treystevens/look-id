@@ -9,6 +9,8 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import NotFound from './NotFound';
 import ConfirmAction from './ConfirmAction';
+import Button from './Button';
+import './Post.css';
 
 
 class Post extends Component{
@@ -38,11 +40,12 @@ class Post extends Component{
         
         this.handleDeletePost = this.handleDeletePost.bind(this);
         this.showOptions = this.showOptions.bind(this);
+        this.escEditOptions = this.escEditOptions.bind(this);
     }
 
     // Retrieve Posts, Comments, Other Posts and Items
     componentDidMount(){
-        
+        window.addEventListener('click', this.escEditOptions);
 
         const urlUser = this.props.urlParams.match.params.user;
         const urlPostID = this.props.urlParams.match.params.postid;
@@ -51,7 +54,7 @@ class Post extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
-
+            console.log(data)
             if(data.error) return Promise.reject(new Error(data.error));
 
             const otherPostLength = data.otherPosts.length;
@@ -91,6 +94,21 @@ class Post extends Component{
     
     }
 
+    // Remove event listener
+    componentWillUnmount(){
+        window.removeEventListener('scroll', this.onScroll);
+        window.removeEventListener('click', this.escEditOptions);
+    }
+
+    // Close edit options with click 
+    escEditOptions(evt){
+        if(this.state.showOptions && !evt.target.classList.contains('edit-option')&& !evt.target.classList.contains('btn')){
+            this.setState({
+                showOptions: false
+            });
+        }
+    }
+
     // Fisher-Yates Shuffle
     shuffle(array) {
         let currentIndex = array.length, temporaryValue, randomIndex;
@@ -112,7 +130,7 @@ class Post extends Component{
 
     // Show Edit options
     showOptions(){
-
+        
         const { showOptions } = this.state;
 
         if(showOptions){
@@ -167,7 +185,7 @@ class Post extends Component{
             username: urlUser,
             postID: urlPostID
         };
-        console.log(urlUser)
+        
         const authorized = this.props.username === urlUser && this.props.isAuth;
         const { redirect, notFound, showOptions } = this.state;
 
@@ -190,50 +208,66 @@ class Post extends Component{
         if(notFound) return <NotFound />
 
         return(
-            <div>
-                <PageHead pageHead={this.state.username} post={true}/>
-                {authorized &&
+            <section className='container'>
                 
-                <div>
-                    <span onClick={this.showOptions}>Edit</span>
-                    <div>
-                        {showOptions &&
-                        <ul>
-                            <Link to={`/user/${urlUser}/${urlPostID}/edit`}>Edit Post</Link>
-                            <li onClick={this.handleDeletePost}>Delete Post</li>
+                    <PageHead pageHead={this.state.username} post={true}/>
+                    {authorized &&
+                    
+            
+
+
+
+                    <div className='edit-container'>
+                        <Button text='Edit' dummy={true} onClick={this.showOptions}/>
+                            {showOptions &&
+                            <div className='edit-dropdown'>
+                                <ul className='edit-options'>
+                                <Link to={`/user/${urlUser}/${urlPostID}/edit`}>
+                                        <li className='edit-option'>Edit Post</li>
+                                    </Link>
+                                    <li onClick={this.handleDeletePost} className='edit-option  edit-option--caution'>Delete Post</li>
+                                </ul>
+                            </div>
+                            }
+                        
+                    </div>
+                    }
+
+
+                    <section className='post'>
+                        {this.state.showConfirmation &&
+                                <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
+                            }
+
+                        <section className='post__u-h'>
+
+                            <PostImage image={this.state.image} urlParams={urlParams} />
+
+                            <section className='u-r'>
+                                <p className='u-r__caption'>{this.state.caption}</p>
+                                <section className='pi-items'>
+                                    {clothingItems}  
+                                </section>
+                            </section>
+
+                        </section>
+                        <section className='post__l-h'>
                             
-                        </ul>
-                        }
-                    </div>
-                </div>
-                }
+                            <Comments comments={this.state.comments} urlParams={urlParams}/>
+                            
 
-                {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
-                    }
-
-                <div style={{display: 'flex', width: '100%'}}>
-                    <PostImage image={this.state.image} urlParams={urlParams} />
-                    <div>
-                        <h2 style={{margin: '0'}}>{this.state.caption}</h2>
-                        {clothingItems}    
-                    </div>
-                </div>
-                <section style={{display: 'flex'}}>
-                    <div className="comments" style={{marginTop: '40px', width: '30%'}} >
-                        <Comments comments={this.state.comments} urlParams={urlParams}/>
-                    </div>
-
-                    {this.state.showOtherPosts &&
-                    <div className="otherPosts">
-                        <h2>Other Posts</h2>
-                        <div style={{width: '60%'}}>
-                           {otherPosts}
-                        </div>
-                    </div>
-                    }
-                </section>   
-            </div>
+                            {this.state.showOtherPosts &&
+                            <section className='post__other-posts'>
+                                <h2 className='other-posts__header'>Other Posts</h2>
+                                <div className='other-posts'>
+                                {otherPosts}
+                                </div>
+                            </section>
+                            }
+                        </section>  
+                    </section> 
+                
+            </section>
         )
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Button from './Button';
  
 // Setting the image of the file to the div for a preview
 function handleFiles(evt) {
@@ -21,7 +21,7 @@ function handleFiles(evt) {
 }
 
 function removeAvatar(){
-    const file = document.querySelector('.photo-upload');
+    const file = document.querySelector('.upload-photo__file-input');
     const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
     let preview = document.querySelector('.preview');
 
@@ -46,7 +46,7 @@ const UploadPhoto = (props) => {
             showRemoveButton = true;
         }
 
-        containerClass = 'avatar-container';
+        containerClass = 'avatar-container  avatar-container--large';
         inputName = 'user-avatar';
         imgSrc = props.avatar;
         
@@ -54,20 +54,21 @@ const UploadPhoto = (props) => {
     }
     // Display for UploadPhoto if posting a new photo
     if(props.isNewPost){
-        containerClass = 'upload-post-container';
+        containerClass = 'upload-photo-container';
         inputName = 'user-photo';
         imgSrc = '';
     }
 
 
     return(
-        <div>
-            <div className={containerClass} >
-                <img src={imgSrc} className='preview' alt='post to be uploaded'/>
+        <div className={containerClass}>
+            <div className='photo-container' >
+                <img src={imgSrc} className='preview' />
             </div>
-            <input type='file' className='photo-upload' name={inputName} onChange={handleFiles} accept='.jpg, .jpeg, .png'/>
+            <input type='file' className='upload-photo__file-input' name={inputName} onChange={handleFiles} accept='.jpg, .jpeg, .png'/>
             {showRemoveButton && 
-            <button type='button' onClick={removeAvatar}>Remove Profile Picture</button>} 
+                <Button dummy={true} onClick={removeAvatar} text='Remove Profile Picture'/>} 
+            
         </div>
     )
 }

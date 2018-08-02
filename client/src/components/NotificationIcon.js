@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom'; 
 import { getData } from '../util/serverFetch';
 import { connect } from 'react-redux';
+import './Notifications.css';
 
 
 class NotificationIcon extends Component{
@@ -52,7 +53,6 @@ class NotificationIcon extends Component{
         newNotifications ? LED = 'notifications__light' : LED = 'notifications__dull';
 
         return(
-                <li>
                     <NavLink to='/profile/notifications'>
                         <div style={{width: '20px', height: '20px', border: '1px solid gray', borderRadius: '2px', position: 'relative'}}>
 
@@ -61,7 +61,6 @@ class NotificationIcon extends Component{
 
                         </div>
                     </NavLink>
-                </li>
         )
     }
 }

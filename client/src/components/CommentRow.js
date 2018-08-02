@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 
 const CommentRow = (props) => {
-
+    
     const username = props.comment._user.username;
 
     let authorizedUser;
@@ -17,7 +17,7 @@ const CommentRow = (props) => {
     }
 
     // User visiting a post where that they commented on
-    if(props.viewingUser === props.comment._user.username){
+    if(props.viewingUser === username){
         viewingUserAuth = true;
     }
 
@@ -34,31 +34,32 @@ const CommentRow = (props) => {
 
 
     return(
-        <div className="comment-row" style={{width: '100%'}}>
+        <div className='comment__row'>
 
-        <Link to={`/user/${props.comment.username}`}>
-            <Avatar avatar={avatar} username={props.comment.username} />
+        <Link to={`/user/${username}`}>
+            <Avatar avatar={avatar} username={username} addClass='avatar-container--small'/>
         </Link>
 
-            <div>
-                <div className="user-data">
+            <div className='comment__user-comment'>
+                <div className='user-data'>
                     <Link to={`/user/${username}`}>
                         <span>{username}</span>
                     </Link>
-                    <span style={{color: "gray", fontSize: ".5rem"}}>{props.comment.date_posted}</span>
+                    <span className='comment__date'>{props.comment.date_posted}</span>
                 </div>
 
-                <div className="user-comment">
+                <div className='user-comment'>
                     <p>{props.comment.comment}</p>
                 </div>
-
+            </div>
+            <div className='comment__delete'>
                 { authorizedUser &&
-                    <div className="delete-comment" style={{color: "red"}} onClick={deleteComment} data-item-id={props.comment._id}>Delete Comment!
+                    <div className='comment__delete-btn' onClick={deleteComment} data-item-id={props.comment._id}>X
                     </div>
                 }
 
                 { viewingUserAuth &&
-                    <div className="delete-comment" style={{color: "red"}} onClick={deleteComment} data-item-id={props.comment._id}>Delete Comment!
+                    <div className='comment__delete-btn' onClick={deleteComment} data-item-id={props.comment._id}>X
                     </div>
                 }
             </div>

@@ -4,6 +4,9 @@ import PageHead from './PageHead';
 import { getData, sendUserData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
 import NotFound from './NotFound';
+import InputField from './InputField';
+import Button from './Button';
+import { Link } from 'react-router-dom';
 
 
 class EditBoard extends Component{
@@ -122,7 +125,7 @@ class EditBoard extends Component{
 
         // User toggling class - Add to state if it's an item user would like to delete
         // Filter if otherwise
-        if(target.classList.contains('post__image--edit')){
+        if(target.classList.contains('stream__image--edit')){
             this.setState({
                 postsToDelete: this.state.postsToDelete.concat(post)
             });
@@ -172,7 +175,15 @@ class EditBoard extends Component{
     render(){
         
         const { notFound } = this.state; 
+        const boardID = this.props.urlParams.match.params.boardid;
+        const isMobile = window.matchMedia("only screen and (max-width: 600px)");
+        const instruction = isMobile ? 'Tap' : 'Click';
         let deleteMessage;
+
+        
+        
+    
+        
 
         if(notFound) return <NotFound />
         
@@ -186,22 +197,26 @@ class EditBoard extends Component{
 
 
         return(
-            <section>
-                <PageHead pageHead={`Edit ${this.state.boardName}`} />
+            <section className='container'>
+                <PageHead pageHead={`Edit "${this.state.boardName}"`} />
+                <Link to={`/boards/${boardID}`} className='edit__back'>
+                    <svg className='edit__caret' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512" height='30px' width='30px'><path d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"/></svg>
+                    Back to Board</Link>
 
                     {this.state.showConfirmation &&
-                        <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                        <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                     }
-
-                    <h1>Click on the images that you would like to delete</h1>
                     
-                    <form onSubmit={this.handleSubmit}>
-                        <label>Change board name:
-                            <input type='text' name='board-name' className='edit__name' onChange={this.handleNameChange} value={this.state.boardName}/>
-                        </label>
-                        <span>{deleteMessage}</span>
-                        <button>Update Board</button>
+                    <form onSubmit={this.handleSubmit} className='form form__edit'>
+                        
+                            
+                        <InputField label='Change board name:' name='board-name' onChange={this.handleNameChange} value={this.state.boardName} size='small' addClass='form__field--thick'/>
+                        <Button text='Update Board' addClass='edit__board-update-btn btn--update edit__name'/>
+                        
                     </form>
+                    <p className='edit__board-info'>{instruction} on the images that you would like to delete</p>
+                    <p className='edit__board-del-message'>{deleteMessage}</p>
+                    
                 <Stream sourceFetch='stream' stream={this.state.streamData} edit={true} handlePostDelete={this.handlePostDelete}/>
                 
             </section>

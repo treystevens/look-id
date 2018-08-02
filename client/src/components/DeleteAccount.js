@@ -3,6 +3,8 @@ import PageHead from './PageHead';
 import { sendUserData } from '../util/serverFetch';
 import ConfirmAction from './ConfirmAction';
 import { connect } from 'react-redux';
+import InputField from './InputField';
+import Button from './Button';
 
 
 
@@ -30,7 +32,7 @@ class DeleteAccount extends Component{
 
     // Clear input fields on submit
     clearFields(){
-        let fields = document.querySelectorAll('.userfield');
+        let fields = document.querySelectorAll('.form__field');
         for(let input of fields){
             input.value = '';
         }
@@ -93,32 +95,33 @@ class DeleteAccount extends Component{
     render(){
 
         const { errors } = this.state;
-
+        console.log(this.state)
         return(
-            <section>
+            <section className='container'>
                 <PageHead pageHead='Delete Account' />
                 {this.state.showConfirmation &&
-                    <ConfirmAction actionSuccess={this.state.confirmAction} statusMessage={this.state.statusMessage}/>
+                    <ConfirmAction actionSuccess={this.state.actionSuccess} statusMessage={this.state.statusMessage}/>
                 }
                 <div>
-                    <form onSubmit={this.submitHandler}>
-                        <label>
-                            Username:
-                            <input type="text" className="userfield" name="username" onChange={this.usernameChange}/>
-                                    {errors.username && 
-                                <span>{errors.username.msg}</span>}
-                        </label>
-                        <label>
-                            Password:
-                            <input type="password" className="userfield" name="password" onChange={this.passwordChange}/>
-                        </label>
-                        <label>
-                            Re-enter Password:
-                            <input type="password" className="userfield" name="confirm-password" onChange={this.passwordConfirmationChange}/>
-                                    {errors.confirmPassword && 
-                                <span>{errors.confirmPassword.msg}</span>}
-                        </label>
-                        <button>Delete</button>
+                    <form onSubmit={this.submitHandler} className='form__profile' autoComplete='off'>
+                        
+
+
+                        <InputField label='Username:' type='text' name='username' required={true} onChange={this.usernameChange} size='med'/>
+                        {errors.username && 
+                                <span className='form__text--error'>{errors.username.msg}</span>}
+
+
+                        <InputField label='Password:' type='password' name='password' required={true} onChange={this.passwordChange} size='med'/>
+
+
+                        <InputField label='Re-enter New Password:' type='password' name='confirm-password' required={true} onChange={this.passwordConfirmationChange} size='med'/>
+
+                        {errors.confirmPassword && 
+                                <span className='form__text--error'>{errors.confirmPassword.msg}</span>}
+
+                       
+                       <Button text='Delete Account' addClass='btn--caution  btn--small' size='small'/>
                     </form>
                 </div>
             </section>

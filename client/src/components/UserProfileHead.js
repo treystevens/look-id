@@ -5,7 +5,9 @@ import Modal from './Modal';
 import { connect } from 'react-redux';
 import FollowButton from './FollowButton';
 import { prefixURL } from '../util/general';
-
+import Button from './Button';
+import './UserProfile.css';
+import './Modal.css';
 
 
 class UserProfileHead extends Component{
@@ -23,7 +25,7 @@ class UserProfileHead extends Component{
     // Click Event for 'Followers' & 'Followers' to show Modal - FF Component
     handleClick(evt){
         evt.preventDefault();
-        if(evt.target.className === 'user__ff'){
+        if(evt.target.className === 'up__ff'){
             const ffText = evt.target.textContent;
 
             this.setState({
@@ -36,7 +38,7 @@ class UserProfileHead extends Component{
 
     // Close Modal on click
     closeModal(evt){
-        if(evt.target.className === 'modal' || evt.target.className === 'modal__close-btn'){
+        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showModal: false,
             });
@@ -56,7 +58,7 @@ class UserProfileHead extends Component{
     }
 
     render(){
-            console.log(this.props)
+            
         let uploadPost = false;
         let showFollowButton = true;
         const url = prefixURL(this.props.data.website);
@@ -70,38 +72,53 @@ class UserProfileHead extends Component{
 
         return(
             <section>
-                <section style={{margin: '0 auto', width: '40%'}}>
-                    
-                    <Avatar avatar={this.props.data.avatar} username={this.props.urlParamUser}/>
-                    <span>{this.props.urlParamUser}</span>
+                <section className='up'>
                     <div>
-                        <a onClick={this.handleClick}>
-                            <span className='user__ff'>Followers</span>
-                            <span>{this.props.data.followerCount}</span>
-                        </a>
+                        <Avatar avatar={this.props.data.avatar} username={this.props.urlParamUser} addClass='avatar-container--med'/>
+                        <div className='up__username'>{this.props.urlParamUser}</div>
                     </div>
                     <div>
-                        <a onClick={this.handleClick} >
-                            <span className='user__ff'>Following</span>
-                            <span>{this.props.data.followingCount}</span>
-                        </a>
+                        
+                        <div className='up__ff'>
+                            <div className='up__ff--position'>
+                                <a onClick={this.handleClick}>
+                                    <span className='up__ff'>Followers</span>
+                                    <span className='up__ff-count up--bold'>{this.props.data.followerCount}</span>
+                                </a>
+                            
+                                <a onClick={this.handleClick} >
+                                    <span className='up__ff'>Following</span>
+                                    <span className='up__ff-count up--bold'>{this.props.data.followingCount}</span>
+                                </a>
+                            </div>
+
+                            <div className='up__follow-btn'>
+                                {showFollowButton &&
+                                    <FollowButton followText={this.props.followText} iFollow={this.props.iFollow} urlParamUser={this.props.urlParamUser} reqUserAvatar={this.props.data.avatarUrl} user={this.props.data.username}  handleFollowerCount={this.props.handleFollowerCount}/>
+                                }
+                            </div>
+                        
+                        </div>
+                            <div className='up__info'>
+                                <span className='up__bio up--bold'>{this.props.data.bio}</span>
+                        
+                                <a href={url} target='_blank' className='up__website'>{url}</a>
+                            </div>
                     </div>
 
-                        <span>{this.props.data.bio}</span>
                     
-                    <a href={url} target='_blank'>{url}</a>
-
-                    {showFollowButton &&
-                        <FollowButton followText={this.props.followText} iFollow={this.props.iFollow} urlParamUser={this.props.urlParamUser} reqUserAvatar={this.props.data.avatarUrl} user={this.props.data.username}  handleFollowerCount={this.props.handleFollowerCount}/>
-                    }
                 </section>
 
                 {uploadPost && 
-                    <Link to='/profile/upload'>Post a new photo</Link>
+                    <div className='edit-container'>
+                        <Link to='/profile/upload'>
+                            <Button dummy={true} text='Post a new photo' />
+                        </Link>
+                    </div>
                 }
 
                 {this.state.showModal &&
-                    <Modal source='ff' closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} handleFollowingCount={this.props.handleFollowingCount}/>
+                    <Modal source='ff' closeModal={this.closeModal} urlParamUser={this.props.urlParamUser} followAction={this.state.followAction}  escCloseModal={this.escCloseModal} handleFollowingCount={this.props.handleFollowingCount} addClass='modal-content--midt'/>
                 }
                 
             </section>

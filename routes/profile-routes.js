@@ -159,13 +159,22 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
 router.post('/uploaditems', (req, res) => {
 
 
+    // Schema has item price stored as string
+    // Making sure price is a number
+    const copyItems = req.body.items.map((item) => {
+
+        item.price = parseInt(item.price) + '';
+        if(isNaN(item.price)) item.price = '';
+        return item;
+    });
+
     const postQuery = {
         post_id: req.body.postID
     };
     const postID = req.body.postID;
     const itemDocument = {
         // post_id : req.body.postID,
-        items: req.body.items
+        items: copyItems
     }; 
     let itemID;
 

@@ -61,6 +61,10 @@ class Board extends Component{
     }
 
     loadData(){
+        this.setState({
+            isLoading: true
+        });
+
         const { scrollCount, streamData } = this.state;
         const boardID = this.props.urlParams.match.params.boardid;
         const serverResponse = getData(`/board/${boardID}/page/${scrollCount}`);
@@ -76,7 +80,8 @@ class Board extends Component{
                 streamData: streamData.concat(data.stream),
                 boardName: data.boardName,
                 hasMore: data.hasMore,
-                boardID: data.underscoreID
+                boardID: data.underscoreID,
+                isLoading: false
             });
         })
         .catch((err) => {
@@ -97,7 +102,8 @@ class Board extends Component{
         if (error || isLoading || !hasMore) return;
 
         // Check if user has scrolled to the bottom of the page
-        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        // different browser support
+        if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) >= document.documentElement.offsetHeight - 300) {
 
 
             const { scrollCount } = this.state;

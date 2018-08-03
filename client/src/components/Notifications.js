@@ -94,7 +94,8 @@ class Notifications extends Component{
         if (error || isLoading || !hasMore) return;
 
         // Check if user has scrolled to the bottom of the page
-        if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 150) {
+        // different browser support
+        if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) >= document.documentElement.offsetHeight - 300) {
             
             // Using scrollCount to mimic pages
             const { scrollCount } = this.state;

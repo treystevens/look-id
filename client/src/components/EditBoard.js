@@ -50,6 +50,9 @@ class EditBoard extends Component{
     }
 
     loadData(){
+        this.setState({
+            isLoading: true
+        });
         const { scrollCount, streamData } = this.state;
         const boardID = this.props.urlParams.match.params.boardid;
         const serverResponse = getData(`/board/${boardID}/page/${scrollCount}`);
@@ -65,7 +68,8 @@ class EditBoard extends Component{
             this.setState({
                 streamData: streamData.concat(data.stream),
                 boardName: data.boardName,
-                hasMore: data.hasMore
+                hasMore: data.hasMore,
+                isLoading: false
             });
         })
         .catch((err) => {
@@ -86,7 +90,8 @@ class EditBoard extends Component{
         if (error || isLoading || !hasMore) return;
 
         // Check if user has scrolled to the bottom of the page
-        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        // different browser support
+        if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) >= document.documentElement.offsetHeight - 300) {
 
 
             const { scrollCount } = this.state;
@@ -176,18 +181,12 @@ class EditBoard extends Component{
         
         const { notFound } = this.state; 
         const boardID = this.props.urlParams.match.params.boardid;
-        const isMobile = window.matchMedia("only screen and (max-width: 600px)");
-        const instruction = isMobile ? 'Tap' : 'Click';
+        const isMobile = window.matchMedia('only screen and (max-width: 600px)');
+        const instruction = isMobile.matches ? 'Tap' : 'Click';
         let deleteMessage;
 
-        
-        
-    
-        
-
         if(notFound) return <NotFound />
-        
-
+    
         if(this.state.postsToDelete.length === 1){
             deleteMessage = `Delete (${this.state.postsToDelete.length}) item`;
         }
@@ -198,9 +197,9 @@ class EditBoard extends Component{
 
         return(
             <section className='container'>
-                <PageHead pageHead={`Edit "${this.state.boardName}"`} />
+                <PageHead pageHead={`Edit '${this.state.boardName}'`} />
                 <Link to={`/boards/${boardID}`} className='edit__back'>
-                    <svg className='edit__caret' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512" height='30px' width='30px'><path d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"/></svg>
+                    <svg className='edit__caret' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 512' height='30px' width='30px'><path d='M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z'/></svg>
                     Back to Board</Link>
 
                     {this.state.showConfirmation &&

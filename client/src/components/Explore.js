@@ -121,7 +121,7 @@ class Explore extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data)
+            
             if(data.error) return Promise.reject(new Error(data.error));
 
             // If we're fetching data from scrolling
@@ -248,7 +248,8 @@ class Explore extends Component{
         if (error || isLoading || !hasMore) return;
 
         // Check if user has scrolled to the bottom of the page
-        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        // different browser support
+        if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) >= document.documentElement.offsetHeight - 300) {
             
             // Using scrollCount to mimic pages
             const{ endPoint, isSearching } = this.props;

@@ -53,12 +53,15 @@ class Profile extends Component{
         const { scrollCount, streamData, initialLoad } = this.state;
         const serverResponse = getData(`/user/${urlParamUser}/page/${scrollCount}`);
 
+        this.setState({
+            isLoading: true
+        });
 
         // Fetch Data
         serverResponse.then(response => response.json())
         .then((data) => {
 
-            if(data.error) return Promise.reject(new Error(data.error))
+            if(data.error) return Promise.reject(new Error(data.error));
             
 
             if(initialLoad){
@@ -73,7 +76,8 @@ class Profile extends Component{
                     streamData: streamData.concat(data.stream),
                     iFollow: data.iFollow,
                     initialLoad: true,
-                    hasMore: data.hasMore
+                    hasMore: data.hasMore,
+                    isLoading: false,
                 });
             }
 
@@ -95,8 +99,9 @@ class Profile extends Component{
         // Return if there's an error, already loading or there's no more data from the database
         if (error || isLoading || !hasMore) return;
 
-        // Checks that the page has scrolled to the bottom
-        if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        // Check if user has scrolled to the bottom of the page
+        // different browser support
+        if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) >= document.documentElement.offsetHeight - 300) {
             
             
             const { scrollCount } = this.state;

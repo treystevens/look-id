@@ -143,13 +143,23 @@ router.get('/:user/:postid/edit', (req, res) => {
 // Edit User's Post
 router.post('/:user/:postid/edit', (req, res) => {
 
+    
+    // Schema has item price stored as string
+    // Making sure price is a number
+    const copyItems = req.body.items.map((item) => {
+
+        item.price = parseInt(item.price) + '';
+        if(isNaN(item.price)) item.price = '';
+        return item;
+    });
+
 
     const postID = req.params.postid;
     const postQuery = {
         post_id: postID
     };
     const caption = req.body.caption;
-    const items = req.body.items;
+    const items = copyItems;
 
     const username = req.user.username;
     const paramUsername = req.params.user;

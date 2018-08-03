@@ -45,10 +45,10 @@ const NotificationItem = (props) => {
                     <Avatar avatar={user.profile.avatar} username={user.username} addClass='avatar-container--small'/>
                 </Link>
                 <div className='notification__message'>
-                    <p>{displayText}</p>
+                    <p className='notification__action'>{displayText}</p>
 
                     {hasComment &&
-                        <p>{comment}</p>
+                        <p className='notification__comment'>{comment}</p>
                     }
                 </div>
             </div>

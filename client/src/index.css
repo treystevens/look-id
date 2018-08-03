@@ -377,7 +377,7 @@ body {
 }
 
 .container{
-    /* margin: 0 3%; */
+    margin: 0 3%;
     padding: 0 3%;
 }
 
@@ -416,9 +416,22 @@ input:required {
   box-shadow: none;
 }
 
-@media only screen and (max-width: 768px) {
+.noscroll{
+  overflow: hidden;
+}
+
+@media only screen and (max-width: 600px) {
+
+  .container{
+    margin: initial;
+  }
 
   .content{
-    margin-top: 100px
+    margin-top: 60px
+  }
+
+  .container{
+    cursor: pointer; /* for touch devices to close menu */
   }
 }
+

@@ -22,7 +22,6 @@ class Post extends Component{
             otherPosts: [],
             username: '',
             image: '',
-            showModal: false,
             caption: '',
             postID: '',
             dataLoaded: false,
@@ -37,7 +36,6 @@ class Post extends Component{
         };
 
         this.shuffle = this.shuffle.bind(this);
-        
         this.handleDeletePost = this.handleDeletePost.bind(this);
         this.showOptions = this.showOptions.bind(this);
         this.escEditOptions = this.escEditOptions.bind(this);
@@ -46,6 +44,7 @@ class Post extends Component{
     // Retrieve Posts, Comments, Other Posts and Items
     componentDidMount(){
         window.addEventListener('click', this.escEditOptions);
+        window.scrollTo(0, 0);
 
         const urlUser = this.props.urlParams.match.params.user;
         const urlPostID = this.props.urlParams.match.params.postid;
@@ -54,7 +53,7 @@ class Post extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
-            console.log(data)
+            
             if(data.error) return Promise.reject(new Error(data.error));
 
             const otherPostLength = data.otherPosts.length;

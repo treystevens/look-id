@@ -87,7 +87,7 @@ class Login extends Component{
         }
 
         return(
-            <div className='img-spread1' >
+            <div className='img-spread2  content' >
                 <div className='form-content-container'>
                     <div className='form-container'>
                             <form className='form' autoComplete='off' onSubmit={this.submitHandler}>

@@ -60,8 +60,6 @@ class SignUp extends Component{
             confirmPassword: this.state.confirmation
         };
 
-        console.log(data)
-
         const serverResponse = sendUserData('/auth/signup', data);
 
         serverResponse.then( repsonse => repsonse.json())
@@ -102,7 +100,7 @@ class SignUp extends Component{
 
         return(
             
-            <div className='img-spread2' >
+            <div className='img-spread1  content' >
             <div className='form-content-container'>
                     <div className='form-container'>
 

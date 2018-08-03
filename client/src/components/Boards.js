@@ -63,6 +63,9 @@ class Boards extends Component{
 
     // Close modal with esc key
     escModal(evt){
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+
         if(this.state.showModal && evt.keyCode === 27){
             this.setState({
                 showModal: false,
@@ -75,6 +78,10 @@ class Boards extends Component{
     // Close modal on click
     closeModal(evt){
         
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+        
+
         if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showModal: false,
@@ -87,6 +94,8 @@ class Boards extends Component{
     // Open modal to create a new board
     handleClickCreateBoard(){
         
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.add('noscroll');
         // Show Login / Sign Up modal if not Authorized - Create Board if authorized
         if(!this.props.isAuth){
             

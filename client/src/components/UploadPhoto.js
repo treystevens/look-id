@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './Button';
+import './Avatar.css';
  
 // Setting the image of the file to the div for a preview
 function handleFiles(evt) {
@@ -61,8 +62,8 @@ const UploadPhoto = (props) => {
 
 
     return(
-        <div className={containerClass}>
-            <div className='photo-container' >
+        <div >
+            <div className={containerClass} >
                 <img src={imgSrc} className='preview' />
             </div>
             <input type='file' className='upload-photo__file-input' name={inputName} onChange={handleFiles} accept='.jpg, .jpeg, .png'/>

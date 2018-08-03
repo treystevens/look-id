@@ -1,5 +1,3 @@
-/*  comments  */
-
 .comments{
     width: 40%;
     margin-top: 50px;
@@ -39,7 +37,6 @@
 .comment__user-comment{
     display: flex;
     flex-direction: column;
-    /* justify-content: space-around; */
     margin-left: 10px;
 }
 
@@ -64,7 +61,6 @@
     font-size: .8rem;
     margin-left: 10px;
 }
-
 
 
 @media only screen and (max-width: 786px){

@@ -1,6 +1,5 @@
 function prefixURL(url){
-    console.log(url);
-
+    
     if(!url) return url;
     
     const prefix = 'https://';

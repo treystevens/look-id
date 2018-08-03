@@ -32,7 +32,7 @@ class MBHeader extends Component{
 
     
     
-
+    // Load Avatar or supply guest avatar
     componentDidMount(){
 
         window.addEventListener('click', this.closeNav);
@@ -49,6 +49,7 @@ class MBHeader extends Component{
     }
 
 
+    // When user logs in update the avatar image
     componentDidUpdate(prevProps){
         if(prevProps.isAuth !== this.props.isAuth){
             if(this.props.isAuth){
@@ -66,6 +67,8 @@ class MBHeader extends Component{
         window.removeEventListener('click', this.closeNav);
     }
 
+    
+    // close navs on click
     closeAllNavs(evt){
         evt.stopPropagation();
         this.removeAnimation();
@@ -74,6 +77,7 @@ class MBHeader extends Component{
             showMenu: false
         });
     }
+
 
     loadAvatar(){
         const serverResponse = getData('/auth');
@@ -86,12 +90,11 @@ class MBHeader extends Component{
                     this.setState({
                         avatar: data.user.avatar
                     });
-                }
-                
-                    
+                }         
             });
     }
 
+    // Account navigation
     showAccount(evt){
         evt.stopPropagation();
 
@@ -112,6 +115,7 @@ class MBHeader extends Component{
         }
     }
 
+    // Global site navigation
     showMenu(evt){
         evt.stopPropagation();
 
@@ -140,13 +144,14 @@ class MBHeader extends Component{
         }
     }
 
+    // Animation for hamburger menu (global site navigation)
     removeAnimation(){
         const hold = document.querySelector('.hold');
         hold.classList.remove('active');
     }
 
+    // Close nav if not clicking on any nav items 
     closeNav(evt){
-
        if(!evt.target.classList.contains('nav-item__link') || !evt.target.classList.contains('avatar') || !evt.target.classList.contains('header-account-content') || !evt.target.classList.contains('bar')){
            this.removeAnimation();
             this.setState({
@@ -157,12 +162,13 @@ class MBHeader extends Component{
 
     }
 
-   scrollToTop(evt){
+
+    scrollToTop(evt){
        evt.stopPropagation();
     
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-   }
+    }
 
     render(){
         

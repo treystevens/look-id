@@ -41,20 +41,15 @@ class App extends Component{
       isMobile: false
     };
 
+    this.currentView = this.currentView.bind(this);
   }
 
 
   componentDidMount(){
 
+    window.addEventListener('orientationchange', this.currentView);
 
-    // Check if mobile
-    const isMobile = window.matchMedia("only screen and (max-width: 768px)");
-    
-    if (isMobile.matches) {
-      this.setState({
-        isMobile: true
-      });
-    }
+    this.currentView();
 
 
     const serverResponse = getData('/auth');
@@ -72,10 +67,26 @@ class App extends Component{
     });
   }
 
+  
+  currentView(){
+    // Check if mobile
+    const isMobile = window.matchMedia("only screen and (max-width: 600px)");
+    
+    if (isMobile.matches) {
+      this.setState({
+        isMobile: true
+      });
+    }
+    else{
+      this.setState({
+        isMobile: false
+      });
+    }
+  }
+
 
   render(){
-    console.log(this.props)
-
+    
     const { isMobile } = this.state;
 
     const header = isMobile ?  <MBHeader /> : <Header />
@@ -86,10 +97,10 @@ class App extends Component{
             {header}
             <Switch>
               <Route exact path='/' render={ (match) => <Explore key={match.match.path} endPoint='Explore'/>} />
-              <Route path='/search' render={ (match) => <Explore key={match.match.path} urlParams={match} isSearching={true}/>} />
+              <Route path='/search' render={ (match) => <Explore key={match.location.search} urlParams={match} isSearching={true}/>} />
               <Route exact path='/feed' render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>} />
               <Route exact path='/user/:user' render={ (match) => <Profile urlParams={match} key={match.match.params.user} />} />
-              <Route exact path='/user/:user/:postid' render={ (match) => <Post urlParams={match}/>} />
+              <Route exact path='/user/:user/:postid' render={ (match) => <Post urlParams={match} test={match.match.params.postid}/>} />
               <Route exact path='/user/:user/:postid/edit' render={ (match) => <EditPost urlParams={match}/>} />
               <Route exact path='/boards/:boardid' render={ (match) => <Board urlParams={match}/>} />
               <Route exact path='/boards/:boardid/edit' render={ (match) => <EditBoard urlParams={match}/>} />

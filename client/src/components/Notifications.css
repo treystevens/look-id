@@ -21,6 +21,7 @@
 .notification__user{
     display: flex;
     align-items: center;
+    width: 80%;
 }
 
 .notification-container__image{
@@ -40,8 +41,12 @@
     margin-left: 20px;
 }
 
+.notification__action{
+    margin-bottom: 5px;
+}
+
 .notifications__light{
-    background-color: green;
+    background-color: rgb(43, 119, 43);
     position: absolute;
     right: -5px;
     top: -5px;
@@ -59,7 +64,6 @@
 }
 
 
-
 @media only screen and (max-width: 1024px){
     .notifications{
         width: 80%;
@@ -71,4 +75,22 @@
         width: 100%;
     }
     
+    .notifications__nav-light {
+        background-color: #8d8d8d;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 5px;
+        width: 10px;
+        height: 10px;
+    }
+
+    .notifications__nav-light--lit {
+        background-color: rgb(43, 119, 43);
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 5px;
+        width: 10px;
+        height: 10px;
+    }
+
 }

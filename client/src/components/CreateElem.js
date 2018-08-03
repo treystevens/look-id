@@ -1,5 +1,6 @@
 import React from 'react';
 import './CreateElem.css';
+import './Boards.css';
 
 
 

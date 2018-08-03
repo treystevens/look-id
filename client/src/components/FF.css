@@ -15,6 +15,16 @@
     margin-left: 10px;
 }
 
+.modal-overflow-content .pageHead{
+    margin-top: initial
+}
+
+
+@media only screen and (max-width: 1024px) {
+    .modal-content{
+        width: 80%
+    }
+}
 
 
 @media only screen and (max-width: 600px) {

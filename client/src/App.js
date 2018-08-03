@@ -42,12 +42,14 @@ class App extends Component{
     };
 
     this.currentView = this.currentView.bind(this);
+    this.updateView = this.updateView.bind(this);
   }
 
 
   componentDidMount(){
 
     window.addEventListener('orientationchange', this.currentView);
+    window.addEventListener('resize', this.updateView);
 
     this.currentView();
 
@@ -82,6 +84,10 @@ class App extends Component{
         isMobile: false
       });
     }
+  }
+
+  updateView(){
+    this.currentView();
   }
 
 

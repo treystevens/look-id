@@ -23,7 +23,7 @@ const Modal = (props) => {
     }
 
     if(props.source === 'addToBoard'){
-        shownContent = <Boards addToBoard={true} urlParams={props.urlParams}/>
+        shownContent = <Boards addToBoard={true} urlParams={props.urlParams} instructions={true}/>
     }
 
     if(props.source === 'ff'){

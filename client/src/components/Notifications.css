@@ -41,9 +41,30 @@
 }
 
 .notifications__light{
-    background-color: green
+    background-color: green;
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
 }
 
+.notification-icon__body{
+    width: 20px;
+    height: 20px;
+    border: 1px solid #8d8d8d;
+    border-radius: 2px;
+    position: relative;
+}
+
+
+
+@media only screen and (max-width: 1024px){
+    .notifications{
+        width: 80%;
+    }
+}
 
 @media only screen and (max-width: 600px) {
     .notifications{

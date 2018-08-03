@@ -59,13 +59,13 @@ class Item extends Component{
 
         // Lift state up to parent component 
         this.setState({ items: newItems}, () => {
-            this.props.addItemToParentState(this.state.items)
+            this.props.addItemToParentState(this.state.items);
         })
     };
 
     // Handle the Thrifted Checkbox state
     handleThriftedChange = (index) => (evt) => { 
-        console.log('heree thirfted')
+        
         const newItems = this.state.items.map((item, itemIndex) => {
             if( index !== itemIndex) return item;
             return { ...item, thrifted: evt.target.checked };
@@ -175,7 +175,7 @@ class Item extends Component{
     render(){
          
         const fields = this.state.items.map((item, index) => {
-
+            
         return(
             <div className='item' key={`item${index}`}>
             
@@ -204,10 +204,19 @@ class Item extends Component{
                 <InputField label='Color:' type='text' onChange={this.handleInputChange(index, `color`)} value={item.color} addClass='form__field--stack' spacing='stack' />
                 
                 
-                    <InputField label='Price:' type='text' onChange={this.handleInputChange(index, `price`)} value={item.price} addClass='form__field--stack' spacing='stack' />
+                    <InputField label='Price:' type='number' onChange={this.handleInputChange(index, `price`)} value={item.price} addClass='form__field--stack' spacing='stack' />
                     
-                    <InputField label='Thrifted?' type='checkbox' onClick={this.handleThriftedChange(index)} value={item.thrifted} spacing='stack' size='small'/>
-                
+                    <label className='form__label--thrifted'>Thrifted?
+                        {item.thrifted &&
+                            <input className='form__field-thrifted' type='checkbox' onChange={this.handleThriftedChange(index)} value={item.thrifted} checked />
+                        }
+                        {!item.thrifted &&
+                            <input type='checkbox' onChange={this.handleThriftedChange(index)} value={item.thrifted} />
+                        }
+
+
+                        
+                    </label>
                 
                 <div>
                     <label>Store:

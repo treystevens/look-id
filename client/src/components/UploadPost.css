@@ -46,6 +46,26 @@
 }
 
 
+@media only screen and (max-width: 1024px) {
+    .upload-post__flex{
+        flex-direction: column;
+    }
+
+    .upload-photo-container{
+        width: 50%;
+    }
+
+    .upload-post__info{
+        width: 100%;
+    }
+
+    .user-caption{
+        margin-top: 40px;
+        width: 50%;
+        height: 100px;
+    }
+}
+
 @media only screen and (max-width: 600px){
 
     .upload-post__flex{
@@ -64,5 +84,13 @@
         margin-top: 40px;
         width: 100%;
         height: 100px;
+    }
+
+    .upload-photo__file-input{
+        width: 300px;
+    }
+
+    .up__follow-btn{
+        margin-left: 0;
     }
 }

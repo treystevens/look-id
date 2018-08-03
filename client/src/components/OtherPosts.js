@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 
 const OtherPosts = (props) => {
@@ -7,9 +8,9 @@ const OtherPosts = (props) => {
     
     return(
         <div className='other-post'>
-            <a href={imgSrcLink}>
+            <Link to={imgSrcLink}>
                 <img src={props.post.image} alt='Other posts for this user' className='other-post__image' />
-            </a>
+            </Link>
         </div>
     )
 }

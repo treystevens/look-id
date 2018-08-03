@@ -44,36 +44,11 @@
 
 
 .board{
-
     position: relative;
     width: 30%;
     height: 400px;
     flex: 0 0 30%;
-
 }
-
-
-.board__edit{
-    position: absolute;
-    top: -30px;
-    right: 0;
-}
-
-.board__edit-options{
-    position: absolute;
-    background-color: white;
-    z-index: 1;
-    color: white;
-    right: 0;
-    border: 1px solid #8D8D8D;
-    border-radius: 5px;
-}
-
-/* Extract this */
-.board__edit-option--danger{
-    background-color: rgb(219, 33, 42);
-}
-
 
 
 .boardContainer{
@@ -96,7 +71,19 @@
 
 
 
-@media only screen and (max-width: 768px){
+
+@media only screen and (max-width: 1024px) {
+    .board{
+        flex: 0 0 45%;
+        width: 45%;
+        margin-bottom: 40px;
+    }
+}
+
+
+
+
+@media only screen and (max-width: 600px){
     .board{
         flex: 0 0 100%;
         width: 100%;

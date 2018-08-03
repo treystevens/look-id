@@ -6,7 +6,7 @@ import './Stream.css';
 
 const Stream = (props) => {
 
-    const windowWidth = window.outerWidth;
+    const windowWidth = window.innerWidth;
     let listPosts;
     let postData;
     let colWidth;

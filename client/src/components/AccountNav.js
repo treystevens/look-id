@@ -31,7 +31,7 @@ class AccountNav extends Component{
 
 
         // Check if mobile
-        const isMobile = window.matchMedia("only screen and (max-width: 768px)");
+        const isMobile = window.matchMedia("only screen and (max-width: 600px)");
         
         if (isMobile.matches) {
           this.setState({
@@ -42,6 +42,7 @@ class AccountNav extends Component{
 
       }
 
+    
     logoutHandler(evt){
         evt.preventDefault();
 
@@ -61,6 +62,7 @@ class AccountNav extends Component{
     }
 
 
+    // View of account navigation when user if authorized
     authorized(){
         const userLink = `/user/${this.props.username}`;
         const { isMobile } = this.state;
@@ -68,29 +70,39 @@ class AccountNav extends Component{
         let notification;
         
 
+        // Mobile navigation
         if(isMobile){
-            notification = (<li className='account-nav-list__item'><NavLink to='/profile/notifications'>Notifications</NavLink></li>)
+            notification = (<li className='account-nav-list__item'><NavLink to='/profile/notifications' className='nav-item__link'>Notifications</NavLink></li>)
         }
+        // Not mobile
         else{
-            notification = (<li className='account-nav-list__item'><NotificationIcon /></li>)
+            notification = (
+            <li className='account-nav-list__item'>
+                <NavLink to='/profile/notifications' className='nav-item__link'>
+                    <div className='notification-icon__body'>
+                        <NotificationIcon />
+                    </div>
+                </NavLink>
+            </li>)
         }
 
         return(
           
                 <ul className='account-nav-list  account-nav--logged'>
                     
-                    <li className='account-nav-list__item'><NavLink to={userLink}>{profileDisplay}</NavLink>
+                    <li className='account-nav-list__item'><NavLink to={userLink} className='nav-item__link'>{profileDisplay}</NavLink>
                     </li>
                     {notification}
-                    <li className='account-nav-list__item'><NavLink to='/profile/edit'>Edit Profile</NavLink></li>
-                    <li className='account-nav-list__item'><NavLink to='/profile/settings'>Settings</NavLink></li>
-                    <li className='account-nav-list__item'><a href='/auth/logout' onClick={this.logoutHandler}>Log Out</a></li>
+                    <li className='account-nav-list__item'><NavLink to='/profile/edit' className='nav-item__link'>Edit Profile</NavLink></li>
+                    <li className='account-nav-list__item'><NavLink to='/profile/settings' className='nav-item__link'>Settings</NavLink></li>
+                    <li className='account-nav-list__item'><a href='/auth/logout' onClick={this.logoutHandler} className='nav-item__link'>Log Out</a></li>
                 </ul>
                 
              
         )
     }
 
+    // View of account navigation when guest
     unauthorized(){
         return (
             

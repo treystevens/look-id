@@ -2,28 +2,33 @@ const router = require('express').Router();
 const models = require('../models/schemas');
 
 
+
 router.post('/:page', (req, res) => {
-
     
+
+
     if(req.body.query === '') return res.status(200).json({error: 'Please enter what you\'d like to search.'});
-    
 
+    
+    
     const skipNum = req.body.page * 10;
-    const priceValue = req.body.price;  
+    const price = parseInt(req.body.price);
+    const priceValue = price;  
     const itemQuery = req.body.query;
     const colorValue = req.body.color;
-
+    
     const query = {
         '$text': { '$search': itemQuery }
     };
 
 
-    if(req.body.price !== '') {
+    if(req.body.price !== '' || !isNaN(price) ) {
         query['items.price'] = { $lte: priceValue };
     }
     if(req.body.color !== '') {
         query['items.color'] = colorValue ;
     }
+
 
     models.Items.find( 
         query 

@@ -60,6 +60,7 @@
 
 .item__category-select{
  width: 100%;   
+ padding: initial;
 }
 
 .item__thrifted{
@@ -110,33 +111,37 @@
 
 
 
-
-
-@media only screen and (max-width: 600px){
-    .item{
-        width: 100%;
-    }
-
-
+@media only screen and (max-width: 1024px) {
     .item__delete{
         position: initial;
         border-radius: initial;
         border: none;
         background-color: initial;
         padding-top: initial
-    }
-    
+    } 
+
     .item__delete-svg{
 
         position: absolute;
-        right: -25px;
-        top: -25px;
+        right: -10px;
+        top: -15px;
         background: none;
         border: none;
         display: block;
         fill: #575757;
         text-align: center;
-        margin-left: auto;
-        margin-right:auto;
     }
+}
+
+
+
+@media only screen and (max-width: 600px){
+    .item{
+        width: 100%;
+        margin: initial;
+        margin-bottom: 40px
+    }
+
+    
+    
 }

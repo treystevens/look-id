@@ -10,7 +10,7 @@ function mapStateToProps(state) {
 }
 
 const PrivateRoute = ({component: Component, ...rest}) => {
-    console.log(rest);
+    
     return(
     <Route {...rest} render={(props) => (
         rest.isAuth ? 

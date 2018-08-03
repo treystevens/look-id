@@ -3,7 +3,7 @@ import PageHead from './PageHead';
 import { Link } from 'react-router-dom';
 import './Settings.css';
 
-const Settings = (props) => {
+const Settings = () => {
     return(
         <section className='container'>
             <PageHead pageHead='Settings' />

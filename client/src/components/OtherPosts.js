@@ -8,9 +8,9 @@ const OtherPosts = (props) => {
     
     return(
         <div className='other-post'>
-            <Link to={imgSrcLink}>
+            <a href={imgSrcLink}>
                 <img src={props.post.image} alt='Other posts for this user' className='other-post__image' />
-            </Link>
+            </a>
         </div>
     )
 }

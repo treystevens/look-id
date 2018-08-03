@@ -95,7 +95,7 @@ class DeleteAccount extends Component{
     render(){
 
         const { errors } = this.state;
-        console.log(this.state)
+        
         return(
             <section className='container'>
                 <PageHead pageHead='Delete Account' />

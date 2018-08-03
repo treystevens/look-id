@@ -63,7 +63,7 @@ class Boards extends Component{
 
     // Close modal with esc key
     escModal(evt){
-        const body = document.getElementsByTagName("BODY")[0];
+        const body = document.getElementsByTagName('BODY')[0];
         body.classList.remove('noscroll');
 
         if(this.state.showModal && evt.keyCode === 27){
@@ -78,7 +78,7 @@ class Boards extends Component{
     // Close modal on click
     closeModal(evt){
         
-        const body = document.getElementsByTagName("BODY")[0];
+        const body = document.getElementsByTagName('BODY')[0];
         body.classList.remove('noscroll');
         
 
@@ -94,7 +94,7 @@ class Boards extends Component{
     // Open modal to create a new board
     handleClickCreateBoard(){
         
-        const body = document.getElementsByTagName("BODY")[0];
+        const body = document.getElementsByTagName('BODY')[0];
         body.classList.add('noscroll');
         // Show Login / Sign Up modal if not Authorized - Create Board if authorized
         if(!this.props.isAuth){
@@ -191,7 +191,7 @@ class Boards extends Component{
                     this.setState({
                         showConfirmation: true,
                         actionSuccess: true,
-                        statusMessage: `Saved to "${boardName}"!`
+                        statusMessage: `Saved to '${boardName}'!`
                     });
                 }
             })
@@ -205,6 +205,11 @@ class Boards extends Component{
 
     render(){
         const { showAccountVerify, showConfirmation, showCreateBoard, actionSuccess } = this.state;
+        const { instructions, addToBoard } = this.props;
+        const isMobile = window.matchMedia('only screen and (max-width: 600px)');
+        const instruction = isMobile.matches ? 'Tap' : 'Click';
+        let boardsClass = 'boards';
+        if(addToBoard) boardsClass += ' boards__add-post';
 
 
         const userBoards = this.state.boards.map((board) => {
@@ -221,7 +226,10 @@ class Boards extends Component{
                 {showConfirmation &&
                 <ConfirmAction statusMessage={this.state.statusMessage} actionSuccess={actionSuccess} absolute={true}/>}
 
-                <div className="boards">
+                {instructions &&
+                    <p className='board__add-post-instructions'>{instruction} on the board that you'd like to add a post to</p>}
+
+                <div className={boardsClass}>
                     <CreateElem handleCreate={this.handleClickCreateBoard} text='Create New Board'/>
                     {userBoards}
 
@@ -230,7 +238,7 @@ class Boards extends Component{
                     <Modal source='accountVerify' closeModal={this.closeModal}/>}
 
                 {showCreateBoard &&
-                    <BoardModal source="createBoard" closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit} />}
+                    <BoardModal source='createBoard' closeModal={this.closeModal} handleNewBoardSubmit={this.handleNewBoardSubmit} />}
                 
                 </div>
             </section>

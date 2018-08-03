@@ -489,7 +489,7 @@ router.post('/settings/delete-account',[
         // Pull _id from comments
         return models.Posts.updateMany(
             { 'comments._user': userID },
-            { $pull: { 'comments': { "_id": { $in: commentIDs } } }  },
+            { $pull: { 'comments': { '_id': { $in: commentIDs } } }  },
             { multi: true }
         );
     })

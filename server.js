@@ -63,10 +63,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static( __dirname + '/public'));
 
-// app.set('trust proxy', 1)
+
 app.use(session({
     cookie: {
-        // one day. 24 hrs * 60 mins * 60seconds * 1000 milli in a second
+        // Live for one day
         maxAge: 24 * 60 * 100 * 1000
     },
     secret: process.env.COOKIE_SECRET,

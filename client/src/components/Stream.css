@@ -13,9 +13,6 @@
     transition: all .2s ease-in;
 }
 
-
-
-
 .stream__image--edit{
     transform: scale(0.6);
     transition: all .4s ease-in-out;

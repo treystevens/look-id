@@ -595,7 +595,7 @@ router.put('/notifications', (req, res) => {
         query, 
         { $set: { 'notifications.$[elem].viewed': true } },
         {
-            arrayFilters: [ { "elem.viewed": false } ]
+            arrayFilters: [ { 'elem.viewed': false } ]
         }
     )
     .then(() => {

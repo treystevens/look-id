@@ -29,7 +29,7 @@ router.post('/', (req, res) => {
     }
 
     const query = {
-        "post_id": req.body.userPage.postID
+        'post_id': req.body.userPage.postID
     }; 
 
     const recipient = req.body.userPage.username;
@@ -126,7 +126,7 @@ router.post('/delete', (req, res) => {
         // Pull comment out of post
         if(masterUser || visitingUser){
             const pullComment = models.Posts.update(query, 
-                { $pull: { 'comments': { "_id": req.body.id } } });
+                { $pull: { 'comments': { '_id': req.body.id } } });
 
             const getNotificationID = models.Users.findOne(
                 { 'notifications._comment': req.body.id  }, {'notifications.$': 1});

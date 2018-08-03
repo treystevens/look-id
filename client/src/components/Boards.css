@@ -6,6 +6,21 @@
 }
 
 
+.boards__add-post .board:hover{
+    transform: scale(1.05);
+}
+
+.boards__add-post .board{
+    width: 25%;
+}
+
+.boards__add-post h2 {
+    word-break: break-word;
+    line-height: 1em;
+    font-size: 1em
+}
+
+
 .board__create{
     background-color: white;
     display: flex;
@@ -39,7 +54,6 @@
     width: 100px;
     height: 100px;
     fill: #8D8D8D;
-    
 }
 
 
@@ -48,6 +62,12 @@
     width: 30%;
     height: 400px;
     flex: 0 0 30%;
+}
+
+.board h2{
+    margin-top: 10px;
+    word-break: break-word;
+    line-height: 1em;
 }
 
 
@@ -69,7 +89,9 @@
     box-shadow: 0 1px 5px #a1a1a1;
 }
 
-
+.board__add-post-instructions{
+    text-align: center;
+}
 
 
 @media only screen and (max-width: 1024px) {
@@ -78,7 +100,44 @@
         width: 45%;
         margin-bottom: 40px;
     }
+
+    .boards__add-post .create-container{
+        width: 45%;
+    }
+
+    
+
+    .boards__add-post h2 {
+        font-size: .8em
+    }
+
+    .board h2 {
+        word-break: break-word;
+        line-height: 1em;
+    }
+
+    .boards__add-post .board {
+        height: 100%;
+        width: 25%;
+    }
+
+    .boards__add-post .board__display{
+        height: 100px 
+    }
+
+    .boards__add-post .create-container{
+        height: 200px;
+    }
+
+    .boards__add-post .create__display{
+        height: 100px 
+    }
+    .boards__add-post .create__item{
+        height: 50px ;
+        width: 50px;
+    }
 }
+
 
 
 
@@ -88,5 +147,19 @@
         flex: 0 0 100%;
         width: 100%;
         margin-bottom: 40px;
+    }
+
+    .boards__add-post .create-container{
+        width: 45%;        
+    }
+
+    .boards__add-post .board{
+        flex: 0 0 45%;
+        width: 45%;
+        margin-bottom: 40px;
+    }
+
+    .boards__add-post .create-container{
+        width: 45%;   
     }
 }

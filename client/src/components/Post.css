@@ -1,7 +1,6 @@
 
 .u-r{
     padding-left: 45px;
-    /* width: 60%; */
     width: 60%;
 }
 
@@ -25,6 +24,7 @@
 .post__l-h{
     width: 100%;
     display: flex;
+    margin-top: 20px;
 }
 
 /* other posts */
@@ -47,6 +47,8 @@
 .other-posts__header{
     font-weight: 300;
     color: #8D8D8D;
+    transform: translateY(-20px);
+    margin-bottom: 0;
 }
 
 .other-post{
@@ -113,7 +115,8 @@
 
 
 
-@media only screen and (max-width: 786px){
+
+@media only screen and (max-width: 992px) {
 
     .post__u-h{
         flex-direction: column
@@ -131,7 +134,7 @@
     }
 
     .post__image-container{
-        width: 100%;
+        width: 60%;
     }
 
     .post__l-h{
@@ -146,6 +149,15 @@
     .other-post{
         order: 1;
         width: 40%;
+    }
+
+}
+
+
+@media only screen and (max-width: 600px){
+
+    .post__image-container{
+        width: 100%;
     }
 
 }

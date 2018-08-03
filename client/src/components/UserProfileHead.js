@@ -20,6 +20,15 @@ class UserProfileHead extends Component{
         };
             this.handleClick = this.handleClick.bind(this);
             this.closeModal = this.closeModal.bind(this);
+            this.escModal = this.escModal.bind(this);
+    }
+
+    componentDidMount(){
+        window.addEventListener('keypress', this.escModal);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('keypress', this.escModal);
     }
 
     // Click Event for 'Followers' & 'Followers' to show Modal - FF Component
@@ -27,6 +36,10 @@ class UserProfileHead extends Component{
         evt.preventDefault();
         if(evt.target.className === 'up__ff'){
             const ffText = evt.target.textContent;
+
+            
+            const body = document.getElementsByTagName("BODY")[0];
+            body.classList.add('noscroll');
 
             this.setState({
                 showModal: true,
@@ -38,6 +51,10 @@ class UserProfileHead extends Component{
 
     // Close Modal on click
     closeModal(evt){
+
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+
         if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showModal: false,
@@ -46,7 +63,11 @@ class UserProfileHead extends Component{
     }
 
     // Close modal with `esc` key
-    componentDidUpdate(){
+    escModal(){
+
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+        
 
         window.addEventListener('keydown', (evt) => {
             if(this.state.showModal && evt.keyCode === 27){
@@ -56,6 +77,7 @@ class UserProfileHead extends Component{
             }
         });
     }
+    
 
     render(){
             

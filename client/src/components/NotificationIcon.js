@@ -29,7 +29,9 @@ class NotificationIcon extends Component{
     }
 
     loadNotifications(){
+       
         const serverResponse = getData('/user/notifications-check');
+
 
         serverResponse
         .then(response => response.json())
@@ -37,6 +39,12 @@ class NotificationIcon extends Component{
 
             this.setState({
                 newNotifications: data.newNotifications
+            }, () => {
+                
+                const { handleNotification } = this.props;
+                if(handleNotification){
+                    if(data.newNotifications) this.props.handleNotification();
+                }
             });
         })
         .catch((err) => {

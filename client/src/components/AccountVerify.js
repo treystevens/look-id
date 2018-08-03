@@ -2,11 +2,13 @@ import React from 'react';
 import Button from './Button';
 
 
-const AccountVerify = () => {
+const AccountVerify = (props) => {
 
+    let verifyClass = 'auth-verify';
+    if(props.noModal) verifyClass = 'auth-verify--inline';
 
     return(
-        <div className='auth-verify'>
+        <div className={verifyClass}>
             <a href="/login">
                 <Button dummy={true} text='Login' addClass='auth-btn'/>
             </a>

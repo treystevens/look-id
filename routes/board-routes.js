@@ -5,6 +5,8 @@ const models = require('../models/schemas');
 // Get Boards from user
 router.get('/', (req, res) => {
 
+    if(!req.isAuthenticated()) return res.status(200);
+
     const query = {
         username: req.user.username
     };

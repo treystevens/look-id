@@ -50,9 +50,9 @@ nav{
     overflow: visible;
 }
 
-
-
-/*#region poop*/
+.page-head h1{
+  font-weight: 300;
+}
 
 
 
@@ -186,7 +186,7 @@ nav{
   }
 }
 
-/*#endregion poop*/
+
 
 
 @media only screen and (max-width: 600px) {
@@ -211,8 +211,6 @@ nav{
     .header-nav-container{
       display: flex;
       align-items: center;
-      /* justify-content: space-between;
-      width: 25%; */
     }
 
     .header-account-nav,
@@ -237,7 +235,6 @@ nav{
 
     .header-account-container,
     .header-global-nav-container{
-      /* position: relative; */
       width:100%;
     }
 
@@ -251,14 +248,10 @@ nav{
     .site-nav-list{
         display: flex;
         flex-direction: column;
-        /* position: absolute; */
-        /* border: 1px solid black; */
         border-bottom: 1px solid #8d8d8d;
         border-radius: 5px;
         width: 100%;
     }
-
-
 
     
     .site-nav-list__item,
@@ -266,27 +259,24 @@ nav{
       width:100%;
       padding: 20px 10px;
       font-size: 1.2em;
-      /* border-bottom: 1px solid #8d8d8d; */
-    }
-
-    .account-nav-list__item{
-      /* padding: 5px 0; */
-      /* width: 100%; */
     }
 
     .account-nav-list__item a,
     .site-nav-list__item a{
       display: block;
       text-align: center;
-      /* width: 100% */
+      
     }
 
     
-
     .page-head{
       margin-top: 80px;
       margin-bottom: initial;
     }
 
+
+    .header-notification-container{
+      position: relative;
+    }
 }
 

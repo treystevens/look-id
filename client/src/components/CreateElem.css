@@ -8,6 +8,10 @@
     width: 45%;
 }
 
+.create-container h2{
+    margin-top: 10px;
+}
+
 
 .create__display{
     background-color: #dcdcdc;
@@ -27,14 +31,6 @@
     fill: #8D8D8D;
 }
 
-
-/* .create__display{
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 5px #a1a1a1;
-} */
 
 .create__text:hover{
     text-decoration: underline;
@@ -58,21 +54,17 @@
 
 
 @media only screen and (max-width: 1024px) {
-    .create-container{
-        
+    .create-container{ 
         width: 45%;
-        height: 400px;
-        
+        height: 400px; 
     }
 }
 
 
 @media only screen and (max-width: 600px){
 
-    .create-container{
-        
+    .create-container{ 
         width: 100%;
-        height: 400px;
-        
+        height: 400px; 
     }
 }

@@ -26,7 +26,7 @@
 .btn--update{
     background-color: rgb(43, 119, 43);
     color: white;
-    /* margin-top: 30px; */
+
 }
 
 .btn--caution{
@@ -57,4 +57,20 @@
 
 .btn--stack{
     margin: initial;
+}
+
+
+@media only screen and (max-width: 1024px){
+    .btn--small{
+        width: 60%;
+        margin-top: 40px;
+    }
+}
+
+
+@media only screen and (max-width: 600px){
+    .btn--small{
+        width: 80%;
+        
+    }
 }

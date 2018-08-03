@@ -16,7 +16,7 @@ class Search extends Component{
             statusMessage: ''
         };
 
-        this.submitHandler = this.submitHandler.bind(this);
+        
         this.handlePriceChange = this.handlePriceChange.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
         this.handleQueryChange = this.handleQueryChange.bind(this);
@@ -34,40 +34,12 @@ class Search extends Component{
         });
     }
     handlePriceChange(evt){
+        const number = parseInt(evt.target.value);
         this.setState({
-            price: evt.target.value
+            price: number
         });
     } 
 
-
-    submitHandler(evt){
-        evt.preventDefault();
-
-        const { query, price, thrifted } = this.state;
-
-        // If the fields are empty
-        if(!query && !price && !thrifted){
-            // Fields are empty
-
-            this.setState({
-                showConfirmation: true,
-                statusMessage: 'Please fill out a field'
-            });
-            return 1;
-        }
-
-        // Price is not a number
-        if(isNaN(price)){
-
-            this.setState({
-                showConfirmation: true,
-                statusMessage: 'Enter a number for the price'
-            });
-            return 1;
-        }
-
-        this.props.handleSearch(this.state);
-    }
 
     render(){
         
@@ -75,7 +47,7 @@ class Search extends Component{
             <article className='search-container'>
                 <form action='/search' className='form' autoComplete='off'>
                     <div className='form__search-container'>
-                        <InputField type='text' name='query' placeholder='Search clothes, brands, etc.' onChange={this.handleQueryChange} search={true}/>
+                        <InputField type='text' name='query' placeholder='Search clothes, brands, etc.' onChange={this.handleQueryChange} search={true}required={true}/>
                             <button className='form__search-btn'>
                                 <svg xmlns="http://www.w3.org/2000/svg" className='form__search-icon' width="33" height="33" viewBox="0 0 33 33">
                                     <g fill="none" fillRule="evenodd" stroke="#979797" transform="translate(2 2)">
@@ -86,8 +58,8 @@ class Search extends Component{
                             </button>
                     </div>
                     <div className='form__search-filters'>
-                        <InputField type='text' name='color' placeholder='color' onChange={this.handleColorChange} size='small'/>
-                        <InputField type='text' name='price' placeholder='$' onChange={this.handlePriceChange} size='small'/>
+                        <InputField type='text' name='color' placeholder='Color' onChange={this.handleColorChange} size='small'/>
+                        <InputField type='number' name='price' placeholder='$' onChange={this.handlePriceChange} size='small'/>
                     </div>
 
                     {this.state.showConfirmation &&

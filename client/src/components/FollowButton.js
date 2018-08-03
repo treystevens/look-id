@@ -43,6 +43,10 @@ class FollowButton extends Component{
 
     // Close modal with esc key
     escModal(evt){
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+        
+
         if(this.state.showModal && evt.keyCode === 27){
             this.setState({
                 showModal: false,
@@ -52,15 +56,16 @@ class FollowButton extends Component{
 
     // Close Boards Modal
     closeModal(evt){
+
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+        
         if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showModal: false
             });
         }   
     }
-
-    
-
 
     changeFollowText(iFollow){
         let followText;
@@ -83,6 +88,10 @@ class FollowButton extends Component{
 
         // If user is not authorize prompt login Modal
         if(!this.props.isAuth){
+            
+            const body = document.getElementsByTagName("BODY")[0];
+            body.classList.add('noscroll');
+            
             this.setState({
                 showModal: true
             });

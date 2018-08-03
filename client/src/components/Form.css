@@ -1,51 +1,22 @@
-/* .form-content-container{
-    width: 60%;
-    height: 70vh;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border-radius: 5px;
-    border-right: none;
-    overflow: auto;
-}
-
-.form-container{
-    width: 60%;
-    padding: 40px 0;
-}
-
-.form{
-    display: flex;
-    flex-direction: column;
-    position: relative;
-} */
-
-
-
 
 
 .form-content-container {
     width: 50%;
-    height: 60vh;
     border-radius: 5px;
     background-color: white;
-    overflow: auto;
 }
 
 .form-content-container--large {
     width: 50%;
-    height: 80vh;
     border-radius: 5px;
     background-color: white;
-    overflow: auto;
 }
 
 .form {
     width: 60%;
     margin: 0 auto;
     position: relative;
+    height: 100%;
 }
 
 
@@ -94,7 +65,6 @@
 
 
 .form__field--search{
-    height: 50px;
     font-size: 1.2rem;
     width: 100%;
     padding-right: 60px;
@@ -164,12 +134,20 @@
     border-radius: #fb4f4f
 }
 
+.form__label--thrifted{
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+}
+
 .form__text--error{
     color: #fb4f4f
 }
 
 .form__search-icon{
-    width: 30px;
+    /* width: 30px;
+    height: 30px; */
+    width: 20px;
     height: 30px;
     background: none;
     border: none;
@@ -178,10 +156,9 @@
 .form__search-btn{
     background: none;
     position: absolute;
-    top: 28px;
+    top: 20px;
     right: 0;
     border: none;
-
 }
 
 
@@ -209,18 +186,15 @@
 
 
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 1024px) {
     .form{
-        width: 100%;
+        width: 80%;
     }
 
     .form__label--small{
         width: initial
     }
 
-    .form__edit{
-        /* flex-direction: column; */
-    }
 
     .form__edit label{
         order: 2;
@@ -231,4 +205,42 @@
         align-self: flex-end;
         order: 1
     }
+
+    .form-content-container{
+        /* width: 60%; */
+        /* height: 50vh; */
+    }
+    .form__profile{
+        width: 60%;
+    }
+
+    .form__label--med{
+        width: initial;
+    }
+}
+
+
+@media only screen and (max-width: 600px) {
+    .form{
+        width: 90%;
+    }
+
+
+    .form-content-container{
+        width: 90%;
+    }
+
+    .form__field--search{
+        padding-right: 30px;
+        margin-top: 20px;
+    }
+
+    .form__profile{
+        width: 100%;
+    }
+
+    .form__label--med{
+        width: initial;
+    }
+
 }

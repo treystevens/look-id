@@ -14,6 +14,7 @@ const ItemDescription = (props) => {
     const stores = props.item.stores.map((store, index) => {
         
         let displayStore = `${store},`;
+        if(!store) return;
         if(index === storeLength - 1) displayStore = store;
 
 
@@ -25,12 +26,14 @@ const ItemDescription = (props) => {
         <article className='pi-item'>
             <span className='pi-item__name'>{props.item.name}</span>
 
+            <div className ='pi-price-container'>
             {props.item.price &&
                 <span className='pi-item__price'>${props.item.price}</span>
             }
 
             {props.item.thrifted && 
-                <span>Thrifted</span>}
+                <span className='pi-item__thrifted'> (Thrifted)</span>}
+            </div>
 
             <div className='pi-item__stores'>
                 

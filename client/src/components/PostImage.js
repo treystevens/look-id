@@ -54,6 +54,10 @@ class PostImage extends Component{
 
     // Show boards to add the post to
     openBoards(){
+        
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.add('noscroll');
+
         this.setState({
             showAddToBoard: true
         });
@@ -61,6 +65,10 @@ class PostImage extends Component{
 
     // Close Boards Modal
     closeModal(evt){
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
+        
+
         if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
             this.setState({
                 showAddToBoard: false,
@@ -74,6 +82,10 @@ class PostImage extends Component{
 
         // If user is not authorize prompt login Modal
         if(!this.props.isAuth){
+            
+            const body = document.getElementsByTagName("BODY")[0];
+            body.classList.add('noscroll');
+            
             this.setState({
                 showVerify: true
             });
@@ -114,8 +126,12 @@ class PostImage extends Component{
 
     // Close Modal with Escape Key
     escKeyModal(evt){
+
+        const body = document.getElementsByTagName("BODY")[0];
+        body.classList.remove('noscroll');
         
-    const { showAddToBoard, showVerify } = this.state;
+        
+        const { showAddToBoard, showVerify } = this.state;
 
         if((showAddToBoard || showVerify) && evt.keyCode === 27){
             this.setState({

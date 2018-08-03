@@ -17,7 +17,8 @@ class MBHeader extends Component{
         this.state = {
             showAccount: false,
             showMenu: false,
-            avatar: ''
+            avatar: '',
+            notification: false
         };
 
         this.showAccount = this.showAccount.bind(this);
@@ -27,6 +28,8 @@ class MBHeader extends Component{
         this.closeAllNavs = this.closeAllNavs.bind(this);
         this.scrollToTop = this.scrollToTop.bind(this);
         this.loadAvatar = this.loadAvatar.bind(this);
+        this.handleNotification = this.handleNotification.bind(this);
+        this.resetNotification = this.resetNotification.bind(this);
     }
 
 
@@ -67,6 +70,20 @@ class MBHeader extends Component{
         window.removeEventListener('click', this.closeNav);
     }
 
+    // Show light for new notifications
+    handleNotification(){
+        this.setState({
+            notification: true
+        });
+    }
+
+    // Remove Notification light in account navigation (next to 'Notifications')
+    resetNotification(){
+        this.setState({
+            notification: false
+        });
+    }
+
     
     // close navs on click
     closeAllNavs(evt){
@@ -94,11 +111,13 @@ class MBHeader extends Component{
             });
     }
 
-    // Account navigation
+    // Show account navigation
     showAccount(evt){
         evt.stopPropagation();
 
         const { showAccount } = this.state;
+
+        // this.notificationLight();
         this.removeAnimation();
 
         if(showAccount){
@@ -114,6 +133,7 @@ class MBHeader extends Component{
             });
         }
     }
+
 
     // Global site navigation
     showMenu(evt){
@@ -159,7 +179,6 @@ class MBHeader extends Component{
                 showMenu: false
             });
        }
-
     }
 
 
@@ -170,10 +189,11 @@ class MBHeader extends Component{
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     }
 
+
     render(){
         
-        const { showMenu, showAccount, avatar } = this.state;
-
+        const { showMenu, showAccount, avatar, notification } = this.state;
+        
         return(
             <header onClick={this.scrollToTop} className='container header-container--flex'>
                 
@@ -182,10 +202,10 @@ class MBHeader extends Component{
                     <div onClick={this.showAccount} className='header-account-container'>
                         <div className='header-notification-container'>
                             <Avatar addClass='avatar-container--xs' avatar={avatar} />
-                            <NotificationIcon />
+                            <NotificationIcon handleNotification={this.handleNotification}/>
                         </div>
                         {showAccount && 
-                            <AccountNav/>
+                            <AccountNav mobileNotification={notification} resetNotification={this.resetNotification}/>
                         }
                     </div>
                         

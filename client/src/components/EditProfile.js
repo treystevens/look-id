@@ -6,6 +6,7 @@ import ConfirmAction from './ConfirmAction';
 import InputField from './InputField';
 import Button from './Button';
 import './EditProfile.css';
+import './Avatar.css';
 
 class EditProfile extends Component{
     constructor(props){
@@ -103,11 +104,12 @@ class EditProfile extends Component{
                 }
 
                 <form onSubmit={this.submitEdit} className='form__profile' autoComplete='off'>
-                    <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container' addClass='avatar-container--med'/>
+                    <UploadPhoto avatar={this.state.avatar} isAvatar='avatar-container' />
 
-
-                        <InputField label='Bio:' onChange={this.bioChange} name='bio' size='med' addClass='edit__bio'/>
-
+                        
+                        <label className='form__label form__label--med'>Bio:
+                        <textarea onChange={this.bioChange} className='edit__bio'></textarea>
+                        </label>
 
                         <InputField label='Website:' onChange={this.websiteChange} name='website' size='med' addClass='edit__website'/>
                      

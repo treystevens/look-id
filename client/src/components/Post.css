@@ -55,7 +55,6 @@
     align-self: center;
     display: inline-block;
     width: 48%;
-    /* margin-right: 20px; */
     margin-top: 30px;
 }
 
@@ -123,7 +122,6 @@
     }
 
     .u-r{
-        /* flex-direction: column; */
         width: 100%;
         padding-left: initial;
     }

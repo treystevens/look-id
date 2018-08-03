@@ -5,7 +5,7 @@ import { getData, sendUserData } from '../util/serverFetch';
 import Search from './Search';
 import ConfirmAction from './ConfirmAction';
 import { connect } from 'react-redux';
-import Modal from './Modal';
+import AccountVerify from './AccountVerify';
 
 
 
@@ -25,16 +25,15 @@ class Explore extends Component{
             statusMessage: '',
             showConfirmation: false,
             query: '',
-            showAccountVerify: false,
+            
         };
 
-        this.handleSearch = this.handleSearch.bind(this);
+        
         this.loadData = this.loadData.bind(this);
         this.loadSearchData = this.loadSearchData.bind(this);
         this.getParameterByName = this.getParameterByName.bind(this);
         this.onScroll = this.onScroll.bind(this);
-        this.closeModal = this.closeModal.bind(this);
-        this.escModal = this.escModal.bind(this);
+
         
     }
 
@@ -74,12 +73,20 @@ class Explore extends Component{
         
     }
 
+
+    // If an authorized user types in lookid.com/feed their data will be retrieved instead of showing AccountVerify component
     componentDidUpdate(prevProps){
-        if(this.props.isAuth !== prevProps.isAuth){
+
+        if(this.props.isAuth && prevProps.isAuth !== this.props.isAuth && this.props.endPoint === 'Feed'){
+            const { endPoint } = this.props;
+            const { scrollCount } = this.state;
+
             this.setState({
                 showAccountVerify: false,
                 showConfirmation: false,
                 actionSuccess: false,
+            }, () => {
+                this.loadData(`/stream/${endPoint}/${scrollCount}`);
             });
         }
     }
@@ -90,14 +97,7 @@ class Explore extends Component{
         window.addEventListener('keydown', this.escModal);
     }
 
-    // Close modal with esc key
-    escModal(evt){
-        if(this.state.showAccountVerify && evt.keyCode === 27){
-            this.setState({
-                showAccountVerify: false,
-            });
-        }
-    }
+   
 
     getParameterByName(name, url) {
         // eslint-disable-next-line
@@ -121,16 +121,22 @@ class Explore extends Component{
         // Get Profile Data
         serverResponse.then(response => response.json())
         .then((data) => {
-
-            // Show AccountVerify
-            if(data.noAuth){
-
-            }
+            console.log(data)
+            if(data.error) return Promise.reject(new Error(data.error));
 
             // If we're fetching data from scrolling
             if(this.state.isLoading){
                 const currentData = this.state.streamData.map((post) => post);
                 
+                if(data.stream.length === 0){
+                    this.setState({
+                        showConfirmation: true,
+                        statusMessage: 'Follow some of your favorite accounts to see their latest posts!',
+                        actionSuccess: true,
+                        isLoading: false,
+                    });
+                    return 1;
+                }
 
                 this.setState({
                     streamData: currentData.concat(data.stream),
@@ -156,9 +162,8 @@ class Explore extends Component{
 
     // Fetch data from search page
     loadSearchData(){
-     
 
-        // const { scrollCount, submitLoad, searchQuery: { query, price, color } } = this.state;
+
         const { scrollCount, submitLoad } = this.state;
         let search;
 
@@ -167,11 +172,11 @@ class Explore extends Component{
         }
         
         
-        
 
         const query = this.getParameterByName('query', search);
         const price = this.getParameterByName('price', search);
         const color = this.getParameterByName('color', search);
+
 
         const data = {
             query: query,
@@ -195,11 +200,14 @@ class Explore extends Component{
         serverResponse.then(response => response.json())
         .then((data) => {
             
+            if(data.error) return Promise.reject(new Error(data.error));
             if(data.stream.length === 0) return Promise.reject(new Error('Seems like we couldn\'t find any items matching your search.'));
+
+            
 
             // Load data from scroll event
             if(this.state.isLoading){
-
+                
                 const { streamData } = this.state;
 
                 this.setState({
@@ -220,6 +228,7 @@ class Explore extends Component{
             }
         })
         .catch((err) => {
+            
             this.setState({
                 showConfirmation: true,
                 statusMessage: err.message
@@ -228,18 +237,6 @@ class Explore extends Component{
         });
     }
 
-    // Handle search query from Search component
-    handleSearch(searchQuery){
-
-
-        this.setState({
-            searchQuery: searchQuery,
-            submitLoad: true
-        }, () => {
-            this.loadSearchData();
-        });
-
-    }
 
     // for infinite scroll
     onScroll(){
@@ -273,18 +270,10 @@ class Explore extends Component{
         }
     }
 
-    // Close modal on click
-    closeModal(evt){
-        
-        if(evt.target.className === 'modal' || evt.target.classList.contains('btn__close--modal') || evt.target.classList.contains('btn__cancel--modal')){
-            this.setState({
-                showAccountVerify: false
-            });
-        }   
-    }
+
 
     render(){
-            
+        
         const { endPoint, isSearching } = this.props;
         const { showAccountVerify } = this.state;
         const showSearch = endPoint !== 'Feed';
@@ -315,7 +304,7 @@ class Explore extends Component{
                 <Stream sourceFetch='stream' stream={this.state.streamData}/>
 
                 {showAccountVerify &&
-                    <Modal source='accountVerify' closeModal={this.closeModal}/>}
+                    <AccountVerify noModal={true}/>}
             </section>
         )
     }

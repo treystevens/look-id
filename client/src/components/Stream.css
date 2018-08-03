@@ -1,6 +1,5 @@
 .stream{
-    margin-top: 80px;
-    /* overflow: visible; */
+    margin-top: 40px;
     width: 100%;
 }
 
@@ -13,19 +12,6 @@
     height: auto;
     transition: all .2s ease-in;
 }
-
-
-/* .stream-item{
-
-} */
-/* 
-.stream{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    
-} */
-
 
 
 

@@ -4,14 +4,9 @@ import { connect } from 'react-redux';
 
 
 const BoardItem = (props) => {
-    console.log(props)
 
     let boardLink = `/boards/${props.board.board_id}`;
     let backgroundImg = props.board.display_image;
-
-
-
-    
 
     return(
         
@@ -20,12 +15,12 @@ const BoardItem = (props) => {
              {props.addToBoard ? (
                  <div onClick={props.handleClickBoard}>
                     <div className='board__display' style={ { backgroundImage:`url(${backgroundImg}`} } data-board-id={props.board.board_id}></div>
-                    <h1>{props.board.name}</h1>
+                    <h2>{props.board.name}</h2>
                 </div>
                 ) : (
                 <Link to={boardLink}>
                     <div className='board__display' style={ { backgroundImage:`url(${backgroundImg}`} }data-board-id={props.board.board_id}></div>
-                    <h1>{props.board.name}</h1>
+                    <h2>{props.board.name}</h2>
                 </Link>
                 )}
 

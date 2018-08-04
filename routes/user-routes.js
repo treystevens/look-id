@@ -666,6 +666,7 @@ router.get('/notifications-check', (req, res) => {
 // Create iFollow property
 function seeIfIFollow(usersData, myData){
         
+    if(!myData.length) return;
     if(myData.length < usersData.length){
 
         // Tracker will tell us to stop looping through the usersData once we found all of our matches. 

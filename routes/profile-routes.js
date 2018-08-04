@@ -18,18 +18,18 @@ const saltRounds = 10;
 const cloudinary = require('cloudinary');
 
 // Store files and name format them - 'li-(date).(type)'
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, './public/tmp_images');
-    },
-    filename: function (req, file, cb) {
-      cb(null, 'li' + '-' + Date.now() + '.' + mime.getExtension(file.mimetype));
-    }
-});
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, './public/tmp_images');
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, 'li' + '-' + Date.now() + '.' + mime.getExtension(file.mimetype));
+//     }
+// });
 
 // Checking if the uploaded file matches our accepted file types
 const upload = multer({ 
-    storage: storage,
+    // storage: storage,
     fileFilter: function (req, file, cb) {
 
         let accept = false;
@@ -141,9 +141,9 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
             .then(() => {
 
                  // Delete file from temporary folder
-                 fs.unlink(`${req.file.path}`, (err) => {
-                    if (err) throw err;
-                });
+                //  fs.unlink(`${req.file.path}`, (err) => {
+                //     if (err) throw err;
+                // });
             
                 // Send the new post ID back for redirect on client side
                 res.json({postID: postID});

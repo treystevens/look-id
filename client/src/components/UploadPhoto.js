@@ -32,7 +32,8 @@ function removeAvatar(){
 
 const UploadPhoto = (props) => {
 
-    let containerClass;
+    let avatarClass;
+    let photoClass;
     let inputName;
     let imgSrc;
     let showRemoveButton;
@@ -47,7 +48,7 @@ const UploadPhoto = (props) => {
             showRemoveButton = true;
         }
 
-        containerClass = 'avatar-container  avatar-container--large';
+        avatarClass = 'avatar-container  avatar-container--large';
         inputName = 'user-avatar';
         imgSrc = props.avatar;
         
@@ -55,16 +56,16 @@ const UploadPhoto = (props) => {
     }
     // Display for UploadPhoto if posting a new photo
     if(props.isNewPost){
-        containerClass = 'upload-photo-container';
+        photoClass = 'upload-photo-container';
         inputName = 'user-photo';
         imgSrc = '';
     }
 
 
     return(
-        <div >
-            <div className={containerClass} >
-                <img src={imgSrc} className='preview' />
+        <div className={photoClass}>
+            <div className={avatarClass} >
+                <img src={imgSrc} className='preview' alt=''/>
             </div>
             <input type='file' className='upload-photo__file-input' name={inputName} onChange={handleFiles} accept='.jpg, .jpeg, .png'/>
             {showRemoveButton && 

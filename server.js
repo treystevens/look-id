@@ -27,7 +27,8 @@ const MongoStore = require('connect-mongo')(session);
 
 require('dotenv').config();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4500;
+const sessionSecret = process.env.HEROKU_SESSION_SECRET || process.env.LOCAL_SESSION_SECRET;
 
 
 const app = express();
@@ -69,7 +70,7 @@ app.use(session({
         // Live for one day
         maxAge: 24 * 60 * 100 * 1000
     },
-    secret: process.env.COOKIE_SECRET,
+    secret: sessionSecret,
     resave: true,
     saveUninitialized: true,
     store: new MongoStore({ mongooseConnection: mongoose.connection }),

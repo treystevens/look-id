@@ -14,7 +14,7 @@ const ItemDescription = (props) => {
     const stores = props.item.stores.map((store, index) => {
         
         let displayStore = `${store},`;
-        if(!store) return;
+        if(!store) return 1;
         if(index === storeLength - 1) displayStore = store;
 
 

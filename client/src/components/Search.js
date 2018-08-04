@@ -34,7 +34,7 @@ class Search extends Component{
         });
     }
     handlePriceChange(evt){
-        const number = parseInt(evt.target.value);
+        const number = parseInt(evt.target.value, 10);
         this.setState({
             price: number
         });

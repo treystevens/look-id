@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import BoardItem from './BoardItem';
 import BoardModal from './BoardModal';
 import PageHead from './PageHead';
-import { getData, sendUserData, goDelete } from '../util/serverFetch';
+import { getData, sendUserData } from '../util/serverFetch';
 import { connect } from 'react-redux';
 import ConfirmAction from './ConfirmAction';
 import Modal from './Modal';

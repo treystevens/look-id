@@ -44,6 +44,7 @@
 .edit__board-del-message{
     flex-basis: 100%;
     margin-top: 10px;
+    font-size: 1.4rem;
 }
 
 .edit__board-info{

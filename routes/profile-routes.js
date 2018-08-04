@@ -519,7 +519,14 @@ router.post('/settings/delete-account',[
             { multi: true }
         );
 
-        return Promise.all([ exploreRemove, feedPostRemove, itemRemove, boardPostRemove ]);
+        // Remove from user's notifications
+        const notificationRemove = models.Users.update(
+            { 'notifications._user': req.user.id },
+            { $pull: { notifications: { '_user': req.user.id } } },
+            { multi: true }
+        );
+
+        return Promise.all([ exploreRemove, feedPostRemove, itemRemove, boardPostRemove, notificationRemove ]);
 
     })
     .then(() => {

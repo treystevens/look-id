@@ -58,7 +58,7 @@ class FF extends Component{
                             <div className='ff-user'>
                                 <Link to= {`/user/${user.username}`}>
                                 <Avatar avatar={user.profile.avatar} username={user.username}  addClass='avatar-container--small'/></Link>
-                                <span className='ff-user__username'>{user.username}</span>
+                                <Link to= {`/user/${user.username}`}><span className='ff-user__username'>{user.username}</span></Link>
                             </div>
 
                             {this.props.username !== user.username &&

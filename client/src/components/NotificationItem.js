@@ -24,13 +24,13 @@ const NotificationItem = (props) => {
 
     switch (action) {
         case 'LIKE':
-            displayText = `${user.username} liked your post.`;
+            displayText =  ` liked your post.` ;
             break;
         case 'COMMENT':
-            displayText = `${user.username} commented on your post:`;
+            displayText = ` commented on your post:`;
             break;
         case 'FOLLOW':
-            displayText = `${user.username} now follows you.`;
+            displayText = ` now follows you.`;
             break;
         default:
             break;
@@ -45,7 +45,10 @@ const NotificationItem = (props) => {
                     <Avatar avatar={user.profile.avatar} username={user.username} addClass='avatar-container--small'/>
                 </Link>
                 <div className='notification__message'>
-                    <p className='notification__action'>{displayText}</p>
+                    <p className='notification__action'>
+                    <Link to={`/user/${user.username}`}>{user.username}</Link>
+                        {displayText}
+                    </p>
 
                     {hasComment &&
                         <p className='notification__comment'>{comment}</p>

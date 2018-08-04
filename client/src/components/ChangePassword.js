@@ -87,7 +87,7 @@ class ChangePassword extends Component{
                 this.setState({
                     showConfirmation: true,
                     actionSuccess: true,
-                    statusMessage: 'Saved!'
+                    statusMessage: 'Your password has been changed!'
                 });
             }
         })

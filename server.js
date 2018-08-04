@@ -3,9 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-
 const passportSetup = require('./config/passport-setup');
-
 
 // Routes
 const authRoutes = require('./routes/auth-routes');
@@ -27,6 +25,7 @@ const MongoStore = require('connect-mongo')(session);
 
 require('dotenv').config();
 
+const mongoDB = process.env.MONGODB_URI || 'mongodb://localhost/lookid';
 const port = process.env.PORT || 4500;
 const sessionSecret = process.env.HEROKU_SESSION_SECRET || process.env.LOCAL_SESSION_SECRET;
 
@@ -44,7 +43,7 @@ cloudinary.config({
 
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGO_DB).then((data) => {
+mongoose.connect(mongoDB).then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {
     console.log(err);
@@ -56,14 +55,12 @@ app.set('view engine', 'ejs');
 
 
 
-// app.use(expressValidator(middlewareOptions));
 // Middleware
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static( __dirname + '/public'));
-
 
 app.use(session({
     cookie: {
@@ -81,13 +78,25 @@ app.use(passport.session());
 
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/stream', streamRoutes);
-app.use('/api/comment', commentRoutes);
-app.use('/api/board', boardRoutes);
-app.use('/api/search', searchRoutes);
+app.use('/auth', authRoutes);
+app.use('/profile', profileRoutes);
+app.use('/user', userRoutes);
+app.use('/stream', streamRoutes);
+app.use('/comment', commentRoutes);
+app.use('/board', boardRoutes);
+app.use('/search', searchRoutes);
+
+
+if (process.env.NODE_ENV === 'production') {
+    
+    // Serve any static files
+    app.use(express.static(path.join(__dirname, 'client/build')));
+
+    // Handle React routing, return all requests to React app
+    app.get('*', function(req, res) {
+      res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+    });
+}
 
 
 app.listen(port, ()=> {

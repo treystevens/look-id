@@ -168,7 +168,10 @@
     width: 60%;
 }
 
-
+/* Display checkbox properly in Firefox */
+input[type="checkbox"] {
+   align-self: flex-start;
+}
 
 /* Search */
 

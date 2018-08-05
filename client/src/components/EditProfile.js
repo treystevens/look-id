@@ -58,6 +58,9 @@ class EditProfile extends Component{
         // Get src of avatar upload just incase no file is uploaded or remove profile picture option was clicked
         const imageFromAvatarSrc = document.querySelector('.preview').getAttribute('src');
         const defaultAvatar = 'https://res.cloudinary.com/dr4eajzak/image/upload/v1530898955/avatar/default-avatar.jpg';
+        const bio = document.querySelector('.edit__bio');
+
+        formData.append('bio', bio.value);
 
         // Only append avatar src if a user doesn't upload a file
         if(imageFromAvatarSrc === '' || imageFromAvatarSrc === defaultAvatar || imageFromAvatarSrc === avatar){
@@ -66,9 +69,9 @@ class EditProfile extends Component{
     
         
         // Display the key/value pairs (For Debugging)
-        // for(var pair of formData.entries()) {
-        //     console.log(pair[0]+ ', '+ pair[1]); 
-        // }
+        for(var pair of formData.entries()) {
+            console.log(pair[0]+ ', '+ pair[1]); 
+        }
       
         const serverResponse = sendPhoto('/profile/edit', formData);
 

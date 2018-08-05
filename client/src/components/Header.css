@@ -48,6 +48,7 @@ nav{
 
 
 .page-head{
+    display: inline-block;
     margin-top: 40px;
     margin-bottom: 60px;
     overflow: visible;

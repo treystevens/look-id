@@ -106,7 +106,7 @@ class App extends Component{
               <Route path='/search' render={ (match) => <Explore key={match.location.search} urlParams={match} isSearching={true}/>} />
               <Route exact path='/feed' render={ (match) => <Explore endPoint='Feed' key={match.match.path}/>} />
               <Route exact path='/user/:user' render={ (match) => <Profile urlParams={match} key={match.match.params.user} />} />
-              <Route exact path='/user/:user/:postid' render={ (match) => <Post urlParams={match} test={match.match.params.postid}/>} />
+              <Route exact path='/user/:user/:postid' render={ (match) => <Post urlParams={match} key={match.match.params.postid}/>} />
               <Route exact path='/user/:user/:postid/edit' render={ (match) => <EditPost urlParams={match}/>} />
               <Route exact path='/boards/:boardid' render={ (match) => <Board urlParams={match}/>} />
               <Route exact path='/boards/:boardid/edit' render={ (match) => <EditBoard urlParams={match}/>} />

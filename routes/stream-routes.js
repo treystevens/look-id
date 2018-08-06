@@ -57,7 +57,7 @@ router.get('/feed/:page', (req, res) => {
     models.Feed.findOne(query).populate('feed_items').exec()
     .then((data) => {  
 
-        if(data.feed_items.length == 0) res.status(200).json({doesFollowUsers: false});
+        if(data.feed_items.length == 0) return res.status(200).json({doesFollowUsers: false});
 
         // Sending back only necessary post information
         const posts = data.feed_items.splice(skipNum, 10).map((post) => {

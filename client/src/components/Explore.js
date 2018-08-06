@@ -129,11 +129,8 @@ class Explore extends Component{
                 const currentData = this.state.streamData.map((post) => post);
 
 
-                if(data.stream.length === 0){
-                    const { endPoint } = this.props;
+                if(data.doesFollowUsers === false){
                     let statusMessage = 'Follow some of your favorite accounts to see their latest posts!';
-                
-                    if(endPoint === 'Explore') statusMessage = 'Looks like nobody has posted their outfits yet. Sign up and get the ball rolling!';
 
                     this.setState({
                         showConfirmation: true,

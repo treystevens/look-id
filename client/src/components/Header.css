@@ -82,12 +82,12 @@ nav{
   
 .bar {
     box-sizing: border-box;
-    width: 50px;
-    height: 6px;
+    width: 40px;
+    height: 4px;
     background-color: rgb(48, 48, 48);
     border-radius: 5px;
     box-shadow: 1px 1px 5px #9e9e9e;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     transition: background-color .2s ease-in-out;
   }
 
@@ -95,23 +95,23 @@ nav{
     margin-bottom: initial;
   }
   .bar-top {
-    animation: animateTop-reverse 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateTop-reverse 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   .bar-mid {
-    animation: animateMid-reverse 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateMid-reverse 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   .bar-low {
-    animation: animateLow-reverse 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateLow-reverse 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   
   .active .bar-top {
-    animation: animateTop 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateTop 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   .active .bar-mid {
-    animation: animateMid 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateMid 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   .active .bar-low {
-    animation: animateLow 0.2s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
+    animation: animateLow 0.3s cubic-bezier(0.3, 0.13, 0.6, 0.89) forwards;
   }
   
   .no-animation {
@@ -127,10 +127,10 @@ nav{
     transform: translate(0, 0) rotate(0deg);
   }
   50% {
-    transform: translate(0, 14px) rotate(0);
+    transform: translate(0, 9px) rotate(0);
   }
   100% {
-    transform: translate(0, 14px) rotate(45deg);
+    transform: translate(0, 9px) rotate(45deg);
   }
 }
 
@@ -150,19 +150,19 @@ nav{
     transform: translate(0, 0) rotate(0);
   }
   50% {
-    transform: translate(0, -14px) rotate(0);
+    transform: translate(0, -9px) rotate(0);
   }
   100% {
-    transform: translate(0, -14px) rotate(135deg);
+    transform: translate(0, -9px) rotate(135deg);
   }
 }
 
 @keyframes animateTop-reverse{
   0% {
-    transform: translate(0, 14px) rotate(45deg);
+    transform: translate(0, 9px) rotate(45deg);
   }
   50% {
-    transform: translate(0, 14px) rotate(0deg);
+    transform: translate(0, 9px) rotate(0deg);
   }
   100% {
     transform: translate(0, 0) rotate(0deg);
@@ -182,10 +182,10 @@ nav{
 
 @keyframes animateLow-reverse{
   0% {
-    transform: translate(0, -14px) rotate(135deg);
+    transform: translate(0, -9px) rotate(135deg);
   }
   50% {
-    transform: translate(0, -14px) rotate(0);
+    transform: translate(0, -9px) rotate(0);
   }
   100% {
     transform: translate(0, 0) rotate(0);

@@ -100,15 +100,6 @@ router.post('/uploadphoto', upload.single('user-photo'), (req, res) => {
                 image: result.url
             };
 
-            // Send post to Explore and this user's followers
-            const streamPost = {
-                username: req.user.username,
-                post: {
-                    image: result.url,
-                    post_id: postID
-                }   
-            };
-
             
             // Create post in Posts Collections
             models.Posts.create(newPost)

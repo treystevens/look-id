@@ -5,6 +5,8 @@
 
 .header-container--flex{
     display: flex;
+    position: relative;
+    z-index: 4;
     flex-direction: column;
 }
 
@@ -41,11 +43,6 @@ nav{
   display: flex;
 }
 
-.account-nav-list__item{
-    margin-left: 20px;
-}
-
-
 
 .page-head{
     display: inline-block;
@@ -59,8 +56,24 @@ nav{
 }
 
 
+.overlay {
+  position: fixed;
+  width: 100%;
+  height:100%;
+  background:#000;
+  opacity: .5;
+  top:60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  z-index: 2;
+  cursor: pointer;
+}
 
-
+.overlay--show {
+  display:block
+}
 
 .frame{
     display: flex;
@@ -225,6 +238,7 @@ nav{
       top: 60px;
       left: 0;
       right: 0;
+      z-index: 10;
       width:100%;
       background-color: white;
 
@@ -263,7 +277,6 @@ nav{
     .site-nav-list__item,
     .account-nav-list__item{
       width:100%;
-      padding: 20px 10px;
       font-size: 1.2em;
     }
 
@@ -271,6 +284,7 @@ nav{
     .site-nav-list__item a{
       display: block;
       text-align: center;
+      padding: 20px 0;
       
     }
 

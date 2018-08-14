@@ -89,6 +89,7 @@ class MBHeader extends Component{
     closeAllNavs(evt){
         evt.stopPropagation();
         this.removeAnimation();
+        document.querySelector('.overlay').classList.remove('overlay--show');
         this.setState({
             showAccount: false,
             showMenu: false
@@ -116,6 +117,7 @@ class MBHeader extends Component{
         evt.stopPropagation();
 
         const { showAccount } = this.state;
+        const overlay = document.querySelector('.overlay');
 
         // this.notificationLight();
         this.removeAnimation();
@@ -124,12 +126,16 @@ class MBHeader extends Component{
             this.setState({
                 showAccount: false,
                 showMenu: false
+            }, () => {
+                overlay.classList.remove('overlay--show');
             });
         }
         else{
             this.setState({
                 showAccount: true,
                 showMenu: false
+            }, ()=> {
+                overlay.classList.add('overlay--show');
             });
         }
     }
@@ -142,6 +148,7 @@ class MBHeader extends Component{
         const { showMenu } = this.state;
         const hold = document.querySelector('.hold');
         const bars = Array.from(document.getElementsByClassName('bar'));
+        const overlay = document.querySelector('.overlay');
 
         hold.classList.toggle('active');
         
@@ -154,12 +161,16 @@ class MBHeader extends Component{
             this.setState({
                 showAccount: false,
                 showMenu: false
+            }, () => {
+                overlay.classList.remove('overlay--show');
             });
         }
         else{
             this.setState({
                 showAccount: false,
                 showMenu: true
+            }, () => {
+                overlay.classList.add('overlay--show');
             });
         }
     }
@@ -196,7 +207,7 @@ class MBHeader extends Component{
         
         return(
             <header onClick={this.scrollToTop} className='container header-container--flex'>
-                
+                <div className='overlay' onClick={this.closeAllNavs}></div>
                 <Link to='/' onClick={this.closeAllNavs}><h1 className='logo'>LookID.</h1></Link>
                 <div className='header-nav-container'>
                     <div onClick={this.showAccount} className='header-account-container'>

@@ -233,3 +233,4 @@ image: imagePath
 <p><img src="/client/public/icons/plus.svg" width="30" height="30" /> Icon made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from www.flaticon.com</p>
 <p><img src="/client/public/icons/chat.svg" width="30" height="30" /> Icon made by <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from www.flaticon.com</p>
 <p><img src="/client/public/icons/search.svg" width="30" height="30" /> Icon made by <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from www.flaticon.com</p>
+<p>Login and Sign up background page photos are by <a href="https://unsplash.com/@priscilladupreez"> Priscilla Du Preez</a> on <a href="https://unsplash.com/">Unsplash</a></p>

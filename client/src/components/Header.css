@@ -39,6 +39,10 @@ nav{
     font-size: .9rem;
 }
 
+.account-nav-list__item{
+  margin-left: 20px;
+}
+
 .account-head{
   display: flex;
 }
@@ -278,6 +282,10 @@ nav{
     .account-nav-list__item{
       width:100%;
       font-size: 1.2em;
+    }
+
+    .account-nav-list__item{
+      padding: initial;
     }
 
     .account-nav-list__item a,

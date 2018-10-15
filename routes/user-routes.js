@@ -713,7 +713,4 @@ function seeIfIFollow(usersData, myData){
     return usersData;
 }
 
-module.exports = {
-    router: router,
-    seeIfIFollow: seeIfIFollow
-};
+module.exports = router;

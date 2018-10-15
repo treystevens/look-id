@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
-
-import { addAuth } from '../actions/actions';
 import { sendUserData } from '../util/serverFetch';
+import { addAuth } from '../actions/actions';
 import '../components/Auth.css';
 
 
@@ -59,24 +57,31 @@ const authHOC = (WrappedComponent) => {
                 confirmPassword: this.state.confirmation
             };
     
-            const serverResponse = sendUserData(`/auth/${this.props.params}`, data);
+            const serverResponse = sendUserData(`/auth/${this.props.param}`, data);
     
-            serverResponse.then( repsonse => repsonse.json())
-            .then((signUpStatus) => {
+            serverResponse.then((response) => {
+
+                // Incorrect information or user might not exist
+                if(response.status === 401){
+                    return Promise.reject(new Error('Username or password is incorrect'));
+                }
+                return response.json();
+            })
+            .then((data) => {
     
     
                 // If validation errors were found
-                if(signUpStatus.validationErrors){
+                if(data.validationErrors){
     
                     this.setState({
-                        errors: signUpStatus.validationErrors,
+                        errors: data.validationErrors,
                         showConfirmation: true,
                         statusMessage: 'There were incorrect and/or missing fields.'
                     });
                 }
-                else if(signUpStatus.error) return Promise.reject(new Error(signUpStatus.error));
+                else if(data.error) return Promise.reject(new Error(data.error));
                 else{
-                    this.props.dispatch(addAuth(signUpStatus.user));
+                    this.props.dispatch(addAuth(data.user));
                 }
     
             })
@@ -90,24 +95,12 @@ const authHOC = (WrappedComponent) => {
         }
        
         render(){
-    
-            const { errors } = this.state;
-            const { isAuth, params } = this.props;
+            
+            const { isAuth } = this.props;
             // Redirect once user successfully signs up
             if(isAuth){
                 return <Redirect to='/'/>
             }
-
-            // const showCmpt = params ?
-            // () :
-
-            // (<WrappedComponent 
-            //     {...this.props} 
-            //     usernameChange={this.usernameChange} 
-            //     passwordChange={this.passwordChange}
-            //     submitHandler={this.submitHandler}  />)
-
-                console.log(params)
     
             return(
                 <WrappedComponent 
@@ -122,11 +115,5 @@ const authHOC = (WrappedComponent) => {
     }
 }
 
-// function mapStateToProps(state) {
-//     return {
-//       isAuth: state.isAuth,
-//       username: state.username,
-//     };
-// }
 
 export default authHOC;

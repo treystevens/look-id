@@ -112,7 +112,7 @@ class App extends Component{
               <Route exact path='/boards/:boardid/edit' render={ (match) => <EditBoard urlParams={match}/>} />
               <Route path='/boards' render={ () => <Boards pageName={'Boards'} />}/>
               <Route path='/signup' render={ () => <SignUp param='signup'/>} />
-              <Route path='/login' render={ () => <SignUp param='login'/>} />
+              <Route path='/login' render={ () => <Login param='login'/>} />
               <Route path='/404' component={NotFound} />
               <PrivateRoute path='/profile/settings/change-password' component={ChangePassword} />
               <PrivateRoute path='/profile/settings/delete' component={DeleteAccount} />

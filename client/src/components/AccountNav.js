@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import NotificationIcon from './NotificationIcon';
 import { connect } from 'react-redux';
 import { getData } from '../util/serverFetch';
+import PropTypes from 'prop-types';
 import './Header.css';
 import './Notifications.css';
 
@@ -27,20 +28,22 @@ class AccountNav extends Component{
         this.logoutHandler = this.logoutHandler.bind(this);
     }
 
+
+    // Determines desktop or mobile view
     componentDidMount(){
 
         // Check if mobile
         const isMobile = window.matchMedia('only screen and (max-width: 600px)');
         
         if (isMobile.matches) {
-
             this.setState({
                 isMobile: true
             });
         }
-      }
+    }
 
-    
+    // ClickEvent --> Boolean
+    // Sets redux's state "isAuth" to false
     logoutHandler(evt){
         evt.preventDefault();
 
@@ -59,7 +62,8 @@ class AccountNav extends Component{
         });
     }
 
-    // View of account navigation when user if authorized
+    // Boolean (triggered by isAuth) --> Account Navigation View
+    // View of account navigation if user is authorized
     authorized(){
         
         const userLink = `/user/${this.props.username}`;
@@ -118,7 +122,8 @@ class AccountNav extends Component{
         )
     }
 
-    // View of account navigation when guest
+    // Boolean (triggered by isAuth) --> Account Navigation View
+    // View of account navigation if user is NOT authorized
     unauthorized(){
         return (
                 <ul className='account-nav-list'>
@@ -148,3 +153,11 @@ class AccountNav extends Component{
 }
 
 export default connect(mapStateToProps)(AccountNav)
+
+
+AccountNav.propTypes = {
+    isAuth: PropTypes.bool,
+    username: PropTypes.string,
+    mobileNotification: PropTypes.bool,
+    resetNotification: PropTypes.bool
+}
